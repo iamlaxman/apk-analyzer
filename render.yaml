@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: apk-analyzer
+    env: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --timeout 120 --workers 2 --threads 4
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: FLASK_ENV
+        value: production
+      - key: UPLOAD_FOLDER
+        value: /tmp/uploads
+      - key: EXTRACT_FOLDER
+        value: /tmp/extracted
+    autoDeploy: true

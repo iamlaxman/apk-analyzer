@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="APK Analyzer - Explore, analyze, and extract Android APK files">
+    <title>APK Analyzer Pro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3 style="margin-bottom: 0; font-size: 20px;">📦 APK Analyzer</h3>
+            </div>
+            <div class="sidebar-nav" id="fileTreeContainer">
+                <p class="text-sm text-body p-4 text-center">Upload an APK to explore files</p>
+            </div>
+            <div style="padding: 12px; border-top: 2px solid var(--border-default);">
+                <button class="btn btn-dark w-full" onclick="downloadAll()">
+                    ⬇️ Download All Files
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Toolbar -->
+            <header class="sticky" style="background: var(--neutral-primary-soft); border-bottom: 2px solid var(--border-default); padding: 12px 20px; z-index: 20;">
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <div class="flex items-center gap-3">
+                        <button class="btn btn-icon" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                            ☰
+                        </button>
+                        <h2 style="margin-bottom: 0; font-size: 18px;" id="currentFileName">APK Analyzer</h2>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            📤 Open APK
+                        </button>
+                        <button class="btn" onclick="exportReport()">
+                            📊 Export Report
+                        </button>
+                        <input type="file" id="fileInput" accept=".apk" class="hidden" onchange="handleFileUpload(this)">
+                    </div>
+                </div>
+                
+                <!-- Progress -->
+                <div id="progressContainer" class="hidden" style="margin-top: 12px;">
+                    <div class="progress">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                    <p class="text-sm text-body mt-2" id="progressText">Processing...</p>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <div class="p-4" style="padding: 20px;">
+                <!-- Upload Zone -->
+                <div id="uploadZone" class="card" style="padding: 60px 20px; text-align: center; border-style: dashed; cursor: pointer;" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 64px; margin-bottom: 20px;">📱</div>
+                    <h2>Drop APK File Here</h2>
+                    <p class="text-body">or click to browse. Max file size: 500MB</p>
+                </div>
+                
+                <!-- Dashboard -->
+                <div id="dashboard" class="hidden">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-3 mb-8" id="statsGrid"></div>
+                    
+                    <!-- Tabs -->
+                    <div class="tabs mb-6" role="tablist">
+                        <button class="tab active" role="tab" onclick="switchTab('overview')">📋 Overview</button>
+                        <button class="tab" role="tab" onclick="switchTab('manifest')">📄 Manifest</button>
+                        <button class="tab" role="tab" onclick="switchTab('classes')">📦 Classes</button>
+                        <button class="tab" role="tab" onclick="switchTab('permissions')">🔐 Permissions</button>
+                        <button class="tab" role="tab" onclick="switchTab('security')">🛡️ Security</button>
+                        <button class="tab" role="tab" onclick="switchTab('techstack')">🔧 Tech Stack</button>
+                    </div>
+                    
+                    <!-- Tab Contents -->
+                    <div id="tab-overview" class="tab-content"></div>
+                    <div id="tab-manifest" class="tab-content hidden"></div>
+                    <div id="tab-classes" class="tab-content hidden"></div>
+                    <div id="tab-permissions" class="tab-content hidden"></div>
+                    <div id="tab-security" class="tab-content hidden"></div>
+                    <div id="tab-techstack" class="tab-content hidden"></div>
+                </div>
+                
+                <!-- File Preview Modal -->
+                <div id="filePreviewModal" class="modal-overlay hidden" onclick="closeFilePreview(event)">
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h4 id="filePreviewTitle" style="margin-bottom: 0;">File Preview</h4>
+                            <button class="btn btn-icon" onclick="closeFilePreview()">✕</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="filePreviewContent"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" onclick="closeFilePreview()">Close</button>
+                            <button class="btn btn-primary" id="filePreviewDownload" onclick="">⬇️ Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

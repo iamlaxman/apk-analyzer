@@ -4,15 +4,6 @@ services:
     env: python
     region: oregon
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --timeout 120 --workers 2 --threads 4
+    startCommand: gunicorn app:app --timeout 300 --workers 2 --bind 0.0.0.0:$PORT --limit-request-line 0 --limit-request-field_size 0
     plan: free
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.9.0
-      - key: FLASK_ENV
-        value: production
-      - key: UPLOAD_FOLDER
-        value: /tmp/uploads
-      - key: EXTRACT_FOLDER
-        value: /tmp/extracted
     autoDeploy: true

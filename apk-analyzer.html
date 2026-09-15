@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e0c">
+<title>APK Analyzer — Local Inspection</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><rect x='5' y='2' width='14' height='20' rx='3' stroke='%23b8ff45' stroke-width='1.8'/><circle cx='12' cy='12' r='3.2' stroke='%23b8ff45' stroke-width='1.5'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:#080b0a; --bg-2:#0d1210; --panel:#111714; --panel-2:#151b18;
+  --panel-3:#1a211d; --line:#202721; --line-2:#2c342e; --line-3:#3a433d;
+  --ink:#f2f6f3; --ink-2:#c2cbc6; --ink-3:#8a938e; --muted:#5e6863; --muted-2:#404844;
+  --accent:#b8ff45; --accent-2:#7ee000; --accent-dim:rgba(184,255,69,.12);
+  --accent-line:rgba(184,255,69,.28); --accent-glow:rgba(184,255,69,.35);
+  --danger:#ff6b5e; --danger-dim:rgba(255,107,94,.12);
+  --high:#ff9a6b; --high-dim:rgba(255,154,107,.12);
+  --warn:#ffc857; --warn-dim:rgba(255,200,87,.12);
+  --info:#78c7ff; --info-dim:rgba(120,199,255,.12);
+  --purple:#c9a8ff; --purple-dim:rgba(201,168,255,.12);
+  --success:#6ee787;
+  --radius:14px; --radius-sm:9px; --radius-lg:18px;
+  --nav-h:60px; --side-w:248px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-back:cubic-bezier(.34,1.56,.64,1);
+  --shadow:0 20px 50px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;border:none;background:none;color:inherit;cursor:pointer}
+input{font:inherit}
+ul{list-style:none}
+::selection{background:var(--accent);color:var(--bg)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#232a25;border-radius:8px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#333d36}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar{height:var(--nav-h);display:flex;align-items:center;gap:12px;
+  padding:0 18px;border-bottom:1px solid var(--line);background:var(--bg);
+  flex-shrink:0;position:relative;z-index:20}
+.topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(184,255,69,.15),transparent)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;
+  letter-spacing:-.03em;flex-shrink:0;transition:opacity .2s}
+.brand:hover{opacity:.85}
+.brand-mark{width:30px;height:30px;border:1.5px solid var(--accent);display:grid;
+  place-items:center;background:var(--accent);box-shadow:2px 2px 0 rgba(0,0,0,.6);
+  color:var(--bg);flex-shrink:0;transition:transform .4s var(--ease-back)}
+.brand:hover .brand-mark{transform:rotate(-6deg)}
+.brand-mark svg{width:16px;height:16px}
+.file-chip{display:flex;align-items:center;gap:9px;padding:6px 12px;
+  background:var(--panel-2);border:1px solid var(--line-2);border-radius:9px;
+  font-family:'DM Mono',monospace;font-size:11.5px;color:var(--ink-2);
+  min-width:0;flex:1;max-width:420px;transition:border-color .25s}
+.file-chip:hover{border-color:var(--line-3)}
+.file-chip svg{flex-shrink:0;color:var(--accent);opacity:.7}
+.file-chip .fname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.file-chip .fsize{color:var(--muted);flex-shrink:0}
+.status-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;
+  border-radius:999px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;flex-shrink:0;transition:all .3s}
+.status-badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.status-badge.local{color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-line)}
+.status-badge.loading{color:var(--warn);background:var(--warn-dim);border:1px solid rgba(255,200,87,.25)}
+.status-badge.loading .dot{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.topbar-spacer{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;
+  letter-spacing:-.01em;transition:transform .25s var(--ease-back),background .2s,
+  border-color .2s,box-shadow .2s;white-space:nowrap;cursor:pointer;
+  border:1px solid transparent;flex-shrink:0;position:relative;overflow:hidden}
+.btn svg{width:15px;height:15px;flex-shrink:0}
+.btn-primary{background:var(--accent);color:var(--bg);box-shadow:0 3px 0 -1px #5aa600}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 0 -1px #5aa600}
+.btn-primary:active{transform:translateY(0);box-shadow:0 2px 0 -1px #5aa600}
+.btn-ghost{background:transparent;color:var(--ink-2);border-color:var(--line-2)}
+.btn-ghost:hover{background:var(--panel-2);color:var(--ink);border-color:var(--line-3)}
+.btn-icon{padding:8px;width:34px;height:34px}
+.mobile-menu-toggle{display:none;width:36px;height:36px;border-radius:8px;
+  background:var(--panel-2);border:1px solid var(--line-2);align-items:center;
+  justify-content:center;flex-shrink:0;transition:border-color .2s}
+.mobile-menu-toggle:hover{border-color:var(--line-3)}
+
+/* ============================================================
+   UPLOAD SCREEN
+   ============================================================ */
+.upload-screen{flex:1;display:flex;align-items:center;justify-content:center;
+  padding:24px;position:relative;overflow-y:auto}
+.upload-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.upload-bg::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(184,255,69,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(184,255,69,.035) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 15%,transparent 70%);
+  mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 15%,transparent 70%);
+  animation:gridDrift 60s linear infinite}
+@keyframes gridDrift{to{background-position:52px 52px}}
+.upload-bg::after{content:'';position:absolute;width:640px;height:640px;top:50%;left:50%;
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,rgba(184,255,69,.14),transparent 65%);
+  filter:blur(60px);animation:orbPulse 9s ease-in-out infinite}
+@keyframes orbPulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+.upload-card{position:relative;z-index:1;width:100%;max-width:580px;
+  background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line-2);border-radius:22px;padding:44px 38px;
+  text-align:center;box-shadow:var(--shadow),0 0 0 1px rgba(184,255,69,.04) inset;
+  animation:cardIn .7s var(--ease)}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+.upload-kicker{display:inline-flex;align-items:center;gap:9px;padding:7px 13px;
+  border:1px solid var(--line-2);border-radius:999px;background:var(--panel-2);
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.12em;margin-bottom:24px}
+.upload-kicker .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 0 3px rgba(184,255,69,.2);animation:pulseDot 2s infinite}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 3px rgba(184,255,69,.2)}
+  50%{box-shadow:0 0 0 8px rgba(184,255,69,0)}}
+.upload-card h1{font-size:clamp(1.7rem,4.5vw,2.3rem);font-weight:800;
+  letter-spacing:-.045em;line-height:1.08;margin-bottom:14px}
+.upload-card h1 .accent{background:var(--accent);color:var(--bg);padding:0 .12em;
+  border-radius:4px}
+.upload-card > p{color:var(--ink-3);font-size:14.5px;line-height:1.6;
+  max-width:440px;margin:0 auto 30px}
+.drop-zone{position:relative;display:block;border:2px dashed var(--line-2);
+  border-radius:16px;padding:44px 24px 36px;cursor:pointer;
+  transition:border-color .3s var(--ease),background .3s var(--ease),transform .3s var(--ease);
+  background:rgba(184,255,69,.015);overflow:hidden}
+.drop-zone::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(184,255,69,.08),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none}
+.drop-zone:hover{border-color:var(--accent-line);background:rgba(184,255,69,.04)}
+.drop-zone:hover::before{opacity:1}
+.drop-zone.dragover{border-color:var(--accent);background:rgba(184,255,69,.08);
+  transform:scale(1.015);border-style:solid}
+.drop-zone.dragover::before{opacity:1}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{position:relative;width:64px;height:64px;margin:0 auto 20px;display:grid;
+  place-items:center;border-radius:50%;background:var(--panel-3);
+  border:1px solid var(--line-2);color:var(--accent);
+  transition:transform .5s var(--ease-back),background .3s}
+.drop-zone:hover .drop-icon{transform:translateY(-4px) scale(1.06);background:var(--accent-dim)}
+.drop-zone.dragover .drop-icon{transform:translateY(-6px) scale(1.1);
+  background:var(--accent-dim);border-color:var(--accent-line)}
+.drop-icon svg{width:28px;height:28px}
+.drop-title{font-size:15.5px;font-weight:700;margin-bottom:8px;color:var(--ink);letter-spacing:-.015em}
+.drop-hint{font-size:12.5px;color:var(--muted);font-family:'DM Mono',monospace;
+  letter-spacing:.02em;line-height:1.6}
+.drop-hint b{color:var(--accent);font-weight:500}
+.upload-features{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 22px;
+  margin-top:28px;padding-top:24px;border-top:1px solid var(--line);
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:.05em}
+.upload-features span{display:inline-flex;align-items:center;gap:6px}
+.upload-features .check{color:var(--accent);font-weight:700}
+
+/* ============================================================
+   LOADER
+   ============================================================ */
+.loader-overlay{position:fixed;inset:0;background:rgba(8,11,10,.94);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;
+  display:none;align-items:center;justify-content:center;padding:24px}
+.loader-overlay.show{display:flex;animation:fadeIn .3s var(--ease)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.loader-card{text-align:center;max-width:400px;animation:loaderIn .5s var(--ease-back)}
+@keyframes loaderIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.loader-spinner{position:relative;width:64px;height:64px;margin:0 auto 26px}
+.loader-spinner::before,.loader-spinner::after{content:'';position:absolute;border-radius:50%}
+.loader-spinner::before{inset:0;border:2px solid var(--line);border-top-color:var(--accent);
+  animation:spin .9s linear infinite}
+.loader-spinner::after{inset:10px;border:2px solid transparent;border-top-color:var(--accent-2);
+  animation:spin 1.4s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.loader-sub{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--ink-3);
+  letter-spacing:.04em;min-height:17px;transition:color .3s}
+.loader-bar{width:260px;height:3px;background:var(--line);border-radius:99px;
+  overflow:hidden;margin:22px auto 0}
+.loader-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent));
+  width:0%;transition:width .4s var(--ease);border-radius:99px;
+  box-shadow:0 0 12px var(--accent-glow)}
+.loader-pct{margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:.06em}
+
+/* ============================================================
+   ANALYZER LAYOUT
+   ============================================================ */
+.analyzer{flex:1;display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);
+  overflow:hidden;min-height:0}
+.analyzer[hidden]{display:none}
+
+/* SIDEBAR */
+.sidebar{background:var(--bg-2);border-right:1px solid var(--line);
+  padding:14px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.sidebar-label{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--muted-2);
+  letter-spacing:.16em;text-transform:uppercase;padding:14px 12px 7px}
+.sidebar-label:first-child{padding-top:6px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;
+  color:var(--ink-2);font-size:13.5px;font-weight:500;transition:background .2s,color .2s;
+  cursor:pointer;text-align:left;width:100%;position:relative;border:1px solid transparent}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.75;transition:opacity .2s}
+.nav-item:hover{background:var(--panel-2);color:var(--ink)}
+.nav-item:hover svg{opacity:1}
+.nav-item.active{background:var(--panel-3);color:var(--accent);border-color:var(--line-2);
+  box-shadow:0 0 0 1px rgba(184,255,69,.06) inset}
+.nav-item.active svg{opacity:1}
+.nav-item.active::before{content:'';position:absolute;left:-10px;top:50%;
+  transform:translateY(-50%);width:3px;height:16px;background:var(--accent);
+  border-radius:0 3px 3px 0;box-shadow:0 0 8px var(--accent-glow)}
+.nav-item .badge{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--muted);background:var(--panel-2);padding:2px 8px;border-radius:99px;
+  letter-spacing:.05em;flex-shrink:0;transition:all .2s}
+.nav-item.active .badge{background:var(--accent-dim);color:var(--accent)}
+.nav-item .badge.danger{color:var(--danger);background:var(--danger-dim)}
+.nav-item .badge.warn{color:var(--warn);background:var(--warn-dim)}
+
+/* CONTENT */
+.content{background:var(--bg);overflow-y:auto;padding:32px clamp(20px,3vw,44px) 90px;
+  min-width:0;scroll-behavior:smooth}
+.view{display:none}
+.view.active{display:block;animation:viewIn .4s var(--ease)}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.view-header{display:flex;align-items:flex-end;justify-content:space-between;
+  gap:20px;margin-bottom:26px;flex-wrap:wrap}
+.view-title-wrap{min-width:0;flex:1}
+.view-eyebrow{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px;display:flex;
+  align-items:center;gap:10px}
+.view-eyebrow::before{content:'';width:16px;height:1px;background:var(--muted)}
+.view-title{font-size:clamp(1.5rem,3.2vw,2rem);font-weight:800;
+  letter-spacing:-.04em;line-height:1.08;color:var(--ink)}
+.view-subtitle{font-size:13px;color:var(--ink-3);margin-top:8px;line-height:1.5}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card{background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  margin-bottom:18px;transition:border-color .25s}
+.card:hover{border-color:var(--line-2)}
+.card-head{padding:15px 20px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;background:linear-gradient(180deg,rgba(255,255,255,.01),transparent)}
+.card-title{font-size:13px;font-weight:700;letter-spacing:-.005em;
+  display:flex;align-items:center;gap:10px}
+.card-title svg{width:15px;height:15px;color:var(--accent);opacity:.85}
+.card-title .count{font-family:'DM Mono',monospace;font-size:10.5px;font-weight:500;
+  padding:2px 9px;background:var(--panel-3);color:var(--ink-3);border-radius:99px;
+  letter-spacing:.05em;border:1px solid var(--line-2)}
+.card-body{padding:20px}
+.card-body.no-pad{padding:0}
+
+/* ============================================================
+   STAT CARDS
+   ============================================================ */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;margin-bottom:18px}
+.stat-card{background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;
+  position:relative;overflow:hidden;transition:border-color .3s,transform .3s var(--ease-back)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(184,255,69,.25),transparent);
+  opacity:0;transition:opacity .3s}
+.stat-card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.stat-card:hover::before{opacity:1}
+.stat-card::after{content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:var(--accent);opacity:0;transition:opacity .3s}
+.stat-card:hover::after{opacity:1}
+.stat-card .label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px;
+  display:flex;align-items:center;gap:7px}
+.stat-card .label svg{width:13px;height:13px;color:var(--accent);opacity:.7}
+.stat-card .value{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;
+  color:var(--ink);letter-spacing:-.025em;line-height:1.1;word-break:break-word}
+.stat-card .value.small{font-size:18px}
+.stat-card .meta{font-size:11.5px;color:var(--muted);margin-top:8px;
+  font-family:'DM Mono',monospace;letter-spacing:.01em}
+.stat-card.danger .value{color:var(--danger)}
+.stat-card.warn .value{color:var(--warn)}
+.stat-card.success .value{color:var(--accent)}
+
+/* ============================================================
+   INFO GRID
+   ============================================================ */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0 32px}
+.info-row{display:flex;justify-content:space-between;gap:16px;padding:13px 0;
+  border-bottom:1px solid var(--line);font-size:13px;align-items:center;
+  transition:background .2s}
+.info-row:last-child{border-bottom:0}
+.info-row .key{color:var(--muted);font-family:'DM Mono',monospace;font-size:11.5px;
+  letter-spacing:.03em;flex-shrink:0}
+.info-row .val{color:var(--ink);text-align:right;word-break:break-all;min-width:0;
+  font-family:'DM Mono',monospace;font-size:12px}
+.info-row .val.mono-truncate{overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;max-width:65%}
+.info-row .copy-btn{opacity:0;padding:3px;border-radius:5px;margin-left:6px;
+  color:var(--muted);transition:opacity .2s,color .2s,background .2s;flex-shrink:0}
+.info-row:hover .copy-btn{opacity:1}
+.info-row .copy-btn:hover{color:var(--accent);background:var(--accent-dim)}
+
+/* ============================================================
+   TAGS
+   ============================================================ */
+.tag-list{display:flex;flex-wrap:wrap;gap:8px}
+.tag{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;
+  border-radius:8px;font-family:'DM Mono',monospace;font-size:11.5px;font-weight:500;
+  letter-spacing:.02em;background:var(--panel-2);border:1px solid var(--line-2);
+  color:var(--ink-2);transition:transform .25s var(--ease-back),border-color .25s,
+  background .25s;cursor:default}
+.tag:hover{transform:translateY(-2px)}
+.tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.tag.danger{color:var(--danger);border-color:rgba(255,107,94,.3);background:var(--danger-dim)}
+.tag.danger::before{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+.tag.warn{color:var(--warn);border-color:rgba(255,200,87,.3);background:var(--warn-dim)}
+.tag.warn::before{background:var(--warn);box-shadow:0 0 6px var(--warn)}
+.tag.info{color:var(--info);border-color:rgba(120,199,255,.3);background:var(--info-dim)}
+.tag.info::before{background:var(--info);box-shadow:0 0 6px var(--info)}
+.tag.success{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
+.tag.success::before{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.tag.purple{color:var(--purple);border-color:rgba(201,168,255,.3);background:var(--purple-dim)}
+.tag.purple::before{background:var(--purple);box-shadow:0 0 6px var(--purple)}
+.tag.more{color:var(--muted);border-style:dashed}
+
+/* ============================================================
+   SIZE BREAKDOWN CHART
+   ============================================================ */
+.chart{display:flex;flex-direction:column;gap:14px}
+.chart-bar-wrap{margin-bottom:6px}
+.chart-bar-header{display:flex;justify-content:space-between;align-items:baseline;
+  font-size:12px;margin-bottom:8px;gap:12px}
+.chart-bar-header .cat{font-family:'DM Mono',monospace;color:var(--ink-2);
+  display:flex;align-items:center;gap:8px;letter-spacing:.02em}
+.chart-bar-header .cat .swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.chart-bar-header .amt{font-family:'DM Mono',monospace;color:var(--ink-3);flex-shrink:0}
+.chart-bar-header .amt b{color:var(--ink);font-weight:500;margin-right:6px}
+.chart-bar{height:8px;background:var(--panel-3);border-radius:99px;overflow:hidden}
+.chart-bar i{display:block;height:100%;width:0;border-radius:99px;
+  transition:width 1.2s var(--ease)}
+.chart-bar i.dex{background:linear-gradient(90deg,#7ee000,#b8ff45)}
+.chart-bar i.native{background:linear-gradient(90deg,#9d6bff,#c9a8ff)}
+.chart-bar i.resources{background:linear-gradient(90deg,#ffa94d,#ffc857)}
+.chart-bar i.assets{background:linear-gradient(90deg,#4dabf7,#78c7ff)}
+.chart-bar i.signature{background:linear-gradient(90deg,#ff6b5e,#ff9a6b)}
+.chart-bar i.other{background:linear-gradient(90deg,#3a433d,#5e6863)}
+
+/* ============================================================
+   MANIFEST VIEW
+   ============================================================ */
+.manifest-code{font-family:'DM Mono',monospace;font-size:12px;line-height:1.9;
+  padding:22px;overflow-x:auto;white-space:pre;color:var(--ink-2);
+  max-height:70vh;overflow-y:auto;background:var(--bg-2);letter-spacing:-.005em}
+.manifest-code .tag-name{color:var(--purple)}
+.manifest-code .attr-name{color:var(--info)}
+.manifest-code .attr-value{color:var(--accent)}
+.manifest-code .punc{color:var(--muted)}
+.copy-code-btn{position:absolute;top:12px;right:12px;padding:6px 12px;
+  border-radius:7px;background:var(--panel-2);border:1px solid var(--line-2);
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ink-3);
+  transition:all .2s;display:inline-flex;align-items:center;gap:6px;z-index:1;
+  letter-spacing:.05em}
+.copy-code-btn:hover{color:var(--accent);border-color:var(--accent-line);
+  background:var(--accent-dim)}
+.code-wrap{position:relative}
+
+/* ============================================================
+   DEX VIEW
+   ============================================================ */
+.dex-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:14px;margin-bottom:18px}
+.dex-card{background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:var(--radius);padding:20px;
+  transition:border-color .3s,transform .3s var(--ease-back);position:relative;
+  overflow:hidden}
+.dex-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:.5}
+.dex-card:hover{border-color:var(--line-2);transform:translateY(-3px)}
+.dex-card .dex-name{font-family:'DM Mono',monospace;font-size:13.5px;font-weight:500;
+  color:var(--accent);margin-bottom:5px;display:flex;align-items:center;gap:9px}
+.dex-card .dex-name svg{width:15px;height:15px;flex-shrink:0}
+.dex-card .dex-size{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);
+  margin-bottom:16px;letter-spacing:.03em}
+.dex-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.dex-stat{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;transition:border-color .2s}
+.dex-stat:hover{border-color:var(--line-2)}
+.dex-stat .k{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.14em;margin-bottom:5px}
+.dex-stat .v{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;
+  color:var(--ink);letter-spacing:-.01em}
+
+/* ============================================================
+   SECURITY VIEW
+   ============================================================ */
+.severity-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;margin-bottom:18px}
+.sev-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;text-align:center;transition:border-color .25s,transform .25s var(--ease-back)}
+.sev-card:hover{transform:translateY(-2px)}
+.sev-card .sev-label{font-family:'DM Mono',monospace;font-size:9.5px;
+  text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px;color:var(--muted)}
+.sev-card .sev-value{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;
+  letter-spacing:-.03em;line-height:1}
+.sev-card.critical .sev-value{color:var(--danger)}
+.sev-card.high .sev-value{color:var(--high)}
+.sev-card.medium .sev-value{color:var(--warn)}
+.sev-card.info .sev-value{color:var(--info)}
+
+.finding{display:flex;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line);
+  transition:background .2s;position:relative}
+.finding:last-child{border-bottom:0}
+.finding:hover{background:rgba(255,255,255,.012)}
+.finding::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--muted);opacity:.4}
+.finding.s-critical::before{background:var(--danger);opacity:1;box-shadow:0 0 12px var(--danger)}
+.finding.s-high::before{background:var(--high);opacity:1;box-shadow:0 0 12px var(--high)}
+.finding.s-medium::before{background:var(--warn);opacity:1;box-shadow:0 0 12px var(--warn)}
+.finding.s-info::before{background:var(--info);opacity:.7}
+.finding-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;
+  flex-shrink:0;font-family:'DM Mono',monospace;font-size:15px;font-weight:600}
+.finding-icon.critical{color:var(--danger);background:var(--danger-dim);border:1px solid rgba(255,107,94,.28)}
+.finding-icon.high{color:var(--high);background:var(--high-dim);border:1px solid rgba(255,154,107,.28)}
+.finding-icon.medium{color:var(--warn);background:var(--warn-dim);border:1px solid rgba(255,200,87,.28)}
+.finding-icon.info{color:var(--info);background:var(--info-dim);border:1px solid rgba(120,199,255,.28)}
+.finding-body{flex:1;min-width:0}
+.finding-title{font-size:13.5px;font-weight:700;margin-bottom:5px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;letter-spacing:-.01em}
+.finding-title .severity{font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;
+  padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.12em}
+.severity.critical{color:var(--danger);background:var(--danger-dim);border:1px solid rgba(255,107,94,.28)}
+.severity.high{color:var(--high);background:var(--high-dim);border:1px solid rgba(255,154,107,.28)}
+.severity.medium{color:var(--warn);background:var(--warn-dim);border:1px solid rgba(255,200,87,.28)}
+.severity.low{color:var(--info);background:var(--info-dim);border:1px solid rgba(120,199,255,.28)}
+.severity.info{color:var(--ink-3);background:var(--panel-3);border:1px solid var(--line-2)}
+.finding-desc{font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.finding-desc code{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);
+  background:var(--accent-dim);padding:1px 6px;border-radius:4px;
+  border:1px solid var(--accent-line)}
+
+/* ============================================================
+   FILES VIEW
+   ============================================================ */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:200px}
+.search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;color:var(--muted);pointer-events:none}
+.search-input{width:100%;padding:10px 14px 10px 38px;background:var(--panel);
+  border:1px solid var(--line-2);border-radius:9px;font-size:13px;color:var(--ink);
+  font-family:'Inter',sans-serif;transition:border-color .2s,background .2s}
+.search-input::placeholder{color:var(--muted)}
+.search-input:focus{outline:none;border-color:var(--accent-line);background:var(--panel-2)}
+
+.file-list{display:flex;flex-direction:column;max-height:70vh;overflow-y:auto}
+.file-item{display:flex;align-items:center;gap:12px;padding:11px 18px;
+  border-bottom:1px solid var(--line);font-size:12.5px;transition:background .2s;
+  position:relative}
+.file-item:last-child{border-bottom:0}
+.file-item:hover{background:rgba(255,255,255,.014)}
+.file-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:7px;
+  background:var(--panel-3);font-family:'DM Mono',monospace;font-size:8.5px;
+  font-weight:500;color:var(--muted);flex-shrink:0;text-transform:uppercase;
+  letter-spacing:.04em;border:1px solid var(--line-2)}
+.file-icon.dex{color:var(--accent);background:var(--accent-dim);border-color:var(--accent-line)}
+.file-icon.xml{color:var(--info);background:var(--info-dim);border-color:rgba(120,199,255,.28)}
+.file-icon.so{color:var(--purple);background:var(--purple-dim);border-color:rgba(201,168,255,.28)}
+.file-icon.arsc{color:var(--warn);background:var(--warn-dim);border-color:rgba(255,200,87,.28)}
+.file-icon.img{color:var(--high);background:var(--high-dim);border-color:rgba(255,154,107,.28)}
+.file-icon.mf{color:#ff8fb1;background:rgba(255,143,177,.12);border-color:rgba(255,143,177,.28)}
+.file-name{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--ink-2);
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);
+  flex-shrink:0;min-width:64px;text-align:right}
+.file-action{padding:5px 11px;border-radius:6px;background:var(--panel-2);
+  border:1px solid var(--line-2);font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--muted);transition:all .2s;flex-shrink:0;letter-spacing:.04em}
+.file-action:hover{color:var(--accent);border-color:var(--accent-line);
+  background:var(--accent-dim)}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty{text-align:center;padding:48px 24px;color:var(--muted);font-size:13px;
+  display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty svg{width:36px;height:36px;opacity:.35}
+.empty .empty-title{font-size:14px;font-weight:600;color:var(--ink-3)}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;
+  background:linear-gradient(180deg,var(--panel-3),var(--panel));
+  border:1px solid var(--line-2);border-left:3px solid var(--accent);
+  border-radius:11px;font-size:13px;color:var(--ink);box-shadow:var(--shadow);
+  z-index:9998;transform:translateY(24px);opacity:0;
+  transition:opacity .35s var(--ease),transform .35s var(--ease);
+  pointer-events:none;max-width:360px;line-height:1.5;
+  display:flex;align-items:center;gap:11px}
+.toast svg{width:16px;height:16px;color:var(--accent);flex-shrink:0}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.error{border-left-color:var(--danger)}
+.toast.error svg{color:var(--danger)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+  :root{--side-w:100%}
+  .analyzer{grid-template-columns:1fr}
+  .sidebar{position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;z-index:50;
+    transform:translateX(-100%);transition:transform .35s var(--ease);padding:16px}
+  .sidebar.open{transform:translateX(0);box-shadow:20px 0 60px rgba(0,0,0,.4)}
+  .content{padding:24px 18px 70px}
+  .mobile-menu-toggle{display:flex}
+  .file-chip{max-width:none}
+  .severity-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  :root{--nav-h:56px}
+  .topbar{padding:0 12px;gap:9px}
+  .brand span:not(.brand-mark){display:none}
+  .file-chip{padding:5px 10px;font-size:11px}
+  .btn span.hide-mobile{display:none}
+  .btn{padding:9px;width:36px;height:36px}
+  .btn.btn-primary{width:auto;padding:9px 14px}
+  .btn.btn-primary span{display:inline}
+  .upload-card{padding:32px 22px;border-radius:18px}
+  .drop-zone{padding:34px 18px 28px}
+  .upload-features{gap:6px 14px;font-size:10px}
+  .view-header{margin-bottom:20px}
+  .stat-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-card{padding:14px 16px}
+  .stat-card .value{font-size:19px}
+  .info-grid{grid-template-columns:1fr}
+  .dex-grid{grid-template-columns:1fr}
+  .file-size{display:none}
+  .manifest-code{font-size:11px;padding:16px}
+  .severity-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:400px){
+  .stat-grid{grid-template-columns:1fr}
+  .severity-grid{grid-template-columns:1fr}
+  .toast{left:12px;right:12px;bottom:12px;max-width:none}
+}
+
+/* REDUCED MOTION */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <button class="mobile-menu-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+
+    <a class="brand" href="index.html" title="Back to home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r=".9" fill="currentColor"/></svg>
+      </span>
+      <span>APK Analyzer</span>
+    </a>
+
+    <div class="file-chip" id="topbarFile" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span class="fname" id="topbarFileName">file.apk</span>
+      <span class="fsize" id="topbarFileSize">0 MB</span>
+    </div>
+
+    <span class="status-badge local" id="statusBadge" style="display:none">
+      <span class="dot"></span>
+      <span id="statusText">Local</span>
+    </span>
+
+    <div class="topbar-spacer"></div>
+
+    <button class="btn btn-ghost" id="newFileBtn" title="Open another APK" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      <span class="hide-mobile">New file</span>
+    </button>
+
+    <button class="btn btn-primary" id="exportBtn" title="Export report as JSON" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+      <span>Export</span>
+    </button>
+  </header>
+
+  <!-- ============ UPLOAD SCREEN ============ -->
+  <section class="upload-screen" id="uploadScreen">
+    <div class="upload-bg"></div>
+
+    <div class="upload-card">
+      <div class="upload-kicker">
+        <span class="live-dot"></span>
+        100% client-side · nothing leaves your device
+      </div>
+
+      <h1>Drop an <span class="accent">APK</span> to begin.</h1>
+      <p>Manifest, DEX files, permissions, technologies and security findings — all analyzed locally in your browser.</p>
+
+      <label class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".apk,.xapk,.apks,application/vnd.android.package-archive">
+        <div class="drop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <path d="M17 8l-5-5-5 5"/>
+            <path d="M12 3v12"/>
+          </svg>
+        </div>
+        <div class="drop-title">Click to choose or drop an APK</div>
+        <div class="drop-hint">.apk · .xapk · .apks · <b>~500 MB recommended</b></div>
+      </label>
+
+      <div class="upload-features">
+        <span><b class="check">✓</b> No upload</span>
+        <span><b class="check">✓</b> No signup</span>
+        <span><b class="check">✓</b> Open source</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ANALYZER ============ -->
+  <div class="analyzer" id="analyzer" hidden>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-label">Analysis</div>
+
+      <button class="nav-item active" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Overview
+      </button>
+
+      <button class="nav-item" data-view="manifest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        Manifest
+      </button>
+
+      <button class="nav-item" data-view="dex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg>
+        DEX Explorer
+        <span class="badge" id="dexCount">0</span>
+      </button>
+
+      <button class="nav-item" data-view="security">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        Security
+        <span class="badge" id="issueCount">0</span>
+      </button>
+
+      <button class="nav-item" data-view="technologies">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>
+        Technologies
+        <span class="badge" id="techCount">0</span>
+      </button>
+
+      <button class="nav-item" data-view="files">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Files
+        <span class="badge" id="fileCount">0</span>
+      </button>
+
+      <div class="sidebar-label">Actions</div>
+
+      <button class="nav-item" id="sidebarExport">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        Export JSON
+      </button>
+
+      <button class="nav-item" id="sidebarNew">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Analyze another
+      </button>
+
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Back to home
+      </a>
+    </aside>
+
+    <main class="content" id="content">
+
+      <!-- ============ OVERVIEW ============ -->
+      <section class="view active" data-view="overview">
+        <div class="view-header">
+          <div class="view-title-wrap">
+            <div class="view-eyebrow">Analysis / Overview</div>
+            <div class="view-title" id="ovTitle">Package Overview</div>
+            <div class="view-subtitle" id="ovSubtitle">Summary of the inspected APK</div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>APK Size</div>
+            <div class="value" id="ovSize">—</div>
+            <div class="meta" id="ovCompressed">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z"/></svg>DEX Files</div>
+            <div class="value" id="ovDex">0</div>
+            <div class="meta" id="ovDexMeta">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Total Files</div>
+            <div class="value" id="ovFiles">0</div>
+            <div class="meta" id="ovFilesMeta">—</div>
+          </div>
+          <div class="stat-card" id="ovIssuesCard">
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>Findings</div>
+            <div class="value" id="ovIssues">0</div>
+            <div class="meta" id="ovIssuesMeta">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9M14 17H5M17 3l3 4-3 4M7 11l-3 4 3 4"/></svg>
+              Package Identity
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div>
+                <div class="info-row"><span class="key">Package</span><span class="val mono-truncate" id="ovPackage">—</span><button class="copy-btn" data-copy-target="ovPackage" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+                <div class="info-row"><span class="key">Version name</span><span class="val" id="ovVersionName">—</span></div>
+                <div class="info-row"><span class="key">Version code</span><span class="val" id="ovVersionCode">—</span></div>
+                <div class="info-row"><span class="key">Min SDK</span><span class="val" id="ovMinSdk">—</span></div>
+                <div class="info-row"><span class="key">Target SDK</span><span class="val" id="ovTargetSdk">—</span></div>
+              </div>
+              <div>
+                <div class="info-row"><span class="key">Main activity</span><span class="val mono-truncate" id="ovMainActivity">—</span></div>
+                <div class="info-row"><span class="key">Application</span><span class="val mono-truncate" id="ovAppClass">—</span></div>
+                <div class="info-row"><span class="key">Debuggable</span><span class="val" id="ovDebuggable">—</span></div>
+                <div class="info-row"><span class="key">Allow backup</span><span class="val" id="ovAllowBackup">—</span></div>
+                <div class="info-row">
+                  <span class="key">SHA-256</span>
+                  <span class="val mono-truncate" id="ovSha" title="">—</span>
+                  <button class="copy-btn" data-copy-target="ovSha" data-copy-full="sha" title="Copy full hash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="sizeChartCard">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 12l3-3 4 4 5-6"/></svg>
+              Size Breakdown
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart" id="sizeChart"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>
+              Detected Technologies
+              <span class="count" id="ovTechCount">0</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tag-list" id="ovTechList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>
+              Top Permissions
+              <span class="count" id="ovPermCount">0</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tag-list" id="ovPermList"></div>
+          </div>
+        </div>
+
+        <div class="card" id="signatureCard" style="display:none">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>
+              Signature
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="info-grid" id="signatureGrid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MANIFEST ============ -->
+      <section class="view" data-view="manifest">
+        <div class="view-header">
+          <div class="view-title-wrap">
+            <div class="view-eyebrow">Analysis / Manifest</div>
+            <div class="view-title">AndroidManifest.xml</div>
+            <div class="view-subtitle">Decoded from the APK's binary XML format</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+              Decoded Manifest
+            </div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">Read-only</div>
+          </div>
+          <div class="card-body no-pad">
+            <div class="code-wrap">
+              <button class="copy-code-btn" id="copyManifestBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy
+              </button>
+              <div class="manifest-code" id="manifestCode">Loading…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>
+              Permissions
+              <span class="count" id="permCount">0</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tag-list" id="permList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
+              Components
+              <span class="count" id="compCount">0</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="info-grid" id="compGrid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DEX ============ -->
+      <section class="view" data-view="dex">
+        <div class="view-header">
+          <div class="view-title-wrap">
+            <div class="view-eyebrow">Analysis / DEX</div>
+            <div class="view-title">DEX Explorer</div>
+            <div class="view-subtitle">Compiled Dalvik bytecode files and their structure</div>
+          </div>
+        </div>
+
+        <div class="dex-grid" id="dexGrid"></div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/></svg>
+              Aggregate Counts
+            </div>
+          </div>
+          <div class="card-body no-pad">
+            <div class="info-grid" style="grid-template-columns:1fr;padding:0 20px">
+              <div>
+                <div class="info-row"><span class="key">Classes (total)</span><span class="val" id="dexTotalClasses">0</span></div>
+                <div class="info-row"><span class="key">Methods (total)</span><span class="val" id="dexTotalMethods">0</span></div>
+                <div class="info-row"><span class="key">Fields (total)</span><span class="val" id="dexTotalFields">0</span></div>
+                <div class="info-row"><span class="key">Strings (total)</span><span class="val" id="dexTotalStrings">0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SECURITY ============ -->
+      <section class="view" data-view="security">
+        <div class="view-header">
+          <div class="view-title-wrap">
+            <div class="view-eyebrow">Analysis / Security</div>
+            <div class="view-title">Security Scanner</div>
+            <div class="view-subtitle">Automated checks for common Android misconfigurations</div>
+          </div>
+        </div>
+
+        <div class="severity-grid">
+          <div class="sev-card critical"><div class="sev-label">Critical</div><div class="sev-value" id="secCritical">0</div></div>
+          <div class="sev-card high"><div class="sev-label">High</div><div class="sev-value" id="secHigh">0</div></div>
+          <div class="sev-card medium"><div class="sev-label">Medium</div><div class="sev-value" id="secMedium">0</div></div>
+          <div class="sev-card info"><div class="sev-label">Info</div><div class="sev-value" id="secInfo">0</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+              Findings
+              <span class="count" id="findingsCount">0</span>
+            </div>
+          </div>
+          <div class="card-body no-pad" id="findingsList"></div>
+        </div>
+      </section>
+
+      <!-- ============ TECHNOLOGIES ============ -->
+      <section class="view" data-view="technologies">
+        <div class="view-header">
+          <div class="view-title-wrap">
+            <div class="view-eyebrow">Analysis / Detection</div>
+            <div class="view-title">Technologies</div>
+            <div class="view-subtitle">Frameworks, libraries and languages detected inside the APK</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>
+              Detected Stack
+              <span class="count" id="techCount2">0</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="techListFull"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+              Native Libraries
+              <span class="count" id="nativeCount">0</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tag-list" id="nativeList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 16h16M10 4v16M16 4v16"/></svg>
+              Architecture
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tag-list" id="archList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FILES ============ -->
+      <section class="view" data-view="files">
+        <div class="view-header">
+          <div class="view-title-wrap">
+            <div class="view-eyebrow">Analysis / Files</div>
+            <div class="view-title">File Explorer</div>
+            <div class="view-subtitle">Browse the internal structure of the APK</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" class="search-input" id="fileSearch" placeholder="Search file name or extension…" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              Package Contents
+              <span class="count" id="filesCount">0</span>
+            </div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="filesShowing">Sorted by size</div>
+          </div>
+          <div class="card-body no-pad">
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ LOADER ============ -->
+<div class="loader-overlay" id="loaderOverlay">
+  <div class="loader-card">
+    <div class="loader-spinner"></div>
+    <div class="loader-text" id="loaderText">Analyzing APK…</div>
+    <div class="loader-sub" id="loaderSub">Reading package structure</div>
+    <div class="loader-bar"><i id="loaderBar"></i></div>
+    <div class="loader-pct" id="loaderPct">0%</div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span id="toastMsg">Done</span></div>
+
+<!-- ============ JSZip ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+/* ============================================================
+   APK Analyzer — client-side analysis engine
+   ============================================================ */
+(function(){
+'use strict';
+
+/* ---------- DOM ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+const uploadScreen = $('#uploadScreen');
+const analyzer = $('#analyzer');
+const dropZone = $('#dropZone');
+const fileInput = $('#fileInput');
+const loaderOverlay = $('#loaderOverlay');
+const loaderText = $('#loaderText');
+const loaderSub = $('#loaderSub');
+const loaderBar = $('#loaderBar');
+const loaderPct = $('#loaderPct');
+const toastEl = $('#toast');
+const toastMsg = $('#toastMsg');
+const topbarFile = $('#topbarFile');
+const topbarFileName = $('#topbarFileName');
+const topbarFileSize = $('#topbarFileSize');
+const statusBadge = $('#statusBadge');
+const statusText = $('#statusText');
+const newFileBtn = $('#newFileBtn');
+const exportBtn = $('#exportBtn');
+const sidebar = $('#sidebar');
+const mobileNavToggle = $('#mobileNavToggle');
+const content = $('#content');
+
+/* ---------- State ---------- */
+const state = {
+  file: null, zip: null, size: 0, compressedSize: 0, sha256: '',
+  entries: [], manifest: null, manifestRaw: '',
+  permissions: [], components: { activities: [], services: [], receivers: [], providers: [] },
+  packageInfo: {}, dexFiles: [], dexTotal: { classes: 0, methods: 0, fields: 0, strings: 0 },
+  technologies: [], nativeLibs: [], architectures: [], findings: [],
+  strings: new Set(), signature: {}, categorySizes: {},
+};
+
+/* ---------- UI helpers ---------- */
+function showLoader(text, sub) {
+  loaderText.textContent = text || 'Analyzing APK…';
+  loaderSub.textContent = sub || '';
+  loaderBar.style.width = '0%';
+  loaderPct.textContent = '0%';
+  loaderOverlay.classList.add('show');
+}
+function setLoader(pct, sub) {
+  const p = Math.min(100, Math.max(0, Math.round(pct)));
+  loaderBar.style.width = p + '%';
+  loaderPct.textContent = p + '%';
+  if (sub) loaderSub.textContent = sub;
+}
+function hideLoader() { loaderOverlay.classList.remove('show'); }
+
+let toastTimer;
+function toast(msg, isError) {
+  toastMsg.textContent = msg;
+  toastEl.classList.toggle('error', !!isError);
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3400);
+}
+function setStatus(kind, text) {
+  statusBadge.className = 'status-badge ' + kind;
+  statusText.textContent = text;
+}
+function formatBytes(b) {
+  if (b === 0) return '0 B';
+  if (!b && b !== 0) return '—';
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(2) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((res, rej) => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); res(); } catch(e) { rej(e); }
+    document.body.removeChild(ta);
+  });
+}
+
+/* ============================================================
+   AXML DECODER
+   ============================================================ */
+function decodeAXML(buffer) {
+  const view = new DataView(buffer);
+  const bytes = new Uint8Array(buffer);
+  const u16 = o => view.getUint16(o, true);
+  const u32 = o => view.getUint32(o, true);
+
+  const magic = u16(0);
+  if (magic !== 0x0003) throw new Error('Not a binary XML file');
+
+  // String pool
+  const spOff = 8;
+  if (u16(spOff) !== 0x0001) throw new Error('String pool missing');
+  const spHeaderSize = u16(spOff + 2);
+  const spChunkSize = u32(spOff + 4);
+  const strCount = u32(spOff + 8);
+  const flags = u32(spOff + 16);
+  const stringsStart = u32(spOff + 20);
+  const isUtf8 = (flags & (1 << 8)) !== 0;
+  const offsetsBase = spOff + spHeaderSize;
+  const stringDataStart = spOff + stringsStart;
+  const decoder = new TextDecoder('utf-8');
+
+  const strings = new Array(strCount);
+  for (let i = 0; i < strCount; i++) {
+    const rel = u32(offsetsBase + i * 4);
+    const p0 = stringDataStart + rel;
+    try {
+      if (isUtf8) {
+        let p = p0;
+        let len = bytes[p++];
+        if (len & 0x80) len = ((len & 0x7f) << 8) | bytes[p++];
+        let u8len = bytes[p++];
+        if (u8len & 0x80) u8len = ((u8len & 0x7f) << 8) | bytes[p++];
+        strings[i] = decoder.decode(bytes.subarray(p, p + u8len));
+      } else {
+        let p = p0;
+        let len = u16(p); p += 2;
+        if (len & 0x8000) { len = ((len & 0x7fff) << 16) | u16(p); p += 2; }
+        let s = '';
+        for (let j = 0; j < len; j++) s += String.fromCharCode(u16(p + j * 2));
+        strings[i] = s;
+      }
+    } catch(e) { strings[i] = ''; }
+  }
+
+  // Skip past string pool
+  let off = spOff + spChunkSize;
+  // Skip resource map
+  if (off + 8 <= buffer.byteLength && u16(off) === 0x0180) {
+    off += u32(off + 4);
+  }
+
+  // Parse element tree
+  const root = { name: '#root', attrs: [], children: [], ns: '' };
+  const stack = [root];
+
+  while (off + 8 <= buffer.byteLength) {
+    const ct = u16(off);
+    const chs = u32(off + 4);
+    if (!chs) break;
+
+    if (ct === 0x0102) { // START_ELEMENT
+      const nameIdx = u32(off + 20);
+      const nsIdx = u32(off + 16);
+      const attrCount = u16(off + 28);
+      const name = (nameIdx >= 0 && nameIdx < strings.length) ? strings[nameIdx] : '?';
+      const ns = (nsIdx >= 0 && nsIdx < strings.length) ? strings[nsIdx] : '';
+      const attrs = [];
+      let ap = off + 36;
+      for (let i = 0; i < attrCount; i++) {
+        const aNameIdx = u32(ap + 4);
+        const aRawValue = u32(ap + 8);
+        const aDataType = bytes[ap + 15];
+        const aData = u32(ap + 16);
+        const attrName = (aNameIdx >= 0 && aNameIdx < strings.length) ? strings[aNameIdx] : '?';
+        let attrValue = '';
+        if (aRawValue !== 0xFFFFFFFF && aRawValue < strings.length && strings[aRawValue] !== '') {
+          attrValue = strings[aRawValue];
+        } else {
+          switch (aDataType) {
+            case 0x01: attrValue = '@0x' + aData.toString(16); break;
+            case 0x02: attrValue = '?0x' + aData.toString(16); break;
+            case 0x03: attrValue = (aData >= 0 && aData < strings.length) ? strings[aData] : ''; break;
+            case 0x10: attrValue = String(aData | 0); break;
+            case 0x11: attrValue = '0x' + aData.toString(16); break;
+            case 0x12: attrValue = aData ? 'true' : 'false'; break;
+            case 0x1C: attrValue = '#' + aData.toString(16); break;
+            default: attrValue = String(aData);
+          }
+        }
+        attrs.push({ name: attrName, value: attrValue });
+        ap += 20;
+      }
+      const el = { name, attrs, children: [], ns };
+      stack[stack.length - 1].children.push(el);
+      stack.push(el);
+    } else if (ct === 0x0103) {
+      if (stack.length > 1) stack.pop();
+    }
+    off += chs;
+  }
+  return root;
+}
+
+/* ============================================================
+   Manifest tree renderer
+   ============================================================ */
+function renderManifestTree(node, depth) {
+  if (!node) return '';
+  if (node.name === '#root') return node.children.map(c => renderManifestTree(c, 0)).join('\n');
+  const indent = '  '.repeat(depth);
+  const attrs = node.attrs.map(a =>
+    `<span class="attr-name">${escapeHtml(a.name)}</span><span class="punc">=</span><span class="attr-value">"${escapeHtml(a.value)}"</span>`
+  ).join(' ');
+  if (node.children.length === 0) {
+    return `${indent}<span class="punc">&lt;</span><span class="tag-name">${escapeHtml(node.name)}</span>${attrs ? ' ' + attrs : ''} <span class="punc">/&gt;</span>`;
+  }
+  const inner = node.children.map(c => renderManifestTree(c, depth + 1)).join('\n');
+  return `${indent}<span class="punc">&lt;</span><span class="tag-name">${escapeHtml(node.name)}</span>${attrs ? ' ' + attrs : ''}<span class="punc">&gt;</span>\n${inner}\n${indent}<span class="punc">&lt;/</span><span class="tag-name">${escapeHtml(node.name)}</span><span class="punc">&gt;</span>`;
+}
+
+/* ============================================================
+   DEX parser
+   ============================================================ */
+function parseDEX(buffer, name, size) {
+  const view = new DataView(buffer);
+  const bytes = new Uint8Array(buffer);
+  const u32 = o => view.getUint32(o, true);
+  if (bytes.length < 0x70) return null;
+  const magic = String.fromCharCode(bytes[0],bytes[1],bytes[2],bytes[3]);
+  if (magic !== 'dex\n') return null;
+  return {
+    name, size,
+    classes: u32(0x60), methods: u32(0x58), fields: u32(0x50),
+    strings: u32(0x38), types: u32(0x40), protos: u32(0x48),
+  };
+}
+
+/* ============================================================
+   DEX string extraction
+   ============================================================ */
+function extractDEXStrings(buffer, limit) {
+  const view = new DataView(buffer);
+  const bytes = new Uint8Array(buffer);
+  const u32 = o => view.getUint32(o, true);
+  const decoder = new TextDecoder('utf-8', { fatal: false });
+  if (bytes.length < 0x70) return new Set();
+  const size = u32(0x38);
+  const off = u32(0x3C);
+  const max = Math.min(size, limit || 15000);
+  const out = new Set();
+  for (let i = 0; i < max; i++) {
+    try {
+      const strOff = u32(off + i * 4);
+      let p = strOff;
+      let len = 0, shift = 0;
+      while (true) {
+        const b = bytes[p++];
+        len |= (b & 0x7f) << shift;
+        if ((b & 0x80) === 0) break;
+        shift += 7;
+        if (shift > 28) break;
+      }
+      if (len <= 0 || len > 400) continue;
+      const str = decoder.decode(bytes.subarray(p, p + len));
+      if (str) out.add(str);
+    } catch(e) { /* skip */ }
+  }
+  return out;
+}
+
+/* ============================================================
+   Manifest helpers
+   ============================================================ */
+function findNode(n, name) {
+  if (n.name === name) return n;
+  for (const c of n.children) { const r = findNode(c, name); if (r) return r; }
+  return null;
+}
+function findNodes(n, name, out) {
+  out = out || [];
+  if (n.name === name) out.push(n);
+  for (const c of n.children) findNodes(c, name, out);
+  return out;
+}
+function getAttr(n, name) {
+  if (!n || !n.attrs) return null;
+  const a = n.attrs.find(x => x.name === name);
+  return a ? a.value : null;
+}
+
+/* ============================================================
+   Tech signatures
+   ============================================================ */
+const TECH_SIGNATURES = [
+  { name:'Kotlin', kind:'language', files:[/^kotlin\//,/META-INF\/kotlin_module$/,/kotlin-tooling-metadata/], strings:[/^kotlin\//,/^kotlinx\//,/^kotlin\./] },
+  { name:'Java', kind:'language', strings:[/^java\//,/^javax\//] },
+  { name:'Flutter', kind:'framework', files:[/^lib\/[^/]+\/libflutter\.so$/,/^assets\/flutter_assets\//,/^lib\/[^/]+\/libapp\.so$/] },
+  { name:'React Native', kind:'framework', files:[/^lib\/[^/]+\/libreactnativejni\.so$/,/^assets\/index\.android\.bundle$/,/^lib\/[^/]+\/libhermes\.so$/], strings:[/^com\.facebook\.react/,/^com\.facebook\.hermes/] },
+  { name:'Cordova', kind:'framework', files:[/^assets\/www\//,/^assets\/www\/cordova\.js$/] },
+  { name:'Capacitor', kind:'framework', files:[/^assets\/public\//,/^assets\/capacitor\.config\.json$/], strings:[/^com\.getcapacitor/] },
+  { name:'Unity', kind:'engine', files:[/^lib\/[^/]+\/libunity\.so$/,/^assets\/bin\/Data\//,/^lib\/[^/]+\/libil2cpp\.so$/] },
+  { name:'Firebase', kind:'service', strings:[/^com\.google\.firebase/,/^com\.google\.android\.gms/], files:[/^res\/raw\/.*firebase/i] },
+  { name:'Retrofit', kind:'library', strings:[/^retrofit2\//,/^retrofit2\./] },
+  { name:'OkHttp', kind:'library', strings:[/^okhttp3\//,/^okio\//] },
+  { name:'Glide', kind:'library', strings:[/^com\/bumptech\/glide/] },
+  { name:'Picasso', kind:'library', strings:[/^com\/squareup\/picasso/] },
+  { name:'Gson', kind:'library', strings:[/^com\/google\/gson/] },
+  { name:'Moshi', kind:'library', strings:[/^com\/squareup\/moshi/] },
+  { name:'Dagger / Hilt', kind:'library', strings:[/^dagger\//,/^dagger\.hilt/] },
+  { name:'Room', kind:'library', strings:[/^androidx\.room/] },
+  { name:'Jetpack Compose', kind:'library', strings:[/^androidx\.compose/] },
+  { name:'RxJava', kind:'library', strings:[/^io\.reactivex/] },
+  { name:'Ktor', kind:'library', strings:[/^io\.ktor/] },
+  { name:'SQLDelight', kind:'library', strings:[/^app\.cash\.sqldelight/] },
+  { name:'Facebook SDK', kind:'library', strings:[/^com\.facebook\.login/,/^com\.facebook\.appevents/] },
+  { name:'Amplitude', kind:'analytics', strings:[/^com\.amplitude/] },
+  { name:'Sentry', kind:'analytics', strings:[/^io\.sentry/] },
+  { name:'Google Play Billing', kind:'service', strings:[/^com\.android\.billing/] },
+  { name:'Stripe', kind:'service', strings:[/^com\.stripe/] },
+  { name:'AdMob', kind:'ads', strings:[/^com\.google\.android\.gms\.ads/] },
+  { name:'TensorFlow Lite', kind:'library', strings:[/^org\.tensorflow/], files:[/\.tflite$/,/^lib\/[^/]+\/libtensorflowlite.*\.so$/] },
+];
+
+function detectTechnologies() {
+  const found = new Map();
+  const strings = state.strings;
+  const files = state.entries.map(e => e.name);
+  for (const sig of TECH_SIGNATURES) {
+    let matched = false;
+    if (sig.files) for (const re of sig.files) if (files.some(f => re.test(f))) { matched = true; break; }
+    if (!matched && sig.strings && strings.size) {
+      outer: for (const re of sig.strings) {
+        for (const s of strings) if (re.test(s)) { matched = true; break outer; }
+      }
+    }
+    if (matched) found.set(sig.name, { name: sig.name, kind: sig.kind });
+  }
+  return Array.from(found.values()).sort((a,b) => a.name.localeCompare(b.name));
+}
+
+/* ============================================================
+   Dangerous permissions list
+   ============================================================ */
+const DANGEROUS_PERMISSIONS = new Set([
+  'android.permission.READ_SMS','android.permission.SEND_SMS','android.permission.RECEIVE_SMS',
+  'android.permission.READ_CALL_LOG','android.permission.WRITE_CALL_LOG','android.permission.CALL_PHONE',
+  'android.permission.PROCESS_OUTGOING_CALLS','android.permission.READ_CONTACTS','android.permission.WRITE_CONTACTS',
+  'android.permission.GET_ACCOUNTS','android.permission.ACCESS_FINE_LOCATION','android.permission.ACCESS_COARSE_LOCATION',
+  'android.permission.ACCESS_BACKGROUND_LOCATION','android.permission.CAMERA','android.permission.RECORD_AUDIO',
+  'android.permission.READ_EXTERNAL_STORAGE','android.permission.WRITE_EXTERNAL_STORAGE','android.permission.MANAGE_EXTERNAL_STORAGE',
+  'android.permission.READ_PHONE_STATE','android.permission.READ_PHONE_NUMBERS','android.permission.READ_CALENDAR',
+  'android.permission.WRITE_CALENDAR','android.permission.BODY_SENSORS','android.permission.ACTIVITY_RECOGNITION',
+  'android.permission.REQUEST_INSTALL_PACKAGES','android.permission.SYSTEM_ALERT_WINDOW','android.permission.WRITE_SETTINGS',
+  'android.permission.PACKAGE_USAGE_STATS','android.permission.QUERY_ALL_PACKAGES','android.permission.POST_NOTIFICATIONS',
+]);
+
+/* ============================================================
+   Security scan
+   ============================================================ */
+function runSecurityScan() {
+  const findings = [];
+  const pi = state.packageInfo;
+
+  if (pi.debuggable === 'true') findings.push({
+    severity:'critical', title:'Application is debuggable',
+    desc:'The <code>android:debuggable</code> flag is <code>true</code>. Anyone with the APK can attach a debugger, inspect memory and alter execution.'
+  });
+
+  if (pi.allowBackup === 'true') findings.push({
+    severity:'high', title:'Application data backup allowed',
+    desc:'<code>android:allowBackup="true"</code> permits extraction of app data (databases, preferences, internal files) via <code>adb backup</code>.'
+  });
+
+  if (pi.usesCleartextTraffic === 'true') findings.push({
+    severity:'high', title:'Cleartext traffic permitted',
+    desc:'<code>android:usesCleartextTraffic="true"</code> allows unencrypted HTTP, exposing data to interception.'
+  });
+
+  // Exported components
+  const exportedNoPerm = [];
+  ['activities','services','receivers','providers'].forEach(k => {
+    (state.components[k] || []).forEach(c => {
+      if (c.exported === 'true' && !c.permission) exportedNoPerm.push({ kind: k.slice(0,-1), ...c });
+    });
+  });
+  if (exportedNoPerm.length) findings.push({
+    severity:'high',
+    title: exportedNoPerm.length + ' exported component' + (exportedNoPerm.length === 1 ? '' : 's') + ' without permission',
+    desc: 'Exported components without a permission can be invoked by any installed app. Examples: ' +
+      exportedNoPerm.slice(0,3).map(c => '<code>' + escapeHtml(c.name.split('.').pop()) + '</code>').join(', ')
+  });
+
+  // Dangerous permissions
+  const dangerous = state.permissions.filter(p => DANGEROUS_PERMISSIONS.has(p));
+  if (dangerous.length) findings.push({
+    severity:'medium',
+    title: dangerous.length + ' dangerous permission' + (dangerous.length === 1 ? '' : 's') + ' requested',
+    desc: 'These grant access to sensitive data or capabilities: ' +
+      dangerous.slice(0,5).map(p => '<code>' + escapeHtml(p.replace('android.permission.','')) + '</code>').join(', ') +
+      (dangerous.length > 5 ? ' + ' + (dangerous.length - 5) + ' more' : '')
+  });
+
+  // No network config
+  const hasNetCfg = state.entries.some(e => /^res\/xml\/network_security_config\.xml$/.test(e.name));
+  if (!hasNetCfg && pi.usesCleartextTraffic !== 'false' && pi.targetSdk && parseInt(pi.targetSdk) < 28) findings.push({
+    severity:'medium', title:'No network security config',
+    desc:'Target SDK is below 28 and no <code>network_security_config.xml</code> is present. Cleartext may be permitted by default.'
+  });
+
+  // Signature check
+  const sigFiles = state.entries.filter(e => /^META-INF\/.*\.(RSA|DSA|EC|SF)$/i.test(e.name));
+  if (sigFiles.length === 0) findings.push({
+    severity:'critical', title:'APK appears unsigned',
+    desc:'No signature files found in <code>META-INF/</code>. This APK may be repackaged or tampered with.'
+  });
+
+  // Hooking frameworks
+  const hooks = ['de/robv/android/xposed','eu/faircode/xlua','com/saurik/substrate','com/topjohnwu'];
+  for (const h of hooks) if (Array.from(state.strings).some(s => s.startsWith(h))) {
+    findings.push({ severity:'info', title:'Hooking framework reference detected',
+      desc: 'DEX strings reference <code>' + escapeHtml(h) + '</code>. May indicate anti-tamper logic or instrumentation support.' });
+    break;
+  }
+
+  // Trackers
+  const trackers = ['com/google/firebase/analytics','com/google/android/gms/analytics','com/flurry','com/mixpanel','com/amplitude','com/segment'];
+  const found = trackers.filter(t => Array.from(state.strings).some(s => s.startsWith(t)));
+  if (found.length) findings.push({
+    severity:'info', title: found.length + ' analytics/tracker SDK' + (found.length === 1 ? '' : 's') + ' detected',
+    desc:'The APK references analytics libraries that may collect device identifiers and usage data.'
+  });
+
+  // Size
+  if (state.size > 200 * 1024 * 1024) findings.push({
+    severity:'info', title:'Large APK size (' + formatBytes(state.size) + ')',
+    desc:'Large packages often indicate bundled ML models, multiple ABIs or embedded secondary apps.'
+  });
+
+  if (!findings.length) findings.push({
+    severity:'info', title:'No obvious misconfigurations found',
+    desc:'The automated scanner did not detect any of the common Android security issues it checks for. This does not guarantee the APK is safe.'
+  });
+
+  const order = { critical:0, high:1, medium:2, low:3, info:4 };
+  findings.sort((a,b) => order[a.severity] - order[b.severity]);
+  state.findings = findings;
+}
+
+/* ============================================================
+   Parse manifest
+   ============================================================ */
+function parseManifest(buffer) {
+  try {
+    return { tree: decodeAXML(buffer), text: null };
+  } catch(e) {
+    // Fallback: plain XML
+    try {
+      const text = new TextDecoder('utf-8').decode(new Uint8Array(buffer));
+      if (text.trim().startsWith('<')) {
+        const doc = new DOMParser().parseFromString(text, 'application/xml');
+        const mEl = doc.querySelector('manifest');
+        if (mEl) {
+          function domToTree(el) {
+            return {
+              name: el.tagName,
+              attrs: Array.from(el.attributes).map(a => ({ name: a.name, value: a.value })),
+              children: Array.from(el.children).map(domToTree),
+              ns: ''
+            };
+          }
+          return { tree: { name:'#root', attrs: [], children: [domToTree(mEl)], ns:'' }, text: null };
+        }
+      }
+    } catch(e2) {}
+    throw e;
+  }
+}
+
+function processManifest(tree) {
+  const manifest = findNode(tree, 'manifest');
+  if (!manifest) throw new Error('No <manifest> element');
+  const usesSdk = findNode(manifest, 'uses-sdk');
+  const application = findNode(manifest, 'application');
+
+  state.packageInfo = {
+    package: getAttr(manifest, 'package') || '—',
+    versionName: getAttr(manifest, 'versionName') || '—',
+    versionCode: getAttr(manifest, 'versionCode') || '—',
+    minSdk: usesSdk ? (getAttr(usesSdk, 'minSdkVersion') || '—') : '—',
+    targetSdk: usesSdk ? (getAttr(usesSdk, 'targetSdkVersion') || '—') : '—',
+    debuggable: application ? (getAttr(application, 'debuggable') || 'false') : 'false',
+    allowBackup: application ? (getAttr(application, 'allowBackup') || 'false') : 'false',
+    usesCleartextTraffic: application ? (getAttr(application, 'usesCleartextTraffic') || '—') : '—',
+    appClass: application ? (getAttr(application, 'name') || '—') : '—',
+  };
+
+  // Permissions
+  const perms = [];
+  findNodes(manifest, 'uses-permission').forEach(p => { const n = getAttr(p, 'name'); if (n) perms.push(n); });
+  findNodes(manifest, 'uses-permission-sdk-23').forEach(p => { const n = getAttr(p, 'name'); if (n && !perms.includes(n)) perms.push(n); });
+  state.permissions = perms;
+
+  // Components
+  const map = { activity:'activities', service:'services', receiver:'receivers', provider:'providers' };
+  const comps = { activities: [], services: [], receivers: [], providers: [] };
+  Object.keys(map).forEach(tag => {
+    findNodes(manifest, tag).forEach(el => {
+      const name = getAttr(el, 'name') || '—';
+      const exported = getAttr(el, 'exported');
+      const permission = getAttr(el, 'permission');
+      const hasIntent = el.children.some(c => c.name === 'intent-filter');
+      comps[map[tag]].push({
+        name, permission: permission || null,
+        exported: exported || (hasIntent ? 'true' : 'false'),
+        hasIntentFilter: hasIntent,
+      });
+    });
+  });
+  state.components = comps;
+
+  // Main activity
+  let mainActivity = '—';
+  findNodes(manifest, 'activity').forEach(a => {
+    const hasMain = a.children.some(c => c.name === 'intent-filter' &&
+      c.children.some(i => i.name === 'action' && getAttr(i,'name') === 'android.intent.action.MAIN'));
+    if (hasMain) mainActivity = getAttr(a, 'name') || '—';
+  });
+  state.packageInfo.mainActivity = mainActivity;
+}
+
+/* ============================================================
+   Signature detection
+   ============================================================ */
+function detectSignature() {
+  const sf = state.entries.filter(e => /^META-INF\/.*\.SF$/i.test(e.name));
+  const sigs = state.entries.filter(e => /^META-INF\/.*\.(RSA|DSA|EC)$/i.test(e.name));
+  const mf = state.entries.find(e => /^META-INF\/MANIFEST\.MF$/i.test(e.name));
+  const v2 = state.entries.some(e => /^META-INF\/.*\.version$/i.test(e.name)) || sigs.length > 0;
+  const sig = {
+    signed: sigs.length > 0 || sf.length > 0,
+    v1: sigs.length > 0 && sf.length > 0,
+    v2: sigs.some(e => /v2/i.test(e.name)) || false,
+    v3: sigs.some(e => /v3/i.test(e.name)) || false,
+    schemeCount: sigs.length,
+    signers: sigs.map(e => e.name.split('/').pop()),
+    hasManifest: !!mf,
+    manifestSize: mf ? mf.size : 0,
+  };
+  state.signature = sig;
+  return sig;
+}
+
+/* ============================================================
+   Category sizes (for breakdown chart)
+   ============================================================ */
+function computeCategorySizes() {
+  const cats = { dex:0, native:0, resources:0, assets:0, signature:0, other:0 };
+  for (const e of state.entries) {
+    const n = e.name;
+    if (/^classes\d*\.dex$/.test(n)) cats.dex += e.size;
+    else if (n.startsWith('lib/')) cats.native += e.size;
+    else if (n.startsWith('res/') || n === 'resources.arsc' || /^AndroidManifest\.xml$/.test(n)) cats.resources += e.size;
+    else if (n.startsWith('assets/')) cats.assets += e.size;
+    else if (n.startsWith('META-INF/')) cats.signature += e.size;
+    else cats.other += e.size;
+  }
+  state.categorySizes = cats;
+}
+
+/* ============================================================
+   Render — Overview
+   ============================================================ */
+function renderOverview() {
+  const pi = state.packageInfo;
+  $('#ovTitle').textContent = (pi.package && pi.package !== '—') ? pi.package : 'Package Overview';
+  const subParts = [];
+  if (pi.versionName !== '—') subParts.push('v' + pi.versionName);
+  if (pi.versionCode !== '—') subParts.push('code ' + pi.versionCode);
+  if (pi.targetSdk !== '—') subParts.push('targetSdk ' + pi.targetSdk);
+  $('#ovSubtitle').textContent = subParts.join(' · ') || 'Summary of the inspected APK';
+
+  $('#ovSize').textContent = formatBytes(state.size);
+  const totalCompressed = state.entries.reduce((a,e) => a + (e.compressedSize || 0), 0);
+  const ratio = state.size > 0 && totalCompressed > 0 ? Math.round((1 - totalCompressed/state.size) * 100) : 0;
+  $('#ovCompressed').textContent = 'Compression ' + ratio + '%';
+
+  $('#ovDex').textContent = state.dexFiles.length;
+  $('#ovDexMeta').textContent = state.dexFiles.length ? state.dexTotal.classes.toLocaleString() + ' classes' : 'No DEX';
+
+  $('#ovFiles').textContent = state.entries.length.toLocaleString();
+  $('#ovFilesMeta').textContent = state.nativeLibs.length + ' native libs';
+
+  const issues = state.findings.length;
+  $('#ovIssues').textContent = issues;
+  const high = state.findings.filter(f => f.severity === 'critical' || f.severity === 'high').length;
+  const issuesCard = $('#ovIssuesCard');
+  issuesCard.classList.remove('danger','warn','success');
+  if (high > 0) { issuesCard.classList.add('danger'); $('#ovIssuesMeta').textContent = high + ' require attention'; }
+  else if (issues > 0) { issuesCard.classList.add('warn'); $('#ovIssuesMeta').textContent = 'Informational'; }
+  else { issuesCard.classList.add('success'); $('#ovIssuesMeta').textContent = 'All clear'; }
+
+  $('#ovPackage').textContent = pi.package || '—';
+  $('#ovPackage').title = pi.package || '';
+  $('#ovVersionName').textContent = pi.versionName || '—';
+  $('#ovVersionCode').textContent = pi.versionCode || '—';
+  $('#ovMinSdk').textContent = pi.minSdk || '—';
+  $('#ovTargetSdk').textContent = pi.targetSdk || '—';
+  $('#ovMainActivity').textContent = pi.mainActivity || '—';
+  $('#ovMainActivity').title = pi.mainActivity || '';
+  $('#ovAppClass').textContent = pi.appClass || '—';
+  $('#ovAppClass').title = pi.appClass || '';
+  $('#ovDebuggable').innerHTML = pi.debuggable === 'true'
+    ? '<span style="color:var(--danger)">true</span>'
+    : '<span style="color:var(--accent)">false</span>';
+  $('#ovAllowBackup').innerHTML = pi.allowBackup === 'true'
+    ? '<span style="color:var(--warn)">true</span>'
+    : '<span style="color:var(--accent)">false</span>';
+  const sha = state.sha256 || '';
+  $('#ovSha').textContent = sha ? sha.slice(0, 16) + '…' + sha.slice(-8) : '—';
+  $('#ovSha').title = sha;
+
+  // Tech preview
+  const tl = $('#ovTechList');
+  $('#ovTechCount').textContent = state.technologies.length;
+  if (!state.technologies.length) {
+    tl.innerHTML = '<div class="empty" style="padding:12px 0">No recognizable technologies detected</div>';
+  } else {
+    tl.innerHTML = state.technologies.slice(0, 14).map(t =>
+      `<span class="tag success">${escapeHtml(t.name)}</span>`
+    ).join('') + (state.technologies.length > 14 ? `<span class="tag more">+${state.technologies.length - 14} more</span>` : '');
+  }
+
+  // Permissions preview
+  const pl = $('#ovPermList');
+  $('#ovPermCount').textContent = state.permissions.length;
+  if (!state.permissions.length) {
+    pl.innerHTML = '<div class="empty" style="padding:12px 0">No permissions declared</div>';
+  } else {
+    const sorted = [...state.permissions].sort((a,b) => {
+      const aD = DANGEROUS_PERMISSIONS.has(a) ? 0 : 1;
+      const bD = DANGEROUS_PERMISSIONS.has(b) ? 0 : 1;
+      return aD - bD || a.localeCompare(b);
+    });
+    pl.innerHTML = sorted.slice(0, 14).map(p => {
+      const short = p.replace('android.permission.', '');
+      const cls = DANGEROUS_PERMISSIONS.has(p) ? 'danger' : '';
+      return `<span class="tag ${cls}" title="${escapeHtml(p)}">${escapeHtml(short)}</span>`;
+    }).join('') + (state.permissions.length > 14 ? `<span class="tag more">+${state.permissions.length - 14} more</span>` : '');
+  }
+
+  // Size chart
+  renderSizeChart();
+
+  // Signature
+  renderSignatureCard();
+}
+
+function renderSizeChart() {
+  const cats = state.categorySizes;
+  const total = state.size || 1;
+  const items = [
+    { key:'dex', label:'DEX (bytecode)', cls:'dex' },
+    { key:'native', label:'Native libraries', cls:'native' },
+    { key:'resources', label:'Resources', cls:'resources' },
+    { key:'assets', label:'Assets', cls:'assets' },
+    { key:'signature', label:'Signatures', cls:'signature' },
+    { key:'other', label:'Other', cls:'other' },
+  ].filter(i => cats[i.key] > 0);
+
+  const chart = $('#sizeChart');
+  if (!items.length) {
+    chart.innerHTML = '<div class="empty" style="padding:12px 0">No data</div>';
+    return;
+  }
+  chart.innerHTML = items.map(it => {
+    const pct = (cats[it.key] / total) * 100;
+    return `
+      <div class="chart-bar-wrap">
+        <div class="chart-bar-header">
+          <span class="cat"><i class="swatch" style="background:${
+            it.cls === 'dex' ? 'linear-gradient(90deg,#7ee000,#b8ff45)' :
+            it.cls === 'native' ? 'linear-gradient(90deg,#9d6bff,#c9a8ff)' :
+            it.cls === 'resources' ? 'linear-gradient(90deg,#ffa94d,#ffc857)' :
+            it.cls === 'assets' ? 'linear-gradient(90deg,#4dabf7,#78c7ff)' :
+            it.cls === 'signature' ? 'linear-gradient(90deg,#ff6b5e,#ff9a6b)' :
+            'linear-gradient(90deg,#3a433d,#5e6863)'
+          }"></i>${it.label}</span>
+          <span class="amt"><b>${formatBytes(cats[it.key])}</b>${pct.toFixed(1)}%</span>
+        </div>
+        <div class="chart-bar"><i class="${it.cls}" data-w="${pct}"></i></div>
+      </div>`;
+  }).join('');
+
+  // Animate bars
+  requestAnimationFrame(() => {
+    chart.querySelectorAll('.chart-bar i').forEach(bar => {
+      const w = parseFloat(bar.dataset.w) || 0;
+      bar.style.width = w + '%';
+    });
+  });
+}
+
+function renderSignatureCard() {
+  const sig = state.signature;
+  const card = $('#signatureCard');
+  const grid = $('#signatureGrid');
+  if (!sig || (!sig.signed && !sig.hasManifest)) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  const rows = [];
+  rows.push(`<div class="info-row"><span class="key">Status</span><span class="val" style="color:${sig.signed ? 'var(--accent)' : 'var(--danger)'}">${sig.signed ? 'Signed' : 'Unsigned'}</span></div>`);
+  if (sig.signed) {
+    rows.push(`<div class="info-row"><span class="key">v1 (JAR) scheme</span><span class="val">${sig.v1 ? 'yes' : 'no'}</span></div>`);
+    rows.push(`<div class="info-row"><span class="key">Signature files</span><span class="val">${sig.schemeCount}</span></div>`);
+    if (sig.signers.length) rows.push(`<div class="info-row"><span class="key">Signer files</span><span class="val mono-truncate" title="${escapeHtml(sig.signers.join(', '))}">${escapeHtml(sig.signers.join(', '))}</span></div>`);
+  }
+  if (sig.hasManifest) rows.push(`<div class="info-row"><span class="key">MANIFEST.MF</span><span class="val">${formatBytes(sig.manifestSize)}</span></div>`);
+  grid.innerHTML = rows.join('');
+}
+
+/* ============================================================
+   Render — Manifest
+   ============================================================ */
+function renderManifestView() {
+  const codeEl = $('#manifestCode');
+  if (state.manifest) {
+    codeEl.innerHTML = renderManifestTree(state.manifest, 0);
+  } else if (state.manifestRaw) {
+    codeEl.textContent = state.manifestRaw;
+  } else {
+    codeEl.textContent = 'Manifest could not be decoded.';
+  }
+
+  const pl = $('#permList');
+  $('#permCount').textContent = state.permissions.length;
+  if (!state.permissions.length) {
+    pl.innerHTML = '<div class="empty" style="padding:12px 0">No permissions declared</div>';
+  } else {
+    pl.innerHTML = state.permissions.map(p => {
+      const cls = DANGEROUS_PERMISSIONS.has(p) ? 'danger' : 'info';
+      return `<span class="tag ${cls}" title="${escapeHtml(p)}">${escapeHtml(p)}</span>`;
+    }).join('');
+  }
+
+  // Components
+  const cg = $('#compGrid');
+  const all = [
+    ...state.components.activities.map(c => ({...c, kind:'Activity'})),
+    ...state.components.services.map(c => ({...c, kind:'Service'})),
+    ...state.components.receivers.map(c => ({...c, kind:'Receiver'})),
+    ...state.components.providers.map(c => ({...c, kind:'Provider'})),
+  ];
+  $('#compCount').textContent = all.length;
+  if (!all.length) {
+    cg.innerHTML = '<div class="empty" style="padding:12px 0;grid-column:1/-1">No components declared</div>';
+  } else {
+    cg.innerHTML = all.map(c => {
+      const short = c.name.split('.').slice(-2).join('.');
+      const exported = c.exported === 'true';
+      let badge;
+      if (exported && !c.permission) badge = '<span class="tag danger" style="padding:3px 8px;font-size:10px">exported</span>';
+      else if (exported && c.permission) badge = '<span class="tag warn" style="padding:3px 8px;font-size:10px">exported·perm</span>';
+      else badge = '<span class="tag" style="padding:3px 8px;font-size:10px">private</span>';
+      return `<div class="info-row">
+        <span class="key">${c.kind} · ${escapeHtml(short)}</span>
+        <span class="val" style="text-align:right">${badge}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+/* ============================================================
+   Render — DEX
+   ============================================================ */
+function renderDEXView() {
+  const grid = $('#dexGrid');
+  $('#dexCount').textContent = state.dexFiles.length;
+  if (!state.dexFiles.length) {
+    grid.innerHTML = '<div class="card" style="grid-column:1/-1"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l9 5v10l-9 5-9-5V7z"/></svg><div class="empty-title">No DEX files</div><div>This APK contains no compiled Dalvik bytecode.</div></div></div>';
+  } else {
+    grid.innerHTML = state.dexFiles.map(d => `
+      <div class="dex-card">
+        <div class="dex-name">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg>
+          ${escapeHtml(d.name)}
+        </div>
+        <div class="dex-size">${formatBytes(d.size)}</div>
+        <div class="dex-stats">
+          <div class="dex-stat"><div class="k">Classes</div><div class="v">${d.classes.toLocaleString()}</div></div>
+          <div class="dex-stat"><div class="k">Methods</div><div class="v">${d.methods.toLocaleString()}</div></div>
+          <div class="dex-stat"><div class="k">Fields</div><div class="v">${d.fields.toLocaleString()}</div></div>
+          <div class="dex-stat"><div class="k">Strings</div><div class="v">${d.strings.toLocaleString()}</div></div>
+        </div>
+      </div>
+    `).join('');
+  }
+  $('#dexTotalClasses').textContent = state.dexTotal.classes.toLocaleString();
+  $('#dexTotalMethods').textContent = state.dexTotal.methods.toLocaleString();
+  $('#dexTotalFields').textContent = state.dexTotal.fields.toLocaleString();
+  $('#dexTotalStrings').textContent = state.dexTotal.strings.toLocaleString();
+}
+
+/* ============================================================
+   Render — Security
+   ============================================================ */
+function renderSecurityView() {
+  const counts = { critical:0, high:0, medium:0, low:0, info:0 };
+  state.findings.forEach(f => counts[f.severity] = (counts[f.severity] || 0) + 1);
+  $('#secCritical').textContent = counts.critical;
+  $('#secHigh').textContent = counts.high;
+  $('#secMedium').textContent = counts.medium;
+  $('#secInfo').textContent = counts.info + counts.low;
+
+  const total = state.findings.length;
+  $('#issueCount').textContent = total;
+  $('#issueCount').className = 'badge' + (counts.critical ? ' danger' : counts.high ? ' warn' : '');
+  $('#findingsCount').textContent = total;
+
+  const iconChar = { critical:'!', high:'!', medium:'!', low:'i', info:'i' };
+  const list = $('#findingsList');
+  if (!total) {
+    list.innerHTML = '<div class="empty" style="padding:40px 24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg><div class="empty-title">No findings</div></div>';
+  } else {
+    list.innerHTML = state.findings.map(f => `
+      <div class="finding s-${f.severity}">
+        <div class="finding-icon ${f.severity}">${iconChar[f.severity]}</div>
+        <div class="finding-body">
+          <div class="finding-title">
+            ${escapeHtml(f.title)}
+            <span class="severity ${f.severity}">${f.severity}</span>
+          </div>
+          <div class="finding-desc">${f.desc}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+/* ============================================================
+   Render — Technologies
+   ============================================================ */
+function renderTechnologies() {
+  const wrap = $('#techListFull');
+  $('#techCount').textContent = state.technologies.length;
+  $('#techCount2').textContent = state.technologies.length;
+
+  if (!state.technologies.length) {
+    wrap.innerHTML = '<div class="empty" style="padding:12px 0">No recognizable frameworks or libraries detected</div>';
+  } else {
+    const groups = { language: [], framework: [], engine: [], library: [], service: [], analytics: [], ads: [] };
+    state.technologies.forEach(t => {
+      const k = t.kind || 'library';
+      (groups[k] || groups.library).push(t);
+    });
+    const blocks = [];
+    Object.entries(groups).forEach(([kind, list]) => {
+      if (!list.length) return;
+      blocks.push(`
+        <div style="margin-bottom:20px">
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+            text-transform:uppercase;letter-spacing:.14em;margin-bottom:11px">
+            ${kind}
+          </div>
+          <div class="tag-list">
+            ${list.map(t => `<span class="tag success">${escapeHtml(t.name)}</span>`).join('')}
+          </div>
+        </div>`);
+    });
+    wrap.innerHTML = blocks.join('');
+  }
+
+  const nl = $('#nativeList');
+  $('#nativeCount').textContent = state.nativeLibs.length;
+  if (!state.nativeLibs.length) {
+    nl.innerHTML = '<div class="empty" style="padding:12px 0">No native libraries</div>';
+  } else {
+    nl.innerHTML = state.nativeLibs.slice(0, 40).map(l =>
+      `<span class="tag purple">${escapeHtml(l.split('/').pop())}</span>`
+    ).join('') + (state.nativeLibs.length > 40 ? `<span class="tag more">+${state.nativeLibs.length - 40} more</span>` : '');
+  }
+
+  const al = $('#archList');
+  if (!state.architectures.length) {
+    al.innerHTML = '<div class="empty" style="padding:12px 0">No ABI-specific directories (pure Java/Kotlin app)</div>';
+  } else {
+    al.innerHTML = state.architectures.map(a => `<span class="tag info">${escapeHtml(a)}</span>`).join('');
+  }
+}
+
+/* ============================================================
+   Render — Files
+   ============================================================ */
+let currentSearch = '';
+function renderFiles() {
+  const list = $('#fileList');
+  $('#fileCount').textContent = state.entries.length;
+  $('#filesCount').textContent = state.entries.length;
+
+  let filtered = state.entries;
+  if (currentSearch.trim()) {
+    const q = currentSearch.trim().toLowerCase();
+    filtered = filtered.filter(e => e.name.toLowerCase().includes(q));
+  }
+
+  const sorted = [...filtered].sort((a,b) => b.size - a.size).slice(0, 400);
+
+  $('#filesShowing').textContent = currentSearch
+    ? `${sorted.length} of ${filtered.length} match`
+    : 'Sorted by size';
+
+  if (!sorted.length) {
+    list.innerHTML = `<div class="empty" style="padding:48px 24px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="empty-title">No files match</div>
+      <div>Try a different search term</div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = sorted.map(e => {
+    const ext = (e.name.split('.').pop() || '').toLowerCase();
+    let cls = '', txt = ext.slice(0,3).toUpperCase() || '?';
+    if (ext === 'dex') { cls = 'dex'; txt = 'DEX'; }
+    else if (ext === 'xml') { cls = 'xml'; txt = 'XML'; }
+    else if (ext === 'so') { cls = 'so'; txt = 'SO'; }
+    else if (ext === 'arsc') { cls = 'arsc'; txt = 'ARS'; }
+    else if (['png','jpg','jpeg','webp','gif','svg'].includes(ext)) { cls = 'img'; txt = 'IMG'; }
+    else if (ext === 'rsa' || ext === 'dsa' || ext === 'ec' || ext === 'sf' || ext === 'mf') { cls = 'mf'; txt = 'SIG'; }
+    const short = e.name.length > 68 ? e.name.slice(0, 30) + '…' + e.name.slice(-34) : e.name;
+    return `<div class="file-item">
+      <div class="file-icon ${cls}">${escapeHtml(txt)}</div>
+      <div class="file-name" title="${escapeHtml(e.name)}">${escapeHtml(short)}</div>
+      <div class="file-size">${formatBytes(e.size)}</div>
+      <button class="file-action" data-filename="${escapeHtml(e.name)}">Extract</button>
+    </div>`;
+  }).join('');
+
+  if (filtered.length > 400) {
+    list.insertAdjacentHTML('beforeend',
+      `<div class="empty" style="padding:16px 24px;font-size:12px">Showing 400 largest of ${filtered.length}</div>`);
+  }
+
+  list.querySelectorAll('.file-action').forEach(btn => {
+    btn.addEventListener('click', () => extractFile(btn.dataset.filename));
+  });
+}
+
+$('#fileSearch').addEventListener('input', (e) => {
+  currentSearch = e.target.value;
+  renderFiles();
+});
+
+async function extractFile(name) {
+  if (!state.zip) return;
+  const entry = state.zip.file(name);
+  if (!entry) { toast('File not found', true); return; }
+  try {
+    const blob = await entry.async('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name.split('/').pop() || 'file';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast('Extracted ' + a.download);
+  } catch(e) { toast('Extract failed: ' + e.message, true); }
+}
+
+/* ============================================================
+   Analysis pipeline
+   ============================================================ */
+async function analyzeFile(file) {
+  state.file = file;
+  state.size = file.size;
+
+  showLoader('Reading APK…', 'Loading file into memory');
+  setLoader(3);
+
+  let buffer;
+  try {
+    buffer = await file.arrayBuffer();
+  } catch(e) { hideLoader(); toast('Read failed: ' + e.message, true); return; }
+
+  setLoader(12, 'Computing SHA-256 hash');
+  try {
+    const hb = await crypto.subtle.digest('SHA-256', buffer);
+    state.sha256 = Array.from(new Uint8Array(hb)).map(b => b.toString(16).padStart(2,'0')).join('');
+  } catch(e) { state.sha256 = ''; }
+
+  setLoader(25, 'Opening ZIP archive');
+  let zip;
+  try {
+    zip = await JSZip.loadAsync(buffer);
+  } catch(e) { hideLoader(); toast('Not a valid APK / ZIP: ' + e.message, true); return; }
+  state.zip = zip;
+
+  setLoader(38, 'Enumerating files');
+  const entries = [];
+  zip.forEach((path, entry) => {
+    if (entry.dir) return;
+    const data = entry._data || {};
+    entries.push({
+      name: path,
+      size: data.uncompressedSize != null ? data.uncompressedSize : (data.compressedSize || 0),
+      compressedSize: data.compressedSize || 0,
+      dir: false,
+    });
+  });
+  state.entries = entries;
+  state.compressedSize = entries.reduce((a,e) => a + e.compressedSize, 0);
+
+  setLoader(50, 'Decoding AndroidManifest.xml');
+  const mf = zip.file('AndroidManifest.xml');
+  if (!mf) { hideLoader(); toast('AndroidManifest.xml not found — not a valid APK', true); return; }
+
+  let mfBuf;
+  try { mfBuf = await mf.async('arraybuffer'); }
+  catch(e) { hideLoader(); toast('Could not read manifest: ' + e.message, true); return; }
+
+  try {
+    const { tree, text } = parseManifest(mfBuf);
+    state.manifest = tree;
+    state.manifestRaw = text;
+    processManifest(tree);
+  } catch(e) { hideLoader(); toast('Manifest decode failed: ' + e.message, true); return; }
+
+  setLoader(62, 'Parsing DEX files');
+  const dexEntries = entries.filter(e => /^classes\d*\.dex$/.test(e.name));
+  state.dexFiles = [];
+  state.dexTotal = { classes:0, methods:0, fields:0, strings:0 };
+  const allStrings = new Set();
+
+  for (const de of dexEntries) {
+    try {
+      const dexBuf = await zip.file(de.name).async('arraybuffer');
+      const parsed = parseDEX(dexBuf, de.name, dexBuf.byteLength);
+      if (parsed) {
+        state.dexFiles.push(parsed);
+        state.dexTotal.classes += parsed.classes;
+        state.dexTotal.methods += parsed.methods;
+        state.dexTotal.fields += parsed.fields;
+        state.dexTotal.strings += parsed.strings;
+      }
+      const strs = extractDEXStrings(dexBuf, 15000);
+      for (const s of strs) { if (allStrings.size < 60000) allStrings.add(s); }
+    } catch(e) { /* skip */ }
+  }
+  state.strings = allStrings;
+
+  setLoader(76, 'Detecting technologies');
+
+  const nativeLibs = entries.filter(e => e.name.startsWith('lib/') && e.name.endsWith('.so')).map(e => e.name);
+  state.nativeLibs = nativeLibs;
+
+  const archSet = new Set();
+  entries.forEach(e => { const m = e.name.match(/^lib\/([^/]+)\//); if (m) archSet.add(m[1]); });
+  state.architectures = Array.from(archSet);
+
+  state.technologies = detectTechnologies();
+
+  setLoader(86, 'Detecting signature');
+  detectSignature();
+
+  setLoader(93, 'Running security scan');
+  runSecurityScan();
+
+  setLoader(98, 'Computing size breakdown');
+  computeCategorySizes();
+
+  setLoader(100, 'Rendering results');
+
+  // Switch UI
+  uploadScreen.style.display = 'none';
+  analyzer.hidden = false;
+  topbarFile.style.display = '';
+  topbarFileName.textContent = file.name;
+  topbarFileName.title = file.name;
+  topbarFileSize.textContent = formatBytes(file.size);
+  statusBadge.style.display = '';
+  setStatus('local', 'Analyzed');
+  newFileBtn.style.display = '';
+  exportBtn.style.display = '';
+
+  renderOverview();
+  renderManifestView();
+  renderDEXView();
+  renderSecurityView();
+  renderTechnologies();
+  renderFiles();
+
+  switchView('overview');
+  hideLoader();
+  toast('Analysis complete — ' + state.dexFiles.length + ' DEX · ' +
+    state.permissions.length + ' permissions · ' + state.findings.length + ' findings');
+}
+
+/* ============================================================
+   View switching
+   ============================================================ */
+function switchView(name) {
+  $$('.nav-item[data-view]').forEach(el => el.classList.toggle('active', el.dataset.view === name));
+  $$('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
+  if (window.innerWidth <= 900) sidebar.classList.remove('open');
+  content.scrollTop = 0;
+}
+$$('.nav-item[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+/* ============================================================
+   Export
+   ============================================================ */
+function exportReport() {
+  const report = {
+    generatedAt: new Date().toISOString(),
+    tool: 'APK Analyzer Pro',
+    file: { name: state.file ? state.file.name : null, size: state.size, sha256: state.sha256 },
+    package: state.packageInfo,
+    signature: state.signature,
+    permissions: state.permissions,
+    components: state.components,
+    dex: { files: state.dexFiles, totals: state.dexTotal },
+    technologies: state.technologies.map(t => ({ name: t.name, kind: t.kind })),
+    nativeLibraries: state.nativeLibs,
+    architectures: state.architectures,
+    sizeBreakdown: state.categorySizes,
+    findings: state.findings.map(f => ({
+      severity: f.severity,
+      title: f.title,
+      description: f.desc.replace(/<[^>]+>/g, ''),
+    })),
+    entries: state.entries.map(e => ({ name: e.name, size: e.size })),
+  };
+  const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (state.file ? state.file.name.replace(/\.(apk|xapk|apks)$/i, '') : 'apk') + '-analysis.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast('Report exported as JSON');
+}
+exportBtn.addEventListener('click', exportReport);
+$('#sidebarExport').addEventListener('click', exportReport);
+
+/* ============================================================
+   Reset
+   ============================================================ */
+function resetApp() {
+  Object.assign(state, {
+    file:null, zip:null, entries:[], manifest:null, manifestRaw:'',
+    permissions:[], components:{ activities:[], services:[], receivers:[], providers:[] },
+    packageInfo:{}, dexFiles:[], dexTotal:{ classes:0, methods:0, fields:0, strings:0 },
+    technologies:[], nativeLibs:[], architectures:[], findings:[],
+    strings:new Set(), sha256:'', signature:{}, categorySizes:{},
+  });
+  currentSearch = '';
+  $('#fileSearch').value = '';
+  analyzer.hidden = true;
+  uploadScreen.style.display = '';
+  topbarFile.style.display = 'none';
+  statusBadge.style.display = 'none';
+  newFileBtn.style.display = 'none';
+  exportBtn.style.display = 'none';
+  fileInput.value = '';
+}
+newFileBtn.addEventListener('click', resetApp);
+$('#sidebarNew').addEventListener('click', resetApp);
+
+/* ============================================================
+   File input & drag & drop
+   ============================================================ */
+dropZone.addEventListener('click', (e) => {
+  if (e.target.tagName !== 'INPUT') fileInput.click();
+});
+fileInput.addEventListener('change', (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (f) analyzeFile(f);
+});
+['dragenter','dragover'].forEach(ev => {
+  dropZone.addEventListener(ev, (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dropZone.classList.add('dragover');
+  });
+});
+['dragleave','drop'].forEach(ev => {
+  dropZone.addEventListener(ev, (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dropZone.classList.remove('dragover');
+  });
+});
+dropZone.addEventListener('drop', (e) => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) analyzeFile(f);
+});
+document.addEventListener('dragover', (e) => e.preventDefault());
+document.addEventListener('drop', (e) => {
+  e.preventDefault();
+  if (analyzer.hidden) {
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) analyzeFile(f);
+  }
+});
+
+/* ============================================================
+   Mobile sidebar
+   ============================================================ */
+mobileNavToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 900 && sidebar.classList.contains('open') &&
+      !sidebar.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+    sidebar.classList.remove('open');
+  }
+});
+
+/* ============================================================
+   Copy buttons
+   ============================================================ */
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.copy-btn');
+  if (!btn) return;
+  const id = btn.dataset.copyTarget;
+  const el = document.getElementById(id);
+  if (!el) return;
+  let text;
+  if (btn.dataset.copyFull === 'sha') text = state.sha256;
+  else text = el.textContent;
+  copyText(text).then(() => toast('Copied')).catch(() => toast('Copy failed', true));
+});
+$('#copyManifestBtn').addEventListener('click', () => {
+  const codeEl = $('#manifestCode');
+  copyText(codeEl.innerText || codeEl.textContent)
+    .then(() => toast('Manifest copied')).catch(() => toast('Copy failed', true));
+});
+
+/* ============================================================
+   Keyboard shortcuts
+   ============================================================ */
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+    e.preventDefault();
+    if (!analyzer.hidden) exportReport();
+  }
+  if (e.key === '/' && !analyzer.hidden) {
+    const filesView = document.querySelector('.view[data-view="files"]');
+    if (filesView && filesView.classList.contains('active')) {
+      e.preventDefault();
+      $('#fileSearch').focus();
+    }
+  }
+  // Number shortcuts 1-5 for views
+  if (!e.ctrlKey && !e.metaKey && !e.altKey && !analyzer.hidden) {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+    const views = ['overview','manifest','dex','security','technologies','files'];
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= views.length) {
+      switchView(views[n-1]);
+    }
+  }
+});
+
+})();
+</script>
+</body>
+</html>

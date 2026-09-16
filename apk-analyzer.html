@@ -14,81 +14,45 @@
    0. RESET + MOBILE TAP FIX
    ============================================================ */
 *,*::before,*::after{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
+  box-sizing:border-box;margin:0;padding:0;
   -webkit-tap-highlight-color:transparent;
   -webkit-tap-highlight-color:rgba(0,0,0,0);
 }
-
 [hidden]{display:none !important}
-
 html,body{height:100%;overflow:hidden}
 html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 
-/* Remove default focus rings for touch/mouse but keep for keyboard */
-button,
-a,
-input,
-label,
-.nav-item,
-.drop-zone,
-.file-action,
-.copy-btn,
-.menu-btn,
-.btn,
-.tag,
-[role="button"],
-[tabindex]{
+button,a,input,label,.nav-item,.drop-zone,.file-action,.copy-btn,.menu-btn,.btn,.tag,[role="button"],[tabindex],.tree-row.folder{
   -webkit-tap-highlight-color:transparent;
   outline:none;
   touch-action:manipulation;
 }
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-label:focus-visible,
-.nav-item:focus-visible,
-.drop-zone:focus-visible,
-.file-action:focus-visible,
-.copy-btn:focus-visible,
-.menu-btn:focus-visible,
-.btn:focus-visible,
-[role="button"]:focus-visible,
-[tabindex]:focus-visible{
+button:focus-visible,a:focus-visible,input:focus-visible,label:focus-visible,
+.nav-item:focus-visible,.drop-zone:focus-visible,.file-action:focus-visible,
+.copy-btn:focus-visible,.menu-btn:focus-visible,.btn:focus-visible,
+[role="button"]:focus-visible,[tabindex]:focus-visible,.tree-row.folder:focus-visible{
   outline:2px solid #b8ff45;
   outline-offset:2px;
   border-radius:inherit;
 }
-
-button:focus:not(:focus-visible),
-a:focus:not(:focus-visible),
-label:focus:not(:focus-visible),
-.nav-item:focus:not(:focus-visible),
-.drop-zone:focus:not(:focus-visible),
-.file-action:focus:not(:focus-visible),
-.copy-btn:focus:not(:focus-visible),
+button:focus:not(:focus-visible),a:focus:not(:focus-visible),label:focus:not(:focus-visible),
+.nav-item:focus:not(:focus-visible),.drop-zone:focus:not(:focus-visible),
+.file-action:focus:not(:focus-visible),.copy-btn:focus:not(:focus-visible),
 .menu-btn:focus:not(:focus-visible){
-  outline:none;
-  box-shadow:none;
+  outline:none;box-shadow:none;
 }
 
 body{
-  background:#080b0a;
-  color:#f2f6f3;
+  background:#080b0a;color:#f2f6f3;
   font-family:'Inter',system-ui,-apple-system,sans-serif;
-  font-size:14px;
-  line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+  font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
 button{font:inherit;border:none;background:none;color:inherit;cursor:pointer;font-family:inherit}
 a{color:inherit;text-decoration:none}
 input{font:inherit;font-family:inherit}
 ul{list-style:none}
 svg{display:block;flex-shrink:0}
-img{max-width:100%;display:block}
 ::selection{background:#b8ff45;color:#080b0a}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -109,9 +73,7 @@ img{max-width:100%;display:block}
   --warn:#ffc857; --warn-dim:rgba(255,200,87,.12); --warn-line:rgba(255,200,87,.28);
   --info:#78c7ff; --info-dim:rgba(120,199,255,.12); --info-line:rgba(120,199,255,.28);
   --purple:#c9a8ff; --purple-dim:rgba(201,168,255,.12); --purple-line:rgba(201,168,255,.28);
-  --topbar-h:60px;
-  --side-w:240px;
-  --radius:14px;
+  --topbar-h:60px; --side-w:240px; --radius:14px;
   --ease:cubic-bezier(.22,1,.36,1);
   --ease-back:cubic-bezier(.34,1.56,.64,1);
   --shadow:0 20px 50px rgba(0,0,0,.5);
@@ -121,62 +83,35 @@ img{max-width:100%;display:block}
   --safe-r:env(safe-area-inset-right,0px);
 }
 
-/* ============================================================
-   2. APP SHELL
-   ============================================================ */
-.app{
-  height:100vh;height:100dvh;
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
 /* ============================================================
-   3. TOPBAR
+   2. TOPBAR
    ============================================================ */
 .topbar{
-  height:var(--topbar-h);
-  flex-shrink:0;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:0 14px;
-  padding-left:calc(14px + var(--safe-l));
-  padding-right:calc(14px + var(--safe-r));
-  padding-top:var(--safe-t);
-  box-sizing:content-box;
-  background:var(--bg);
-  border-bottom:1px solid var(--line);
-  position:relative;
-  z-index:100;
+  height:var(--topbar-h);flex-shrink:0;display:flex;align-items:center;gap:10px;
+  padding:0 14px;padding-left:calc(14px + var(--safe-l));
+  padding-right:calc(14px + var(--safe-r));padding-top:var(--safe-t);
+  box-sizing:content-box;background:var(--bg);border-bottom:1px solid var(--line);
+  position:relative;z-index:100;
 }
 .topbar::after{
   content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
   background:linear-gradient(90deg,transparent,rgba(184,255,69,.15),transparent);
   pointer-events:none;
 }
-
-/* Menu button — hamburger → X */
 .menu-btn{
-  display:none;
-  width:40px;height:40px;
-  flex-shrink:0;
-  border-radius:10px;
-  background:var(--panel-2);
-  border:1px solid var(--line-2);
+  display:none;width:40px;height:40px;flex-shrink:0;border-radius:10px;
+  background:var(--panel-2);border:1px solid var(--line-2);
   align-items:center;justify-content:center;
   transition:background .2s,border-color .2s,transform .15s;
 }
 .menu-btn:hover{border-color:var(--line-3);background:var(--panel-3)}
 .menu-btn:active{transform:scale(.94)}
-.menu-btn .bars{
-  width:16px;height:14px;
-  position:relative;
-}
+.menu-btn .bars{width:16px;height:14px;position:relative}
 .menu-btn .bar{
-  position:absolute;left:0;
-  width:100%;height:2px;background:var(--ink-2);
-  border-radius:2px;
-  transition:transform .35s var(--ease),opacity .25s,top .35s var(--ease),background .25s;
+  position:absolute;left:0;width:100%;height:2px;background:var(--ink-2);
+  border-radius:2px;transition:transform .35s var(--ease),opacity .25s,top .35s var(--ease),background .25s;
 }
 .menu-btn .bar:nth-child(1){top:0}
 .menu-btn .bar:nth-child(2){top:6px}
@@ -186,112 +121,66 @@ body.drawer-open .menu-btn .bar:nth-child(1){top:6px;transform:rotate(45deg)}
 body.drawer-open .menu-btn .bar:nth-child(2){opacity:0}
 body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 
-/* Brand */
 .brand{
-  display:flex;align-items:center;gap:9px;
-  font-weight:800;font-size:14px;letter-spacing:-.03em;
-  flex-shrink:0;padding:4px;margin:-4px;
-  border-radius:8px;
-  transition:background .2s;
+  display:flex;align-items:center;gap:9px;font-weight:800;font-size:14px;
+  letter-spacing:-.03em;flex-shrink:0;padding:4px;margin:-4px;
+  border-radius:8px;transition:background .2s;
 }
 .brand:hover{background:var(--panel-2)}
 .brand-mark{
-  width:28px;height:28px;
-  border:1.5px solid var(--accent);
-  background:var(--accent);
-  color:var(--bg);
-  display:grid;place-items:center;
-  flex-shrink:0;
+  width:28px;height:28px;border:1.5px solid var(--accent);background:var(--accent);
+  color:var(--bg);display:grid;place-items:center;flex-shrink:0;
   transition:transform .35s var(--ease-back);
 }
 .brand:hover .brand-mark{transform:rotate(-6deg)}
 .brand-mark svg{width:15px;height:15px}
 .brand-text{white-space:nowrap}
 
-/* File chip */
 .file-chip{
-  flex:1 1 auto;min-width:0;max-width:360px;
-  display:flex;align-items:center;gap:8px;
-  padding:6px 12px;
-  background:var(--panel-2);
-  border:1px solid var(--line-2);
-  border-radius:9px;
-  font-family:'DM Mono',monospace;font-size:11.5px;
-  color:var(--ink-2);
-  transition:border-color .2s;
+  flex:1 1 auto;min-width:0;max-width:360px;display:flex;align-items:center;gap:8px;
+  padding:6px 12px;background:var(--panel-2);border:1px solid var(--line-2);
+  border-radius:9px;font-family:'DM Mono',monospace;font-size:11.5px;
+  color:var(--ink-2);transition:border-color .2s;
 }
 .file-chip:hover{border-color:var(--line-3)}
 .file-chip svg{color:var(--accent);opacity:.75;width:13px;height:13px}
-.file-chip .fname{
-  flex:1;min-width:0;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  color:var(--ink);
-}
+.file-chip .fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
 .file-chip .fsize{color:var(--muted);flex-shrink:0;font-size:10.5px}
 
-/* Status badge */
 .status-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:5px 11px;border-radius:999px;
-  font-family:'DM Mono',monospace;
-  font-size:10px;font-weight:500;
-  letter-spacing:.09em;text-transform:uppercase;
-  flex-shrink:0;
-  transition:all .3s;
+  display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+  letter-spacing:.09em;text-transform:uppercase;flex-shrink:0;transition:all .3s;
 }
 .status-badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-.status-badge.local{
-  color:var(--accent);background:var(--accent-dim);
-  border:1px solid var(--accent-line);
-}
-.status-badge.loading{
-  color:var(--warn);background:var(--warn-dim);
-  border:1px solid var(--warn-line);
-}
+.status-badge.local{color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-line)}
+.status-badge.loading{color:var(--warn);background:var(--warn-dim);border:1px solid var(--warn-line)}
 .status-badge.loading .dot{animation:blink 1s infinite}
 @keyframes blink{50%{opacity:.3}}
 
-/* Topbar actions */
-.topbar-actions{
-  margin-left:auto;
-  display:flex;align-items:center;gap:8px;
-  flex-shrink:0;
-}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
 
-/* Buttons */
 .btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  gap:7px;
-  height:38px;padding:0 14px;
-  border-radius:9px;
-  font-size:13px;font-weight:600;letter-spacing:-.01em;
-  white-space:nowrap;cursor:pointer;
-  border:1px solid transparent;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  height:38px;padding:0 14px;border-radius:9px;
+  font-size:13px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;
+  cursor:pointer;border:1px solid transparent;flex-shrink:0;
   transition:transform .25s var(--ease-back),background .2s,border-color .2s,box-shadow .2s;
-  flex-shrink:0;
 }
 .btn svg{width:15px;height:15px}
-.btn-primary{
-  background:var(--accent);color:var(--bg);
-  box-shadow:0 3px 0 -1px #5aa600;
-}
+.btn-primary{background:var(--accent);color:var(--bg);box-shadow:0 3px 0 -1px #5aa600}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 0 -1px #5aa600}
 .btn-primary:active{transform:translateY(0);box-shadow:0 2px 0 -1px #5aa600}
-.btn-ghost{
-  background:transparent;color:var(--ink-2);border-color:var(--line-2);
-}
+.btn-ghost{background:transparent;color:var(--ink-2);border-color:var(--line-2)}
 .btn-ghost:hover{background:var(--panel-2);color:var(--ink);border-color:var(--line-3)}
 
 /* ============================================================
-   4. UPLOAD SCREEN
+   3. UPLOAD
    ============================================================ */
 .upload-screen{
-  flex:1;min-height:0;
-  display:flex;align-items:center;justify-content:center;
-  padding:24px;
-  padding-bottom:calc(24px + var(--safe-b));
-  position:relative;
-  overflow-y:auto;
+  flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  padding:24px;padding-bottom:calc(24px + var(--safe-b));
+  position:relative;overflow-y:auto;
 }
 .upload-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .upload-bg::before{
@@ -304,73 +193,50 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
   mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 15%,transparent 70%);
 }
 .upload-bg::after{
-  content:'';position:absolute;
-  width:min(600px,85vw);height:min(600px,85vw);
-  top:50%;left:50%;transform:translate(-50%,-50%);
-  border-radius:50%;
+  content:'';position:absolute;width:min(600px,85vw);height:min(600px,85vw);
+  top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;
   background:radial-gradient(circle,rgba(184,255,69,.12),transparent 65%);
-  filter:blur(60px);
-  animation:orbPulse 9s ease-in-out infinite;
+  filter:blur(60px);animation:orbPulse 9s ease-in-out infinite;
 }
 @keyframes orbPulse{
   0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(1)}
   50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
 }
 .upload-card{
-  position:relative;z-index:1;
-  width:100%;max-width:560px;
+  position:relative;z-index:1;width:100%;max-width:560px;
   background:linear-gradient(180deg,var(--panel),var(--bg-2));
-  border:1px solid var(--line-2);
-  border-radius:22px;
-  padding:42px 34px;
-  text-align:center;
-  box-shadow:var(--shadow);
-  animation:cardIn .6s var(--ease);
+  border:1px solid var(--line-2);border-radius:22px;padding:42px 34px;
+  text-align:center;box-shadow:var(--shadow);animation:cardIn .6s var(--ease);
 }
 @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
 .upload-kicker{
-  display:inline-flex;align-items:center;gap:9px;
-  padding:7px 13px;border:1px solid var(--line-2);
-  border-radius:999px;background:var(--panel-2);
-  font-family:'DM Mono',monospace;
-  font-size:10.5px;color:var(--ink-3);
-  text-transform:uppercase;letter-spacing:.12em;
-  margin-bottom:22px;
+  display:inline-flex;align-items:center;gap:9px;padding:7px 13px;
+  border:1px solid var(--line-2);border-radius:999px;background:var(--panel-2);
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.12em;margin-bottom:22px;
 }
 .upload-kicker .live-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:var(--accent);
-  box-shadow:0 0 0 3px rgba(184,255,69,.2);
-  animation:pulseDot 2s infinite;
+  width:6px;height:6px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 0 3px rgba(184,255,69,.2);animation:pulseDot 2s infinite;
 }
 @keyframes pulseDot{
   0%,100%{box-shadow:0 0 0 3px rgba(184,255,69,.2)}
   50%{box-shadow:0 0 0 8px rgba(184,255,69,0)}
 }
 .upload-card h1{
-  font-size:clamp(1.5rem,4.5vw,2.1rem);
-  font-weight:800;letter-spacing:-.045em;
-  line-height:1.1;margin-bottom:14px;
+  font-size:clamp(1.5rem,4.5vw,2.1rem);font-weight:800;
+  letter-spacing:-.045em;line-height:1.1;margin-bottom:14px;
 }
-.upload-card h1 .accent{
-  background:var(--accent);color:var(--bg);
-  padding:0 .12em;border-radius:4px;
-}
+.upload-card h1 .accent{background:var(--accent);color:var(--bg);padding:0 .12em;border-radius:4px}
 .upload-card > p{
-  color:var(--ink-3);font-size:14px;
-  line-height:1.6;max-width:420px;
-  margin:0 auto 28px;
+  color:var(--ink-3);font-size:14px;line-height:1.6;
+  max-width:420px;margin:0 auto 28px;
 }
 .drop-zone{
-  position:relative;display:block;
-  border:2px dashed var(--line-2);
-  border-radius:16px;
-  padding:40px 22px 32px;
-  cursor:pointer;
+  position:relative;display:block;border:2px dashed var(--line-2);
+  border-radius:16px;padding:40px 22px 32px;cursor:pointer;
   transition:border-color .3s,background .3s,transform .3s;
-  background:rgba(184,255,69,.015);
-  overflow:hidden;
-  text-align:center;
+  background:rgba(184,255,69,.015);overflow:hidden;text-align:center;
 }
 .drop-zone::before{
   content:'';position:absolute;inset:0;
@@ -379,188 +245,106 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 }
 .drop-zone:hover{border-color:var(--accent-line);background:rgba(184,255,69,.04)}
 .drop-zone:hover::before{opacity:1}
-.drop-zone.dragover{
-  border-color:var(--accent);background:rgba(184,255,69,.08);
-  transform:scale(1.015);border-style:solid;
-}
+.drop-zone.dragover{border-color:var(--accent);background:rgba(184,255,69,.08);transform:scale(1.015);border-style:solid}
 .drop-zone.dragover::before{opacity:1}
 .drop-zone input[type=file]{
-  position:absolute;inset:0;opacity:0;cursor:pointer;
-  width:100%;height:100%;z-index:2;
-  -webkit-tap-highlight-color:transparent;
-  outline:none;
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2;
+  -webkit-tap-highlight-color:transparent;outline:none;
 }
-.drop-zone input[type=file]:focus-visible + .drop-icon{
-  outline:2px solid var(--accent);
-  outline-offset:4px;
-  border-radius:50%;
-}
+.drop-zone input[type=file]:focus-visible + .drop-icon{outline:2px solid var(--accent);outline-offset:4px;border-radius:50%}
 .drop-icon{
-  width:60px;height:60px;margin:0 auto 18px;
-  display:grid;place-items:center;
-  border-radius:50%;background:var(--panel-3);
-  border:1px solid var(--line-2);color:var(--accent);
-  transition:transform .4s var(--ease-back),background .3s;
+  width:60px;height:60px;margin:0 auto 18px;display:grid;place-items:center;
+  border-radius:50%;background:var(--panel-3);border:1px solid var(--line-2);
+  color:var(--accent);transition:transform .4s var(--ease-back),background .3s;
   position:relative;z-index:1;
 }
 .drop-zone:hover .drop-icon{transform:translateY(-4px) scale(1.06);background:var(--accent-dim)}
 .drop-zone.dragover .drop-icon{transform:translateY(-6px) scale(1.1);background:var(--accent-dim);border-color:var(--accent-line)}
 .drop-icon svg{width:26px;height:26px}
 .drop-title{
-  font-size:15px;font-weight:700;
-  margin-bottom:7px;color:var(--ink);
-  letter-spacing:-.015em;
-  position:relative;z-index:1;
+  font-size:15px;font-weight:700;margin-bottom:7px;color:var(--ink);
+  letter-spacing:-.015em;position:relative;z-index:1;
 }
 .drop-hint{
-  font-size:12.5px;color:var(--muted);
-  font-family:'DM Mono',monospace;
-  letter-spacing:.02em;line-height:1.6;
-  position:relative;z-index:1;
+  font-size:12.5px;color:var(--muted);font-family:'DM Mono',monospace;
+  letter-spacing:.02em;line-height:1.6;position:relative;z-index:1;
 }
 .drop-hint b{color:var(--accent);font-weight:500}
 .upload-features{
-  display:flex;justify-content:center;flex-wrap:wrap;
-  gap:8px 20px;margin-top:24px;padding-top:22px;
-  border-top:1px solid var(--line);
-  font-family:'DM Mono',monospace;
-  font-size:10.5px;color:var(--muted);
-  letter-spacing:.05em;
+  display:flex;justify-content:center;flex-wrap:wrap;gap:8px 20px;
+  margin-top:24px;padding-top:22px;border-top:1px solid var(--line);
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:.05em;
 }
 .upload-features span{display:inline-flex;align-items:center;gap:6px}
 .upload-features .check{color:var(--accent);font-weight:700}
 
 /* ============================================================
-   5. ANALYZER BODY
+   4. BODY / SIDEBAR
    ============================================================ */
-.body{
-  flex:1;min-height:0;
-  display:flex;
-  overflow:hidden;
-  position:relative;
-}
-
-/* ============================================================
-   6. SIDEBAR
-   ============================================================ */
+.body{flex:1;min-height:0;display:flex;overflow:hidden;position:relative}
 .sidebar{
-  width:var(--side-w);
-  flex-shrink:0;
-  background:var(--bg-2);
-  border-right:1px solid var(--line);
-  overflow-y:auto;
-  overflow-x:hidden;
-  padding:14px 10px;
-  padding-bottom:calc(24px + var(--safe-b));
+  width:var(--side-w);flex-shrink:0;background:var(--bg-2);
+  border-right:1px solid var(--line);overflow-y:auto;overflow-x:hidden;
+  padding:14px 10px;padding-bottom:calc(24px + var(--safe-b));
   display:flex;flex-direction:column;gap:3px;
 }
 .sidebar-label{
-  font-family:'DM Mono',monospace;
-  font-size:9.5px;color:var(--muted);
-  letter-spacing:.16em;text-transform:uppercase;
-  padding:14px 12px 7px;
+  font-family:'DM Mono',monospace;font-size:9.5px;color:var(--muted);
+  letter-spacing:.16em;text-transform:uppercase;padding:14px 12px 7px;
 }
 .sidebar-label:first-child{padding-top:4px}
-
 .nav-item{
-  display:flex;align-items:center;gap:11px;
-  padding:10px 12px;
-  border-radius:9px;
-  color:var(--ink-2);
-  font-size:13.5px;font-weight:500;
-  text-align:left;width:100%;
-  cursor:pointer;
-  border:1px solid transparent;
-  transition:background .2s,color .2s,border-color .2s;
-  flex-shrink:0;
+  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;
+  color:var(--ink-2);font-size:13.5px;font-weight:500;text-align:left;width:100%;
+  cursor:pointer;border:1px solid transparent;
+  transition:background .2s,color .2s,border-color .2s;flex-shrink:0;
 }
 .nav-item svg{width:16px;height:16px;opacity:.75;transition:opacity .2s}
-.nav-item .nav-label{
-  flex:1;min-width:0;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
+.nav-item .nav-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nav-item:hover{background:var(--panel-2);color:var(--ink)}
 .nav-item:hover svg{opacity:1}
 .nav-item.active{
-  background:var(--panel-3);
-  color:var(--accent);
-  border-color:var(--line-2);
+  background:var(--panel-3);color:var(--accent);border-color:var(--line-2);
   box-shadow:inset 3px 0 0 var(--accent);
 }
 .nav-item.active svg{opacity:1}
 .nav-item .badge{
-  font-family:'DM Mono',monospace;
-  font-size:10px;color:var(--muted);
-  background:var(--panel-2);
-  padding:2px 8px;border-radius:99px;
-  letter-spacing:.05em;
-  flex-shrink:0;min-width:22px;text-align:center;
-  transition:all .2s;
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+  background:var(--panel-2);padding:2px 8px;border-radius:99px;
+  letter-spacing:.05em;flex-shrink:0;min-width:22px;text-align:center;transition:all .2s;
 }
 .nav-item.active .badge{background:var(--accent-dim);color:var(--accent)}
 .nav-item .badge.danger{color:var(--danger);background:var(--danger-dim)}
 .nav-item .badge.warn{color:var(--warn);background:var(--warn-dim)}
 
-/* Backdrop */
 .sidebar-backdrop{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(3px);
-  -webkit-backdrop-filter:blur(3px);
-  z-index:90;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .3s var(--ease);
-  border:none;
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  z-index:90;opacity:0;pointer-events:none;transition:opacity .3s var(--ease);border:none;
 }
 body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
-/* ============================================================
-   7. CONTENT
-   ============================================================ */
 .content{
-  flex:1;min-width:0;min-height:0;
-  overflow-y:auto;
-  overflow-x:hidden;
-  padding:28px clamp(16px,3vw,40px);
-  padding-bottom:calc(60px + var(--safe-b));
-  background:var(--bg);
-  overscroll-behavior:contain;
+  flex:1;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;
+  padding:28px clamp(16px,3vw,40px);padding-bottom:calc(60px + var(--safe-b));
+  background:var(--bg);overscroll-behavior:contain;
 }
-
-/* Mobile file banner */
 .mobile-file-bar{
-  display:none;
-  align-items:center;gap:10px;
-  padding:10px 14px;
-  background:var(--panel-2);
-  border:1px solid var(--line-2);
-  border-radius:10px;
-  margin-bottom:18px;
-  min-width:0;
+  display:none;align-items:center;gap:10px;padding:10px 14px;
+  background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;
+  margin-bottom:18px;min-width:0;
 }
-.mobile-file-bar > svg{
-  color:var(--accent);opacity:.75;
-  width:18px;height:18px;flex-shrink:0;
-}
-.mobile-file-bar .mfb-info{
-  flex:1;min-width:0;
-  display:flex;flex-direction:column;gap:2px;
-}
+.mobile-file-bar > svg{color:var(--accent);opacity:.75;width:18px;height:18px;flex-shrink:0}
+.mobile-file-bar .mfb-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .mobile-file-bar .mfb-name{
-  font-family:'DM Mono',monospace;
-  font-size:12px;color:var(--ink);
+  font-family:'DM Mono',monospace;font-size:12px;color:var(--ink);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .mobile-file-bar .mfb-meta{
-  font-family:'DM Mono',monospace;
-  font-size:10.5px;color:var(--muted);
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
-/* Views */
 .view{display:none}
 .view.active{display:block;animation:viewIn .35s var(--ease)}
 @keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -571,77 +355,57 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 .view-title-wrap{min-width:0;flex:1 1 240px}
 .view-eyebrow{
-  font-family:'DM Mono',monospace;
-  font-size:10.5px;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.16em;
-  margin-bottom:8px;
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px;
   display:flex;align-items:center;gap:10px;
 }
-.view-eyebrow::before{
-  content:'';width:16px;height:1px;background:var(--muted);flex-shrink:0;
-}
+.view-eyebrow::before{content:'';width:16px;height:1px;background:var(--muted);flex-shrink:0}
 .view-title{
-  font-size:clamp(1.4rem,3vw,1.9rem);
-  font-weight:800;letter-spacing:-.04em;
-  line-height:1.1;color:var(--ink);
-  word-break:break-word;
+  font-size:clamp(1.4rem,3vw,1.9rem);font-weight:800;
+  letter-spacing:-.04em;line-height:1.1;color:var(--ink);word-break:break-word;
 }
-.view-subtitle{
-  font-size:13px;color:var(--ink-3);
-  margin-top:8px;line-height:1.5;
-}
+.view-subtitle{font-size:13px;color:var(--ink-3);margin-top:8px;line-height:1.5}
 
 /* ============================================================
-   8. CARDS
+   5. CARDS
    ============================================================ */
 .card{
   background:linear-gradient(180deg,var(--panel),var(--bg-2));
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  overflow:hidden;
-  margin-bottom:18px;
-  transition:border-color .25s;
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  margin-bottom:18px;transition:border-color .25s;
 }
 .card:hover{border-color:var(--line-2)}
 .card-head{
-  padding:15px 18px;
-  border-bottom:1px solid var(--line);
+  padding:15px 18px;border-bottom:1px solid var(--line);
   display:flex;align-items:center;justify-content:space-between;
   gap:12px;flex-wrap:wrap;
   background:linear-gradient(180deg,rgba(255,255,255,.01),transparent);
 }
 .card-title{
-  font-size:13px;font-weight:700;
-  display:flex;align-items:center;gap:9px;
+  font-size:13px;font-weight:700;display:flex;align-items:center;gap:9px;
   min-width:0;flex-wrap:wrap;
 }
 .card-title > svg{width:15px;height:15px;color:var(--accent);opacity:.85;flex-shrink:0}
 .card-title .count{
-  font-family:'DM Mono',monospace;
-  font-size:10.5px;font-weight:500;
-  padding:2px 9px;background:var(--panel-3);
-  color:var(--ink-3);border-radius:99px;
-  letter-spacing:.05em;border:1px solid var(--line-2);
+  font-family:'DM Mono',monospace;font-size:10.5px;font-weight:500;
+  padding:2px 9px;background:var(--panel-3);color:var(--ink-3);
+  border-radius:99px;letter-spacing:.05em;border:1px solid var(--line-2);
 }
 .card-body{padding:18px}
 .card-body.no-pad{padding:0}
 
 /* ============================================================
-   9. STAT GRID
+   6. STAT / INFO / TAGS
    ============================================================ */
 .stat-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
   gap:12px;margin-bottom:18px;
 }
 .stat-card{
   background:linear-gradient(180deg,var(--panel),var(--bg-2));
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  padding:16px 18px;
-  position:relative;overflow:hidden;
-  transition:border-color .3s,transform .3s var(--ease-back);
-  min-width:0;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s var(--ease-back);min-width:0;
 }
 .stat-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
@@ -656,89 +420,57 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 .stat-card:hover::after{opacity:1}
 .stat-card .label{
-  font-family:'DM Mono',monospace;
-  font-size:10px;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.14em;
-  margin-bottom:9px;
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.14em;margin-bottom:9px;
   display:flex;align-items:center;gap:7px;
 }
 .stat-card .label svg{width:13px;height:13px;color:var(--accent);opacity:.7;flex-shrink:0}
 .stat-card .value{
-  font-family:'DM Mono',monospace;
-  font-size:22px;font-weight:500;color:var(--ink);
-  letter-spacing:-.025em;line-height:1.15;
-  word-break:break-word;
+  font-family:'DM Mono',monospace;font-size:22px;font-weight:500;
+  color:var(--ink);letter-spacing:-.025em;line-height:1.15;word-break:break-word;
 }
 .stat-card .meta{
-  font-size:11.5px;color:var(--muted);
-  margin-top:7px;
-  font-family:'DM Mono',monospace;
-  word-break:break-word;
+  font-size:11.5px;color:var(--muted);margin-top:7px;
+  font-family:'DM Mono',monospace;word-break:break-word;
 }
 .stat-card.danger .value{color:var(--danger)}
 .stat-card.warn .value{color:var(--warn)}
 .stat-card.success .value{color:var(--accent)}
 
-/* ============================================================
-   10. INFO GRID
-   ============================================================ */
-.info-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:0 32px;
-}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0 32px}
 .info-row{
   display:flex;align-items:center;justify-content:space-between;
-  gap:12px;padding:12px 0;
-  border-bottom:1px solid var(--line);
-  min-width:0;
+  gap:12px;padding:12px 0;border-bottom:1px solid var(--line);min-width:0;
 }
 .info-row:last-child{border-bottom:0}
 .info-row .key{
-  color:var(--muted);
-  font-family:'DM Mono',monospace;
-  font-size:11.5px;letter-spacing:.03em;
-  flex-shrink:0;max-width:55%;
+  color:var(--muted);font-family:'DM Mono',monospace;font-size:11.5px;
+  letter-spacing:.03em;flex-shrink:0;max-width:55%;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .info-row .val{
-  color:var(--ink);text-align:right;
-  min-width:0;flex:1;
-  font-family:'DM Mono',monospace;
-  font-size:12px;
+  color:var(--ink);text-align:right;min-width:0;flex:1;
+  font-family:'DM Mono',monospace;font-size:12px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .info-row .copy-btn{
-  opacity:0;padding:4px;border-radius:5px;
-  color:var(--muted);flex-shrink:0;
-  transition:opacity .2s,color .2s,background .2s;
-  display:grid;place-items:center;
+  opacity:0;padding:4px;border-radius:5px;color:var(--muted);flex-shrink:0;
+  transition:opacity .2s,color .2s,background .2s;display:grid;place-items:center;
 }
 .info-row:hover .copy-btn{opacity:1}
 .info-row .copy-btn:hover{color:var(--accent);background:var(--accent-dim)}
 .info-row .copy-btn svg{width:14px;height:14px}
 
-/* ============================================================
-   11. TAGS
-   ============================================================ */
 .tag-list{display:flex;flex-wrap:wrap;gap:8px}
 .tag{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:6px 11px;border-radius:8px;
-  font-family:'DM Mono',monospace;
-  font-size:11.5px;font-weight:500;
-  letter-spacing:.02em;
-  background:var(--panel-2);border:1px solid var(--line-2);
-  color:var(--ink-2);
-  transition:transform .25s var(--ease-back),border-color .25s;
-  cursor:default;max-width:100%;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:8px;
+  font-family:'DM Mono',monospace;font-size:11.5px;font-weight:500;
+  letter-spacing:.02em;background:var(--panel-2);border:1px solid var(--line-2);
+  color:var(--ink-2);transition:transform .25s var(--ease-back),border-color .25s;
+  cursor:default;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .tag:hover{transform:translateY(-2px)}
-.tag::before{
-  content:'';width:6px;height:6px;border-radius:50%;
-  background:var(--muted);flex-shrink:0;
-}
+.tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
 .tag.danger{color:var(--danger);border-color:var(--danger-line);background:var(--danger-dim)}
 .tag.danger::before{background:var(--danger)}
 .tag.warn{color:var(--warn);border-color:var(--warn-line);background:var(--warn-dim)}
@@ -753,36 +485,24 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .tag.more::before{display:none}
 
 /* ============================================================
-   12. SIZE CHART
+   7. CHART
    ============================================================ */
 .chart{display:flex;flex-direction:column;gap:14px}
 .chart-row{margin-bottom:2px}
 .chart-row-head{
   display:flex;justify-content:space-between;align-items:center;
-  gap:12px;margin-bottom:8px;
-  font-size:12px;min-width:0;
+  gap:12px;margin-bottom:8px;font-size:12px;min-width:0;
 }
 .chart-row-head .cat{
   font-family:'DM Mono',monospace;color:var(--ink-2);
-  display:flex;align-items:center;gap:8px;
-  letter-spacing:.02em;min-width:0;
+  display:flex;align-items:center;gap:8px;letter-spacing:.02em;min-width:0;
 }
-.chart-row-head .cat span{
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.chart-row-head .swatch{
-  width:10px;height:10px;border-radius:3px;flex-shrink:0;
-}
-.chart-row-head .amt{
-  font-family:'DM Mono',monospace;color:var(--ink-3);
-  flex-shrink:0;
-}
+.chart-row-head .cat span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chart-row-head .swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.chart-row-head .amt{font-family:'DM Mono',monospace;color:var(--ink-3);flex-shrink:0}
 .chart-row-head .amt b{color:var(--ink);font-weight:500;margin-right:6px}
 .chart-bar{height:8px;background:var(--panel-3);border-radius:99px;overflow:hidden}
-.chart-bar i{
-  display:block;height:100%;width:0;border-radius:99px;
-  transition:width 1.2s var(--ease);
-}
+.chart-bar i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.2s var(--ease)}
 .chart-bar i.dex{background:linear-gradient(90deg,#7ee000,#b8ff45)}
 .chart-bar i.native{background:linear-gradient(90deg,#9d6bff,#c9a8ff)}
 .chart-bar i.resources{background:linear-gradient(90deg,#ffa94d,#ffc857)}
@@ -791,29 +511,22 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .chart-bar i.other{background:linear-gradient(90deg,#3a433d,#5e6863)}
 
 /* ============================================================
-   13. MANIFEST
+   8. MANIFEST
    ============================================================ */
 .code-wrap{position:relative}
 .copy-code-btn{
-  position:absolute;top:12px;right:12px;
-  padding:6px 12px;border-radius:7px;
+  position:absolute;top:12px;right:12px;padding:6px 12px;border-radius:7px;
   background:var(--panel-3);border:1px solid var(--line-2);
-  font-family:'DM Mono',monospace;font-size:10.5px;
-  color:var(--ink-3);
-  transition:all .2s;
-  display:inline-flex;align-items:center;gap:6px;
+  font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ink-3);
+  transition:all .2s;display:inline-flex;align-items:center;gap:6px;
   z-index:2;letter-spacing:.05em;
 }
 .copy-code-btn:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
 .copy-code-btn svg{width:12px;height:12px}
 .manifest-code{
-  font-family:'DM Mono',monospace;
-  font-size:12px;line-height:1.9;
-  padding:22px;overflow:auto;
-  white-space:pre;color:var(--ink-2);
-  max-height:60vh;
-  background:var(--bg-2);
-  letter-spacing:-.005em;
+  font-family:'DM Mono',monospace;font-size:12px;line-height:1.9;
+  padding:22px;overflow:auto;white-space:pre;color:var(--ink-2);
+  max-height:60vh;background:var(--bg-2);letter-spacing:-.005em;
 }
 .manifest-code .tag-name{color:var(--purple)}
 .manifest-code .attr-name{color:var(--info)}
@@ -821,118 +534,86 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .manifest-code .punc{color:var(--muted)}
 
 /* ============================================================
-   14. DEX
+   9. DEX
    ============================================================ */
 .dex-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:14px;margin-bottom:18px;
 }
 .dex-card{
   background:linear-gradient(180deg,var(--panel),var(--bg-2));
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  padding:18px;
-  transition:border-color .3s,transform .3s var(--ease-back);
-  position:relative;overflow:hidden;
-  min-width:0;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;transition:border-color .3s,transform .3s var(--ease-back);
+  position:relative;overflow:hidden;min-width:0;
 }
 .dex-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  opacity:.5;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5;
 }
 .dex-card:hover{border-color:var(--line-2);transform:translateY(-3px)}
 .dex-card .dex-name{
-  font-family:'DM Mono',monospace;
-  font-size:13px;font-weight:500;color:var(--accent);
-  margin-bottom:5px;
-  display:flex;align-items:center;gap:9px;
-  min-width:0;
+  font-family:'DM Mono',monospace;font-size:13px;font-weight:500;
+  color:var(--accent);margin-bottom:5px;display:flex;align-items:center;gap:9px;min-width:0;
 }
 .dex-card .dex-name svg{width:15px;height:15px;flex-shrink:0}
-.dex-card .dex-name span{
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
+.dex-card .dex-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dex-card .dex-size{
-  font-family:'DM Mono',monospace;font-size:11px;
-  color:var(--muted);margin-bottom:14px;letter-spacing:.03em;
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);
+  margin-bottom:14px;letter-spacing:.03em;
 }
-.dex-stats{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
-}
+.dex-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .dex-stat{
-  background:var(--panel-2);border:1px solid var(--line);
-  border-radius:8px;padding:9px 11px;
-  transition:border-color .2s;min-width:0;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px;transition:border-color .2s;min-width:0;
 }
 .dex-stat:hover{border-color:var(--line-2)}
 .dex-stat .k{
-  font-family:'DM Mono',monospace;font-size:9px;
-  color:var(--muted);text-transform:uppercase;
-  letter-spacing:.14em;margin-bottom:4px;
+  font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px;
 }
 .dex-stat .v{
-  font-family:'DM Mono',monospace;font-size:14.5px;
-  font-weight:500;color:var(--ink);
-  letter-spacing:-.01em;
+  font-family:'DM Mono',monospace;font-size:14.5px;font-weight:500;
+  color:var(--ink);letter-spacing:-.01em;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
 /* ============================================================
-   15. SECURITY
+   10. SECURITY
    ============================================================ */
 .severity-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   gap:10px;margin-bottom:18px;
 }
 .sev-card{
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:var(--radius);padding:14px 12px;
-  text-align:center;
-  transition:border-color .25s,transform .25s var(--ease-back);
-  min-width:0;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 12px;text-align:center;
+  transition:border-color .25s,transform .25s var(--ease-back);min-width:0;
 }
 .sev-card:hover{transform:translateY(-2px)}
 .sev-card .sev-label{
-  font-family:'DM Mono',monospace;font-size:9.5px;
-  text-transform:uppercase;letter-spacing:.14em;
-  margin-bottom:7px;color:var(--muted);
+  font-family:'DM Mono',monospace;font-size:9.5px;text-transform:uppercase;
+  letter-spacing:.14em;margin-bottom:7px;color:var(--muted);
 }
-.sev-card .sev-value{
-  font-family:'DM Mono',monospace;font-size:24px;
-  font-weight:500;letter-spacing:-.03em;line-height:1;
-}
+.sev-card .sev-value{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;letter-spacing:-.03em;line-height:1}
 .sev-card.critical .sev-value{color:var(--danger)}
 .sev-card.high .sev-value{color:var(--high)}
 .sev-card.medium .sev-value{color:var(--warn)}
 .sev-card.info .sev-value{color:var(--info)}
 
 .finding{
-  display:flex;gap:14px;padding:16px 18px;
-  border-bottom:1px solid var(--line);
-  transition:background .2s;
-  position:relative;min-width:0;
+  display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line);
+  transition:background .2s;position:relative;min-width:0;
 }
 .finding:last-child{border-bottom:0}
 .finding:hover{background:rgba(255,255,255,.012)}
-.finding::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:var(--muted);opacity:.4;
-}
+.finding::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--muted);opacity:.4}
 .finding.s-critical::before{background:var(--danger);opacity:1;box-shadow:0 0 12px var(--danger)}
 .finding.s-high::before{background:var(--high);opacity:1;box-shadow:0 0 12px var(--high)}
 .finding.s-medium::before{background:var(--warn);opacity:1;box-shadow:0 0 12px var(--warn)}
 .finding.s-info::before{background:var(--info);opacity:.7}
 .finding-icon{
-  width:34px;height:34px;border-radius:9px;
-  display:grid;place-items:center;
-  flex-shrink:0;
-  font-family:'DM Mono',monospace;
-  font-size:15px;font-weight:600;
+  width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+  flex-shrink:0;font-family:'DM Mono',monospace;font-size:15px;font-weight:600;
 }
 .finding-icon.critical{color:var(--danger);background:var(--danger-dim);border:1px solid var(--danger-line)}
 .finding-icon.high{color:var(--high);background:var(--high-dim);border:1px solid var(--high-line)}
@@ -940,17 +621,12 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .finding-icon.info{color:var(--info);background:var(--info-dim);border:1px solid var(--info-line)}
 .finding-body{flex:1;min-width:0}
 .finding-title{
-  font-size:13.5px;font-weight:700;
-  margin-bottom:5px;
-  display:flex;align-items:center;gap:9px;
-  flex-wrap:wrap;letter-spacing:-.01em;
+  font-size:13.5px;font-weight:700;margin-bottom:5px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;letter-spacing:-.01em;
 }
 .finding-title .severity{
-  font-family:'DM Mono',monospace;
-  font-size:9.5px;font-weight:500;
-  padding:3px 8px;border-radius:5px;
-  text-transform:uppercase;letter-spacing:.12em;
-  flex-shrink:0;
+  font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;
+  padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.12em;flex-shrink:0;
 }
 .severity.critical{color:var(--danger);background:var(--danger-dim);border:1px solid var(--danger-line)}
 .severity.high{color:var(--high);background:var(--high-dim);border:1px solid var(--high-line)}
@@ -959,17 +635,17 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .severity.info{color:var(--ink-3);background:var(--panel-3);border:1px solid var(--line-2)}
 .finding-desc{font-size:12.5px;color:var(--ink-3);line-height:1.6;word-wrap:break-word;overflow-wrap:anywhere}
 .finding-desc code{
-  font-family:'DM Mono',monospace;font-size:11px;
-  color:var(--accent);background:var(--accent-dim);
-  padding:1px 6px;border-radius:4px;
-  border:1px solid var(--accent-line);
-  word-break:break-word;
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);
+  background:var(--accent-dim);padding:1px 6px;border-radius:4px;
+  border:1px solid var(--accent-line);word-break:break-word;
 }
 
 /* ============================================================
-   16. FILES
+   11. FILE TREE EXPLORER
    ============================================================ */
-.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.toolbar{
+  display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;
+}
 .search-box{position:relative;flex:1;min-width:200px}
 .search-box > svg{
   position:absolute;left:12px;top:50%;transform:translateY(-50%);
@@ -984,72 +660,132 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .search-input::placeholder{color:var(--muted)}
 .search-input:focus{outline:none;border-color:var(--accent-line);background:var(--panel-2)}
 
-.file-list{display:flex;flex-direction:column;max-height:65vh;overflow-y:auto}
-.file-item{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 16px;
-  border-bottom:1px solid var(--line);
-  transition:background .2s;
-  min-width:0;
+.tree-actions{
+  display:flex;gap:8px;flex-shrink:0;
 }
-.file-item:last-child{border-bottom:0}
-.file-item:hover{background:rgba(255,255,255,.014)}
-.file-icon{
-  width:28px;height:28px;flex-shrink:0;
-  display:grid;place-items:center;border-radius:7px;
-  background:var(--panel-3);
+.tree-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:0 12px;height:40px;
+  border-radius:9px;background:var(--panel);
+  border:1px solid var(--line-2);
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:.04em;
+  transition:all .2s;white-space:nowrap;
+}
+.tree-btn:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
+.tree-btn svg{width:13px;height:13px}
+
+.tree-list{
+  display:flex;flex-direction:column;
+  max-height:70vh;overflow-y:auto;
   font-family:'DM Mono',monospace;
-  font-size:8.5px;font-weight:500;
-  color:var(--muted);text-transform:uppercase;
-  letter-spacing:.04em;border:1px solid var(--line-2);
+  font-size:12px;
+  -webkit-overflow-scrolling:touch;
 }
-.file-icon.dex{color:var(--accent);background:var(--accent-dim);border-color:var(--accent-line)}
-.file-icon.xml{color:var(--info);background:var(--info-dim);border-color:var(--info-line)}
-.file-icon.so{color:var(--purple);background:var(--purple-dim);border-color:var(--purple-line)}
-.file-icon.arsc{color:var(--warn);background:var(--warn-dim);border-color:var(--warn-line)}
-.file-icon.img{color:var(--high);background:var(--high-dim);border-color:var(--high-line)}
-.file-icon.mf{color:#ff8fb1;background:rgba(255,143,177,.12);border-color:rgba(255,143,177,.28)}
-.file-name{
-  font-family:'DM Mono',monospace;font-size:11.5px;
-  color:var(--ink-2);flex:1;min-width:0;
+.tree-row{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 14px;
+  min-height:36px;
+  border-bottom:1px solid var(--line);
+  transition:background .12s;
+  min-width:0;
+  position:relative;
+}
+.tree-row:last-child{border-bottom:0}
+.tree-row:hover{background:rgba(255,255,255,.018)}
+.tree-row.folder{cursor:pointer;user-select:none}
+.tree-row.folder:hover{background:rgba(184,255,69,.045)}
+
+.tree-toggle{
+  width:16px;height:16px;display:grid;place-items:center;
+  flex-shrink:0;color:var(--muted);
+  transition:transform .2s var(--ease),color .2s;
+}
+.tree-row.folder:hover .tree-toggle{color:var(--accent)}
+.tree-row.expanded > .tree-toggle{transform:rotate(90deg);color:var(--accent)}
+
+.tree-icon{
+  width:24px;height:24px;display:grid;place-items:center;
+  border-radius:6px;flex-shrink:0;
+  font-size:8px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;
+  border:1px solid var(--line-2);background:var(--panel-3);color:var(--muted);
+}
+.tree-icon.folder{
+  color:var(--accent);background:var(--accent-dim);
+  border-color:var(--accent-line);
+}
+.tree-icon.folder svg{width:13px;height:13px}
+
+/* file icon variants (same palette) */
+.tree-icon.dex{color:var(--accent);background:var(--accent-dim);border-color:var(--accent-line)}
+.tree-icon.xml{color:var(--info);background:var(--info-dim);border-color:var(--info-line)}
+.tree-icon.so{color:var(--purple);background:var(--purple-dim);border-color:var(--purple-line)}
+.tree-icon.arsc{color:var(--warn);background:var(--warn-dim);border-color:var(--warn-line)}
+.tree-icon.img{color:var(--high);background:var(--high-dim);border-color:var(--high-line)}
+.tree-icon.mf{color:#ff8fb1;background:rgba(255,143,177,.12);border-color:rgba(255,143,177,.28)}
+
+.tree-name{
+  flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--ink-2);
 }
-.file-size{
+.tree-row.folder .tree-name{color:var(--ink);font-weight:500;letter-spacing:-.01em}
+
+.tree-count{
+  font-family:'DM Mono',monospace;font-size:9.5px;
+  color:var(--muted);background:var(--panel-2);
+  padding:2px 7px;border-radius:99px;
+  flex-shrink:0;border:1px solid var(--line);
+  letter-spacing:.03em;
+  min-width:24px;text-align:center;
+}
+.tree-row.folder:hover .tree-count{
+  color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim);
+}
+
+.tree-size{
   font-family:'DM Mono',monospace;font-size:10.5px;
-  color:var(--muted);flex-shrink:0;min-width:60px;text-align:right;
+  color:var(--muted);flex-shrink:0;
+  min-width:64px;text-align:right;
+  letter-spacing:.01em;
 }
-.file-action{
-  padding:5px 11px;border-radius:6px;
+
+.tree-row .file-action{
+  padding:4px 9px;border-radius:6px;
   background:var(--panel-2);border:1px solid var(--line-2);
-  font-family:'DM Mono',monospace;font-size:10px;
+  font-family:'DM Mono',monospace;font-size:9.5px;
   color:var(--muted);transition:all .2s;
   flex-shrink:0;letter-spacing:.04em;
 }
-.file-action:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
+.tree-row .file-action:hover{
+  color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim);
+}
+
+.search-hit{
+  background:var(--accent);color:var(--bg);
+  border-radius:3px;padding:0 2px;
+}
+
+/* Indent guide line */
+.tree-row::before{
+  content:'';position:absolute;top:0;bottom:0;left:0;
+  width:1px;background:transparent;pointer-events:none;
+}
 
 /* ============================================================
-   17. EMPTY
+   12. EMPTY / LOADER / TOAST
    ============================================================ */
 .empty{
-  text-align:center;padding:44px 20px;
-  color:var(--muted);font-size:13px;
-  display:flex;flex-direction:column;
-  align-items:center;gap:10px;
+  text-align:center;padding:44px 20px;color:var(--muted);font-size:13px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
 }
 .empty svg{width:34px;height:34px;opacity:.35}
 .empty .empty-title{font-size:14px;font-weight:600;color:var(--ink-3)}
 
-/* ============================================================
-   18. LOADER
-   ============================================================ */
 .loader-overlay{
-  position:fixed;inset:0;
-  background:rgba(8,11,10,.94);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  z-index:9999;
-  display:none;align-items:center;justify-content:center;
-  padding:24px;
+  position:fixed;inset:0;background:rgba(8,11,10,.94);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  z-index:9999;display:none;align-items:center;justify-content:center;padding:24px;
 }
 .loader-overlay.show{display:flex}
 .loader-card{text-align:center;max-width:400px;width:100%}
@@ -1064,27 +800,16 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .loader-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent));width:0%;transition:width .4s var(--ease);border-radius:99px;box-shadow:0 0 12px rgba(184,255,69,.5)}
 .loader-pct{margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em}
 
-/* ============================================================
-   19. TOAST
-   ============================================================ */
 .toast{
-  position:fixed;
-  bottom:calc(20px + var(--safe-b));
-  right:calc(20px + var(--safe-r));
-  padding:14px 20px;
-  background:linear-gradient(180deg,var(--panel-3),var(--panel));
-  border:1px solid var(--line-2);
-  border-left:3px solid var(--accent);
-  border-radius:11px;
-  font-size:13px;color:var(--ink);
-  box-shadow:var(--shadow);
-  z-index:9998;
+  position:fixed;bottom:calc(20px + var(--safe-b));right:calc(20px + var(--safe-r));
+  padding:14px 20px;background:linear-gradient(180deg,var(--panel-3),var(--panel));
+  border:1px solid var(--line-2);border-left:3px solid var(--accent);
+  border-radius:11px;font-size:13px;color:var(--ink);
+  box-shadow:var(--shadow);z-index:9998;
   transform:translateY(24px);opacity:0;
   transition:opacity .35s var(--ease),transform .35s var(--ease);
-  pointer-events:none;
-  max-width:min(360px,calc(100vw - 40px));
-  line-height:1.5;
-  display:flex;align-items:center;gap:11px;
+  pointer-events:none;max-width:min(360px,calc(100vw - 40px));
+  line-height:1.5;display:flex;align-items:center;gap:11px;
 }
 .toast svg{width:16px;height:16px;color:var(--accent);flex-shrink:0}
 .toast.show{opacity:1;transform:translateY(0)}
@@ -1092,148 +817,118 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .toast.error svg{color:var(--danger)}
 
 /* ============================================================
-   20. RESPONSIVE
+   13. RESPONSIVE
    ============================================================ */
-
-/* Tablet & mobile — drawer */
 @media (max-width:900px){
   .menu-btn{display:flex}
-
-  .file-chip,
-  .status-badge{display:none}
-
+  .file-chip,.status-badge{display:none}
   .sidebar{
-    position:fixed;
-    top:calc(var(--topbar-h) + var(--safe-t) + 1px);
-    left:0;
-    bottom:0;
-    width:min(290px,84vw);
-    transform:translateX(-100%);
-    transition:transform .35s var(--ease);
-    box-shadow:8px 0 40px rgba(0,0,0,.6);
-    z-index:95;
-    padding-top:16px;
-    padding-left:calc(12px + var(--safe-l));
-    padding-right:12px;
-    padding-bottom:calc(24px + var(--safe-b));
+    position:fixed;top:calc(var(--topbar-h) + var(--safe-t) + 1px);
+    left:0;bottom:0;width:min(290px,84vw);
+    transform:translateX(-100%);transition:transform .35s var(--ease);
+    box-shadow:8px 0 40px rgba(0,0,0,.6);z-index:95;
+    padding-top:16px;padding-left:calc(12px + var(--safe-l));
+    padding-right:12px;padding-bottom:calc(24px + var(--safe-b));
   }
   body.drawer-open .sidebar{transform:translateX(0)}
   .sidebar-backdrop{display:block}
-
   .content{padding:20px 16px;padding-bottom:calc(60px + var(--safe-b))}
   .mobile-file-bar{display:flex}
-
-  .view-header{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:12px;
-    margin-bottom:20px;
-  }
+  .view-header{flex-direction:column;align-items:flex-start;gap:12px;margin-bottom:20px}
   .view-title-wrap{flex:1 1 auto;width:100%}
-
   .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .stat-card{padding:14px 16px}
   .stat-card .value{font-size:19px}
-
   .info-grid{grid-template-columns:1fr;gap:0}
-
   .dex-grid{grid-template-columns:1fr}
-
   .severity-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
   .sev-card{padding:12px 8px}
   .sev-card .sev-label{font-size:9px;letter-spacing:.1em}
   .sev-card .sev-value{font-size:20px}
-
-  .file-size{display:none}
-
   .btn .hide-mobile{display:none}
+
+  /* Tree — mobile tweaks */
+  .tree-list{max-height:70vh}
+  .tree-row{padding:8px 12px;min-height:40px;gap:7px}
+  .tree-size{min-width:56px;font-size:10px}
+  .tree-count{font-size:9px;padding:2px 6px;min-width:22px}
 }
 
-/* Small mobile */
 @media (max-width:640px){
   :root{--topbar-h:56px}
-
   .topbar{padding-left:calc(10px + var(--safe-l));padding-right:calc(10px + var(--safe-r));gap:8px}
   .brand-text{display:none}
   .brand-mark{width:30px;height:30px}
   .brand-mark svg{width:16px;height:16px}
-
   .content{padding:16px 14px;padding-bottom:calc(60px + var(--safe-b))}
-
   .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .stat-card{padding:12px 14px}
   .stat-card .label{font-size:9px;letter-spacing:.12em}
   .stat-card .label svg{width:12px;height:12px}
   .stat-card .value{font-size:17px}
   .stat-card .meta{font-size:10.5px}
-
   .upload-card{padding:32px 22px;border-radius:18px}
   .drop-zone{padding:32px 16px 26px}
   .drop-title{font-size:14px}
   .drop-hint{font-size:11.5px}
   .upload-features{gap:6px 14px;font-size:10px}
-
   .card-head{padding:13px 14px}
   .card-body{padding:14px}
   .card-title{font-size:12.5px}
   .card-title .count{font-size:10px}
-
   .manifest-code{font-size:11px;padding:16px;max-height:55vh}
   .copy-code-btn{padding:5px 10px;font-size:10px}
-
   .dex-card{padding:16px}
   .dex-stat{padding:8px 10px}
   .dex-stat .v{font-size:13px}
-
   .finding{padding:14px;gap:12px}
   .finding-icon{width:30px;height:30px;font-size:13px}
   .finding-title{font-size:12.5px}
-
-  .file-item{padding:10px 12px;gap:10px}
-  .file-icon{width:26px;height:26px;font-size:8px}
-  .file-name{font-size:11px}
-
   .view-title{font-size:1.3rem}
   .view-subtitle{font-size:12px}
-
   .info-row{padding:10px 0}
   .info-row .key{font-size:11px;max-width:50%}
   .info-row .val{font-size:11.5px}
-
-  .toast{
-    left:12px;right:12px;
-    bottom:calc(12px + var(--safe-b));
-    max-width:none;
-  }
-
+  .toast{left:12px;right:12px;bottom:calc(12px + var(--safe-b));max-width:none}
   .btn{padding:0 12px}
   .btn .hide-mobile{display:none}
+
+  /* Tree — small mobile */
+  .tree-list{font-size:11.5px;max-height:none}
+  .tree-row{padding:8px 10px;min-height:42px;gap:6px}
+  .tree-icon{width:22px;height:22px;font-size:7.5px}
+  .tree-icon.folder svg{width:12px;height:12px}
+  .tree-size{min-width:0;font-size:9.5px}
+  .tree-count{display:none}
+  .tree-row .file-action{padding:3px 8px;font-size:9px}
+
+  .toolbar{gap:8px}
+  .tree-actions{width:100%}
+  .tree-btn{flex:1;justify-content:center}
 }
 
-/* Extra small */
 @media (max-width:400px){
   .stat-grid{grid-template-columns:1fr}
   .severity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .dex-stats{grid-template-columns:1fr 1fr}
-
   .topbar{padding-left:calc(8px + var(--safe-l));padding-right:calc(8px + var(--safe-r));gap:6px}
   .topbar-actions{gap:6px}
   .btn{padding:0 10px;font-size:12.5px;height:36px}
   .menu-btn{width:36px;height:36px}
+
+  /* Tree — extra small */
+  .tree-size{display:none}
+  .tree-row{padding:8px 10px}
+  .tree-row .file-action{padding:3px 6px;font-size:8.5px}
 }
 
-/* Large desktop */
 @media (min-width:1400px){
   :root{--side-w:260px}
   .content{padding:36px clamp(28px,4vw,60px);padding-bottom:100px}
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:.01ms !important;
-    transition-duration:.01ms !important;
-  }
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
 </style>
 </head>
@@ -1241,14 +936,9 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
 <div class="app">
 
-  <!-- ============ TOPBAR ============ -->
   <header class="topbar">
     <button class="menu-btn" id="menuBtn" aria-label="Toggle navigation" aria-expanded="false">
-      <span class="bars">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </span>
+      <span class="bars"><span class="bar"></span><span class="bar"></span><span class="bar"></span></span>
     </button>
 
     <a class="brand" href="index.html" title="Back to home">
@@ -1274,7 +964,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         <span class="hide-mobile">New file</span>
       </button>
-
       <button class="btn btn-primary" id="exportBtn" title="Export report as JSON" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         <span>Export</span>
@@ -1282,32 +971,26 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
     </div>
   </header>
 
-  <!-- ============ UPLOAD SCREEN ============ -->
   <section class="upload-screen" id="uploadScreen">
     <div class="upload-bg"></div>
-
     <div class="upload-card">
       <div class="upload-kicker">
         <span class="live-dot"></span>
         100% client-side · nothing leaves your device
       </div>
-
       <h1>Drop an <span class="accent">APK</span> to begin.</h1>
       <p>Manifest, DEX files, permissions, technologies and security findings — all analyzed locally in your browser.</p>
-
       <label class="drop-zone" id="dropZone">
         <input type="file" id="fileInput" accept=".apk,.xapk,.apks,application/vnd.android.package-archive">
         <div class="drop-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <path d="M17 8l-5-5-5 5"/>
-            <path d="M12 3v12"/>
+            <path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/>
           </svg>
         </div>
         <div class="drop-title">Click to choose or drop an APK</div>
         <div class="drop-hint">.apk · .xapk · .apks · <b>~500 MB recommended</b></div>
       </label>
-
       <div class="upload-features">
         <span><b class="check">✓</b> No upload</span>
         <span><b class="check">✓</b> No signup</span>
@@ -1316,7 +999,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
     </div>
   </section>
 
-  <!-- ============ ANALYZER BODY ============ -->
   <div class="body" id="analyzerBody" hidden>
 
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -1328,30 +1010,25 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span class="nav-label">Overview</span>
       </button>
-
       <button class="nav-item" data-view="manifest">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
         <span class="nav-label">Manifest</span>
       </button>
-
       <button class="nav-item" data-view="dex">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg>
         <span class="nav-label">DEX Explorer</span>
         <span class="badge" id="dexCount">0</span>
       </button>
-
       <button class="nav-item" data-view="security">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
         <span class="nav-label">Security</span>
         <span class="badge" id="issueCount">0</span>
       </button>
-
       <button class="nav-item" data-view="technologies">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>
         <span class="nav-label">Technologies</span>
         <span class="badge" id="techCount">0</span>
       </button>
-
       <button class="nav-item" data-view="files">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
         <span class="nav-label">Files</span>
@@ -1359,17 +1036,14 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
       </button>
 
       <div class="sidebar-label">Actions</div>
-
       <button class="nav-item" id="sidebarExport">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         <span class="nav-label">Export JSON</span>
       </button>
-
       <button class="nav-item" id="sidebarNew">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         <span class="nav-label">Analyze another</span>
       </button>
-
       <a class="nav-item" href="index.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         <span class="nav-label">Back to home</span>
@@ -1398,34 +1072,22 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
         <div class="stat-grid">
           <div class="stat-card">
-            <div class="label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-              APK Size
-            </div>
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>APK Size</div>
             <div class="value" id="ovSize">—</div>
             <div class="meta" id="ovCompressed">—</div>
           </div>
           <div class="stat-card">
-            <div class="label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z"/></svg>
-              DEX Files
-            </div>
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z"/></svg>DEX Files</div>
             <div class="value" id="ovDex">0</div>
             <div class="meta" id="ovDexMeta">—</div>
           </div>
           <div class="stat-card">
-            <div class="label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-              Total Files
-            </div>
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Total Files</div>
             <div class="value" id="ovFiles">0</div>
             <div class="meta" id="ovFilesMeta">—</div>
           </div>
           <div class="stat-card" id="ovIssuesCard">
-            <div class="label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>
-              Findings
-            </div>
+            <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>Findings</div>
             <div class="value" id="ovIssues">0</div>
             <div class="meta" id="ovIssuesMeta">—</div>
           </div>
@@ -1433,10 +1095,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9M14 17H5M17 3l3 4-3 4M7 11l-3 4 3 4"/></svg>
-              Package Identity
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9M14 17H5M17 3l3 4-3 4M7 11l-3 4 3 4"/></svg>Package Identity</div>
           </div>
           <div class="card-body">
             <div class="info-grid">
@@ -1472,52 +1131,30 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
         <div class="card" id="sizeChartCard">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 12l3-3 4 4 5-6"/></svg>
-              Size Breakdown
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 12l3-3 4 4 5-6"/></svg>Size Breakdown</div>
           </div>
-          <div class="card-body">
-            <div class="chart" id="sizeChart"></div>
-          </div>
+          <div class="card-body"><div class="chart" id="sizeChart"></div></div>
         </div>
 
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>
-              Detected Technologies
-              <span class="count" id="ovTechCount">0</span>
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>Detected Technologies<span class="count" id="ovTechCount">0</span></div>
           </div>
-          <div class="card-body">
-            <div class="tag-list" id="ovTechList"></div>
-          </div>
+          <div class="card-body"><div class="tag-list" id="ovTechList"></div></div>
         </div>
 
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>
-              Top Permissions
-              <span class="count" id="ovPermCount">0</span>
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>Top Permissions<span class="count" id="ovPermCount">0</span></div>
           </div>
-          <div class="card-body">
-            <div class="tag-list" id="ovPermList"></div>
-          </div>
+          <div class="card-body"><div class="tag-list" id="ovPermList"></div></div>
         </div>
 
         <div class="card" id="signatureCard" hidden>
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>
-              Signature
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>Signature</div>
           </div>
-          <div class="card-body">
-            <div class="info-grid" id="signatureGrid"></div>
-          </div>
+          <div class="card-body"><div class="info-grid" id="signatureGrid"></div></div>
         </div>
       </section>
 
@@ -1533,10 +1170,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
-              Decoded Manifest
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Decoded Manifest</div>
           </div>
           <div class="card-body no-pad">
             <div class="code-wrap">
@@ -1551,28 +1185,16 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>
-              Permissions
-              <span class="count" id="permCount">0</span>
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>Permissions<span class="count" id="permCount">0</span></div>
           </div>
-          <div class="card-body">
-            <div class="tag-list" id="permList"></div>
-          </div>
+          <div class="card-body"><div class="tag-list" id="permList"></div></div>
         </div>
 
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
-              Components
-              <span class="count" id="compCount">0</span>
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>Components<span class="count" id="compCount">0</span></div>
           </div>
-          <div class="card-body">
-            <div class="info-grid" id="compGrid"></div>
-          </div>
+          <div class="card-body"><div class="info-grid" id="compGrid"></div></div>
         </div>
       </section>
 
@@ -1585,15 +1207,10 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
             <div class="view-subtitle">Compiled Dalvik bytecode files and their structure</div>
           </div>
         </div>
-
         <div class="dex-grid" id="dexGrid"></div>
-
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/></svg>
-              Aggregate Counts
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/></svg>Aggregate Counts</div>
           </div>
           <div class="card-body no-pad">
             <div style="padding:0 18px">
@@ -1615,21 +1232,15 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
             <div class="view-subtitle">Automated checks for common Android misconfigurations</div>
           </div>
         </div>
-
         <div class="severity-grid">
           <div class="sev-card critical"><div class="sev-label">Critical</div><div class="sev-value" id="secCritical">0</div></div>
           <div class="sev-card high"><div class="sev-label">High</div><div class="sev-value" id="secHigh">0</div></div>
           <div class="sev-card medium"><div class="sev-label">Medium</div><div class="sev-value" id="secMedium">0</div></div>
           <div class="sev-card info"><div class="sev-label">Info</div><div class="sev-value" id="secInfo">0</div></div>
         </div>
-
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-              Findings
-              <span class="count" id="findingsCount">0</span>
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>Findings<span class="count" id="findingsCount">0</span></div>
           </div>
           <div class="card-body no-pad" id="findingsList"></div>
         </div>
@@ -1644,60 +1255,50 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
             <div class="view-subtitle">Frameworks, libraries and languages detected inside the APK</div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>
-              Detected Stack
-              <span class="count" id="techCount2">0</span>
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>Detected Stack<span class="count" id="techCount2">0</span></div>
           </div>
-          <div class="card-body">
-            <div id="techListFull"></div>
-          </div>
+          <div class="card-body"><div id="techListFull"></div></div>
         </div>
-
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
-              Native Libraries
-              <span class="count" id="nativeCount">0</span>
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>Native Libraries<span class="count" id="nativeCount">0</span></div>
           </div>
-          <div class="card-body">
-            <div class="tag-list" id="nativeList"></div>
-          </div>
+          <div class="card-body"><div class="tag-list" id="nativeList"></div></div>
         </div>
-
         <div class="card">
           <div class="card-head">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 16h16M10 4v16M16 4v16"/></svg>
-              Architecture
-            </div>
+            <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 16h16M10 4v16M16 4v16"/></svg>Architecture</div>
           </div>
-          <div class="card-body">
-            <div class="tag-list" id="archList"></div>
-          </div>
+          <div class="card-body"><div class="tag-list" id="archList"></div></div>
         </div>
       </section>
 
-      <!-- FILES -->
+      <!-- FILES — with folder tree -->
       <section class="view" data-view="files">
         <div class="view-header">
           <div class="view-title-wrap">
             <div class="view-eyebrow">Analysis / Files</div>
             <div class="view-title">File Explorer</div>
-            <div class="view-subtitle">Browse the internal structure of the APK</div>
+            <div class="view-subtitle">Browse the internal structure of the APK — click folders to expand</div>
           </div>
         </div>
 
         <div class="toolbar">
           <div class="search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input type="text" class="search-input" id="fileSearch" placeholder="Search file name or extension…" autocomplete="off">
+            <input type="text" class="search-input" id="fileSearch" placeholder="Search file name or path…" autocomplete="off">
+          </div>
+          <div class="tree-actions">
+            <button class="tree-btn" id="expandAllBtn" title="Expand all folders">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/><path d="M6 3l6 6 6-6"/></svg>
+              Expand
+            </button>
+            <button class="tree-btn" id="collapseAllBtn" title="Collapse all folders">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/><path d="M6 21l6-6 6 6"/></svg>
+              Collapse
+            </button>
           </div>
         </div>
 
@@ -1708,10 +1309,10 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
               Package Contents
               <span class="count" id="filesCount">0</span>
             </div>
-            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="filesShowing">Sorted by size</div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="filesShowing">Root</div>
           </div>
           <div class="card-body no-pad">
-            <div class="file-list" id="fileList"></div>
+            <div class="tree-list" id="fileTree"></div>
           </div>
         </div>
       </section>
@@ -1720,7 +1321,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   </div>
 </div>
 
-<!-- ============ LOADER ============ -->
 <div class="loader-overlay" id="loaderOverlay">
   <div class="loader-card">
     <div class="loader-spinner"></div>
@@ -1731,7 +1331,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   </div>
 </div>
 
-<!-- ============ TOAST ============ -->
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
   <span id="toastMsg">Done</span>
@@ -1746,7 +1345,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
-/* ---------- DOM ---------- */
 const uploadScreen = $('#uploadScreen');
 const analyzerBody = $('#analyzerBody');
 const dropZone = $('#dropZone');
@@ -1772,18 +1370,22 @@ const sidebarBackdrop = $('#sidebarBackdrop');
 const menuBtn = $('#menuBtn');
 const content = $('#content');
 
-/* ---------- State ---------- */
 const state = {
-  file: null, zip: null, size: 0, compressedSize: 0, sha256: '',
-  entries: [], manifest: null, manifestRaw: '',
-  permissions: [],
-  components: { activities: [], services: [], receivers: [], providers: [] },
-  packageInfo: {},
-  dexFiles: [],
-  dexTotal: { classes: 0, methods: 0, fields: 0, strings: 0 },
-  technologies: [], nativeLibs: [], architectures: [], findings: [],
-  strings: new Set(), signature: {}, categorySizes: {},
+  file:null, zip:null, size:0, compressedSize:0, sha256:'',
+  entries:[], manifest:null, manifestRaw:'',
+  permissions:[],
+  components:{activities:[],services:[],receivers:[],providers:[]},
+  packageInfo:{},
+  dexFiles:[],
+  dexTotal:{classes:0,methods:0,fields:0,strings:0},
+  technologies:[], nativeLibs:[], architectures:[], findings:[],
+  strings:new Set(), signature:{}, categorySizes:{},
 };
+
+/* ---------- File tree state ---------- */
+let fileTree = null;
+const expandedFolders = new Set(['']); // root always expanded
+let currentSearch = '';
 
 /* ============================================================
    UI helpers
@@ -1827,12 +1429,10 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function copyText(text) {
-  if (navigator.clipboard && window.isSecureContext) {
-    return navigator.clipboard.writeText(text);
-  }
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
   return new Promise((res, rej) => {
     const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
     document.body.appendChild(ta); ta.select();
     try { document.execCommand('copy'); res(); } catch(e) { rej(e); }
     document.body.removeChild(ta);
@@ -1847,7 +1447,6 @@ function decodeAXML(buffer) {
   const bytes = new Uint8Array(buffer);
   const u16 = o => view.getUint16(o, true);
   const u32 = o => view.getUint32(o, true);
-
   if (u16(0) !== 0x0003) throw new Error('Not a binary XML file');
 
   const spOff = 8;
@@ -1888,7 +1487,7 @@ function decodeAXML(buffer) {
   let off = spOff + spChunkSize;
   if (off + 8 <= buffer.byteLength && u16(off) === 0x0180) off += u32(off + 4);
 
-  const root = { name: '#root', attrs: [], children: [], ns: '' };
+  const root = { name:'#root', attrs:[], children:[], ns:'' };
   const stack = [root];
 
   while (off + 8 <= buffer.byteLength) {
@@ -1962,11 +1561,7 @@ function parseDEX(buffer, name, size) {
   if (bytes.length < 0x70) return null;
   const magic = String.fromCharCode(bytes[0],bytes[1],bytes[2],bytes[3]);
   if (magic !== 'dex\n') return null;
-  return {
-    name, size,
-    classes: u32(0x60), methods: u32(0x58), fields: u32(0x50),
-    strings: u32(0x38), types: u32(0x40), protos: u32(0x48),
-  };
+  return { name, size, classes:u32(0x60), methods:u32(0x58), fields:u32(0x50), strings:u32(0x38), types:u32(0x40), protos:u32(0x48) };
 }
 
 function extractDEXStrings(buffer, limit) {
@@ -2092,20 +1687,12 @@ function runSecurityScan() {
   const findings = [];
   const pi = state.packageInfo;
 
-  if (pi.debuggable === 'true') findings.push({
-    severity:'critical', title:'Application is debuggable',
-    desc:'The <code>android:debuggable</code> flag is <code>true</code>. Anyone with the APK can attach a debugger and alter execution.'
-  });
-
-  if (pi.allowBackup === 'true') findings.push({
-    severity:'high', title:'Application data backup allowed',
-    desc:'<code>android:allowBackup="true"</code> permits extraction of app data via <code>adb backup</code>.'
-  });
-
-  if (pi.usesCleartextTraffic === 'true') findings.push({
-    severity:'high', title:'Cleartext traffic permitted',
-    desc:'<code>android:usesCleartextTraffic="true"</code> allows unencrypted HTTP, exposing data to interception.'
-  });
+  if (pi.debuggable === 'true') findings.push({ severity:'critical', title:'Application is debuggable',
+    desc:'The <code>android:debuggable</code> flag is <code>true</code>. Anyone with the APK can attach a debugger and alter execution.' });
+  if (pi.allowBackup === 'true') findings.push({ severity:'high', title:'Application data backup allowed',
+    desc:'<code>android:allowBackup="true"</code> permits extraction of app data via <code>adb backup</code>.' });
+  if (pi.usesCleartextTraffic === 'true') findings.push({ severity:'high', title:'Cleartext traffic permitted',
+    desc:'<code>android:usesCleartextTraffic="true"</code> allows unencrypted HTTP, exposing data to interception.' });
 
   const exportedNoPerm = [];
   ['activities','services','receivers','providers'].forEach(k => {
@@ -2132,14 +1719,11 @@ function runSecurityScan() {
   const hasNetCfg = state.entries.some(e => /^res\/xml\/network_security_config\.xml$/.test(e.name));
   if (!hasNetCfg && pi.usesCleartextTraffic !== 'false' && pi.targetSdk && parseInt(pi.targetSdk) < 28) findings.push({
     severity:'medium', title:'No network security config',
-    desc:'Target SDK is below 28 and no <code>network_security_config.xml</code> is present. Cleartext may be permitted by default.'
-  });
+    desc:'Target SDK is below 28 and no <code>network_security_config.xml</code> is present. Cleartext may be permitted by default.' });
 
   const sigFiles = state.entries.filter(e => /^META-INF\/.*\.(RSA|DSA|EC|SF)$/i.test(e.name));
-  if (sigFiles.length === 0) findings.push({
-    severity:'critical', title:'APK appears unsigned',
-    desc:'No signature files found in <code>META-INF/</code>. This APK may be repackaged or tampered with.'
-  });
+  if (sigFiles.length === 0) findings.push({ severity:'critical', title:'APK appears unsigned',
+    desc:'No signature files found in <code>META-INF/</code>. This APK may be repackaged or tampered with.' });
 
   const hooks = ['de/robv/android/xposed','eu/faircode/xlua','com/saurik/substrate','com/topjohnwu'];
   for (const h of hooks) if (Array.from(state.strings).some(s => s.startsWith(h))) {
@@ -2152,18 +1736,13 @@ function runSecurityScan() {
   const foundTrackers = trackers.filter(t => Array.from(state.strings).some(s => s.startsWith(t)));
   if (foundTrackers.length) findings.push({
     severity:'info', title: foundTrackers.length + ' analytics/tracker SDK' + (foundTrackers.length === 1 ? '' : 's') + ' detected',
-    desc:'The APK references analytics libraries that may collect device identifiers and usage data.'
-  });
+    desc:'The APK references analytics libraries that may collect device identifiers and usage data.' });
 
-  if (state.size > 200 * 1024 * 1024) findings.push({
-    severity:'info', title:'Large APK size (' + formatBytes(state.size) + ')',
-    desc:'Large packages often indicate bundled ML models, multiple ABIs or embedded secondary apps.'
-  });
+  if (state.size > 200 * 1024 * 1024) findings.push({ severity:'info', title:'Large APK size (' + formatBytes(state.size) + ')',
+    desc:'Large packages often indicate bundled ML models, multiple ABIs or embedded secondary apps.' });
 
-  if (!findings.length) findings.push({
-    severity:'info', title:'No obvious misconfigurations found',
-    desc:'The automated scanner did not detect any of the common Android security issues it checks for. This does not guarantee the APK is safe.'
-  });
+  if (!findings.length) findings.push({ severity:'info', title:'No obvious misconfigurations found',
+    desc:'The automated scanner did not detect any of the common Android security issues it checks for. This does not guarantee the APK is safe.' });
 
   const order = { critical:0, high:1, medium:2, low:3, info:4 };
   findings.sort((a,b) => order[a.severity] - order[b.severity]);
@@ -2174,9 +1753,8 @@ function runSecurityScan() {
    Manifest processing
    ============================================================ */
 function parseManifest(buffer) {
-  try {
-    return { tree: decodeAXML(buffer), text: null };
-  } catch(e) {
+  try { return { tree: decodeAXML(buffer), text: null }; }
+  catch(e) {
     try {
       const text = new TextDecoder('utf-8').decode(new Uint8Array(buffer));
       if (text.trim().startsWith('<')) {
@@ -2184,12 +1762,9 @@ function parseManifest(buffer) {
         const mEl = doc.querySelector('manifest');
         if (mEl) {
           function domToTree(el) {
-            return {
-              name: el.tagName,
+            return { name: el.tagName,
               attrs: Array.from(el.attributes).map(a => ({ name: a.name, value: a.value })),
-              children: Array.from(el.children).map(domToTree),
-              ns: ''
-            };
+              children: Array.from(el.children).map(domToTree), ns: '' };
           }
           return { tree: { name:'#root', attrs: [], children: [domToTree(mEl)], ns:'' }, text: null };
         }
@@ -2218,23 +1793,20 @@ function processManifest(tree) {
   };
 
   const perms = [];
-  findNodes(manifest, 'uses-permission').forEach(p => { const n = getAttr(p, 'name'); if (n) perms.push(n); });
-  findNodes(manifest, 'uses-permission-sdk-23').forEach(p => { const n = getAttr(p, 'name'); if (n && !perms.includes(n)) perms.push(n); });
+  findNodes(manifest, 'uses-permission').forEach(p => { const n = getAttr(p,'name'); if (n) perms.push(n); });
+  findNodes(manifest, 'uses-permission-sdk-23').forEach(p => { const n = getAttr(p,'name'); if (n && !perms.includes(n)) perms.push(n); });
   state.permissions = perms;
 
   const map = { activity:'activities', service:'services', receiver:'receivers', provider:'providers' };
-  const comps = { activities: [], services: [], receivers: [], providers: [] };
+  const comps = { activities:[], services:[], receivers:[], providers:[] };
   Object.keys(map).forEach(tag => {
     findNodes(manifest, tag).forEach(el => {
       const name = getAttr(el, 'name') || '—';
       const exported = getAttr(el, 'exported');
       const permission = getAttr(el, 'permission');
       const hasIntent = el.children.some(c => c.name === 'intent-filter');
-      comps[map[tag]].push({
-        name, permission: permission || null,
-        exported: exported || (hasIntent ? 'true' : 'false'),
-        hasIntentFilter: hasIntent,
-      });
+      comps[map[tag]].push({ name, permission: permission || null,
+        exported: exported || (hasIntent ? 'true' : 'false'), hasIntentFilter: hasIntent });
     });
   });
   state.components = comps;
@@ -2252,14 +1824,9 @@ function detectSignature() {
   const sf = state.entries.filter(e => /^META-INF\/.*\.SF$/i.test(e.name));
   const sigs = state.entries.filter(e => /^META-INF\/.*\.(RSA|DSA|EC)$/i.test(e.name));
   const mf = state.entries.find(e => /^META-INF\/MANIFEST\.MF$/i.test(e.name));
-  state.signature = {
-    signed: sigs.length > 0 || sf.length > 0,
-    v1: sigs.length > 0 && sf.length > 0,
-    schemeCount: sigs.length,
-    signers: sigs.map(e => e.name.split('/').pop()),
-    hasManifest: !!mf,
-    manifestSize: mf ? mf.size : 0,
-  };
+  state.signature = { signed: sigs.length > 0 || sf.length > 0, v1: sigs.length > 0 && sf.length > 0,
+    schemeCount: sigs.length, signers: sigs.map(e => e.name.split('/').pop()),
+    hasManifest: !!mf, manifestSize: mf ? mf.size : 0 };
 }
 
 function computeCategorySizes() {
@@ -2277,7 +1844,224 @@ function computeCategorySizes() {
 }
 
 /* ============================================================
-   Renderers
+   BUILD FILE TREE
+   ============================================================ */
+function buildFileTree(entries) {
+  const root = { name:'', path:'', type:'folder', children:new Map(), size:0, fileCount:0 };
+
+  for (const entry of entries) {
+    const parts = entry.name.split('/').filter(p => p.length > 0);
+    if (!parts.length) continue;
+    let node = root;
+    for (let i = 0; i < parts.length; i++) {
+      const isFile = i === parts.length - 1;
+      const name = parts[i];
+      const path = parts.slice(0, i + 1).join('/');
+      if (isFile) {
+        node.children.set(name, {
+          name, path, type:'file', size:entry.size, entry,
+        });
+      } else {
+        let child = node.children.get(name);
+        if (!child) {
+          child = { name, path, type:'folder', children:new Map(), size:0, fileCount:0 };
+          node.children.set(name, child);
+        }
+        node = child;
+      }
+    }
+  }
+
+  // Bottom-up: compute folder sizes & file counts
+  function compute(node) {
+    if (node.type === 'file') return { size: node.size, count: 1 };
+    let size = 0, count = 0;
+    for (const c of node.children.values()) {
+      const r = compute(c);
+      size += r.size;
+      count += r.count;
+    }
+    node.size = size;
+    node.fileCount = count;
+    return { size, count };
+  }
+  compute(root);
+  return root;
+}
+
+function getFileIcon(name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if (ext === 'dex') return { cls:'dex', txt:'DEX' };
+  if (ext === 'xml') return { cls:'xml', txt:'XML' };
+  if (ext === 'so') return { cls:'so', txt:'SO' };
+  if (ext === 'arsc') return { cls:'arsc', txt:'ARS' };
+  if (['png','jpg','jpeg','webp','gif','svg'].includes(ext)) return { cls:'img', txt:'IMG' };
+  if (['rsa','dsa','ec','sf','mf'].includes(ext)) return { cls:'mf', txt:'SIG' };
+  return { cls:'', txt: (ext.slice(0,3).toUpperCase() || '?') };
+}
+
+/* Return true if node or any descendant matches query */
+function nodeMatches(node, q) {
+  if (!q) return true;
+  if (node.type === 'file') return node.name.toLowerCase().includes(q);
+  for (const c of node.children.values()) {
+    if (nodeMatches(c, q)) return true;
+  }
+  return false;
+}
+
+/* Auto-expand every folder that has matching children */
+function autoExpandMatches(node, q) {
+  if (node.type !== 'folder') return false;
+  let has = false;
+  for (const c of node.children.values()) {
+    if (c.type === 'file') {
+      if (c.name.toLowerCase().includes(q)) has = true;
+    } else {
+      if (autoExpandMatches(c, q)) has = true;
+    }
+  }
+  if (has && node.path) expandedFolders.add(node.path);
+  return has;
+}
+
+/* ============================================================
+   RENDER FILE TREE
+   ============================================================ */
+function renderFileTree() {
+  const list = $('#fileTree');
+  if (!fileTree) return;
+
+  const q = currentSearch.trim().toLowerCase();
+  const html = [];
+
+  function renderNode(node, depth) {
+    // Skip nodes that don't match when searching
+    if (q && !nodeMatches(node, q)) return;
+
+    const isFolder = node.type === 'folder';
+    const isExpanded = expandedFolders.has(node.path) || (q && isFolder);
+    const indent = depth * 20;
+
+    if (isFolder) {
+      const folderIcon = isExpanded
+        ? '<path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 10h18"/>'
+        : '<path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>';
+
+      // When searching, always show as expanded visually
+      const expandedClass = (expandedFolders.has(node.path) || q) ? 'expanded' : '';
+      const folderNameDisplay = q ? highlightMatch(node.name, q) : escapeHtml(node.name);
+
+      html.push(`
+        <div class="tree-row folder ${expandedClass}" data-path="${escapeHtml(node.path)}" style="padding-left:${14 + indent}px" tabindex="0">
+          <span class="tree-toggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><path d="M9 6l6 6-6 6"/></svg>
+          </span>
+          <span class="tree-icon folder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${folderIcon}</svg>
+          </span>
+          <span class="tree-name">${folderNameDisplay}/</span>
+          <span class="tree-count">${node.fileCount}</span>
+          <span class="tree-size">${formatBytes(node.size)}</span>
+        </div>
+      `);
+
+      if (expandedFolders.has(node.path) || q) {
+        const sorted = Array.from(node.children.values()).sort((a, b) => {
+          if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
+        for (const child of sorted) renderNode(child, depth + 1);
+      }
+    } else {
+      const ic = getFileIcon(node.name);
+      const displayName = q ? highlightMatch(node.name, q) : escapeHtml(node.name);
+      html.push(`
+        <div class="tree-row file" style="padding-left:${14 + indent + 20}px" title="${escapeHtml(node.path)}">
+          <span class="tree-icon ${ic.cls}">${escapeHtml(ic.txt)}</span>
+          <span class="tree-name">${displayName}</span>
+          <span class="tree-size">${formatBytes(node.size)}</span>
+          <button class="file-action" data-filename="${escapeHtml(node.path)}">Extract</button>
+        </div>
+      `);
+    }
+  }
+
+  const sortedRoot = Array.from(fileTree.children.values()).sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+  for (const child of sortedRoot) renderNode(child, 0);
+
+  if (!html.length) {
+    list.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div class="empty-title">No files match</div>
+      <div>Try a different search term</div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = html.join('');
+
+  // Bind folder toggles
+  list.querySelectorAll('.tree-row.folder').forEach(row => {
+    row.addEventListener('click', () => {
+      const path = row.dataset.path;
+      if (expandedFolders.has(path)) expandedFolders.delete(path);
+      else expandedFolders.add(path);
+      renderFileTree();
+    });
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        row.click();
+      }
+    });
+  });
+
+  // Bind extract buttons
+  list.querySelectorAll('.file-action').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      extractFile(btn.dataset.filename);
+    });
+  });
+}
+
+function highlightMatch(text, q) {
+  const idx = text.toLowerCase().indexOf(q);
+  if (idx < 0) return escapeHtml(text);
+  return escapeHtml(text.slice(0, idx)) +
+    '<mark class="search-hit">' + escapeHtml(text.slice(idx, idx + q.length)) + '</mark>' +
+    escapeHtml(text.slice(idx + q.length));
+}
+
+/* Update the count header */
+function updateFilesHeader() {
+  const q = currentSearch.trim().toLowerCase();
+  const total = state.entries.length;
+  $('#filesCount').textContent = total;
+
+  if (q) {
+    let matched = 0;
+    (function count(node) {
+      if (node.type === 'file') {
+        if (node.name.toLowerCase().includes(q)) matched++;
+      } else {
+        for (const c of node.children.values()) count(c);
+      }
+    })(fileTree);
+    $('#filesShowing').textContent = `${matched} of ${total} match`;
+  } else {
+    const folders = Array.from(fileTree.children.values()).filter(c => c.type === 'folder').length;
+    const rootFiles = Array.from(fileTree.children.values()).filter(c => c.type === 'file').length;
+    $('#filesShowing').textContent = `${folders} folders · ${rootFiles} files at root`;
+  }
+}
+
+/* ============================================================
+   Render other views
    ============================================================ */
 function renderOverview() {
   const pi = state.packageInfo;
@@ -2367,33 +2151,29 @@ function renderSizeChart() {
   ].filter(i => cats[i.key] > 0);
 
   const chart = $('#sizeChart');
-  if (!items.length) {
-    chart.innerHTML = '<div class="empty" style="padding:12px 0">No data</div>';
-    return;
-  }
+  if (!items.length) { chart.innerHTML = '<div class="empty" style="padding:12px 0">No data</div>'; return; }
+
   chart.innerHTML = items.map(it => {
     const pct = (cats[it.key] / total) * 100;
-    return `
-      <div class="chart-row">
-        <div class="chart-row-head">
-          <span class="cat"><i class="swatch" style="background:${
-            it.cls === 'dex' ? 'linear-gradient(90deg,#7ee000,#b8ff45)' :
-            it.cls === 'native' ? 'linear-gradient(90deg,#9d6bff,#c9a8ff)' :
-            it.cls === 'resources' ? 'linear-gradient(90deg,#ffa94d,#ffc857)' :
-            it.cls === 'assets' ? 'linear-gradient(90deg,#4dabf7,#78c7ff)' :
-            it.cls === 'signature' ? 'linear-gradient(90deg,#ff6b5e,#ff9a6b)' :
-            'linear-gradient(90deg,#3a433d,#5e6863)'
-          }"></i><span>${it.label}</span></span>
-          <span class="amt"><b>${formatBytes(cats[it.key])}</b>${pct.toFixed(1)}%</span>
-        </div>
-        <div class="chart-bar"><i class="${it.cls}" data-w="${pct}"></i></div>
-      </div>`;
+    return `<div class="chart-row">
+      <div class="chart-row-head">
+        <span class="cat"><i class="swatch" style="background:${
+          it.cls === 'dex' ? 'linear-gradient(90deg,#7ee000,#b8ff45)' :
+          it.cls === 'native' ? 'linear-gradient(90deg,#9d6bff,#c9a8ff)' :
+          it.cls === 'resources' ? 'linear-gradient(90deg,#ffa94d,#ffc857)' :
+          it.cls === 'assets' ? 'linear-gradient(90deg,#4dabf7,#78c7ff)' :
+          it.cls === 'signature' ? 'linear-gradient(90deg,#ff6b5e,#ff9a6b)' :
+          'linear-gradient(90deg,#3a433d,#5e6863)'
+        }"></i><span>${it.label}</span></span>
+        <span class="amt"><b>${formatBytes(cats[it.key])}</b>${pct.toFixed(1)}%</span>
+      </div>
+      <div class="chart-bar"><i class="${it.cls}" data-w="${pct}"></i></div>
+    </div>`;
   }).join('');
 
   requestAnimationFrame(() => {
     chart.querySelectorAll('.chart-bar i').forEach(bar => {
-      const w = parseFloat(bar.dataset.w) || 0;
-      bar.style.width = w + '%';
+      bar.style.width = (parseFloat(bar.dataset.w) || 0) + '%';
     });
   });
 }
@@ -2450,10 +2230,7 @@ function renderManifestView() {
       if (exported && !c.permission) badge = '<span class="tag danger" style="padding:3px 8px;font-size:10px">exported</span>';
       else if (exported && c.permission) badge = '<span class="tag warn" style="padding:3px 8px;font-size:10px">exported·perm</span>';
       else badge = '<span class="tag" style="padding:3px 8px;font-size:10px">private</span>';
-      return `<div class="info-row">
-        <span class="key">${c.kind} · ${escapeHtml(short)}</span>
-        <span class="val" style="text-align:right">${badge}</span>
-      </div>`;
+      return `<div class="info-row"><span class="key">${c.kind} · ${escapeHtml(short)}</span><span class="val" style="text-align:right">${badge}</span></div>`;
     }).join('');
   }
 }
@@ -2507,10 +2284,7 @@ function renderSecurityView() {
       <div class="finding s-${f.severity}">
         <div class="finding-icon ${f.severity}">${iconChar[f.severity]}</div>
         <div class="finding-body">
-          <div class="finding-title">
-            ${escapeHtml(f.title)}
-            <span class="severity ${f.severity}">${f.severity}</span>
-          </div>
+          <div class="finding-title">${escapeHtml(f.title)}<span class="severity ${f.severity}">${f.severity}</span></div>
           <div class="finding-desc">${f.desc}</div>
         </div>
       </div>
@@ -2525,7 +2299,7 @@ function renderTechnologies() {
   if (!state.technologies.length) {
     wrap.innerHTML = '<div class="empty" style="padding:12px 0">No recognizable frameworks or libraries detected</div>';
   } else {
-    const groups = { language: [], framework: [], engine: [], library: [], service: [], analytics: [], ads: [] };
+    const groups = { language:[], framework:[], engine:[], library:[], service:[], analytics:[], ads:[] };
     state.technologies.forEach(t => {
       const k = t.kind || 'library';
       (groups[k] || groups.library).push(t);
@@ -2533,11 +2307,10 @@ function renderTechnologies() {
     const blocks = [];
     Object.entries(groups).forEach(([kind, list]) => {
       if (!list.length) return;
-      blocks.push(`
-        <div style="margin-bottom:18px">
-          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px">${kind}</div>
-          <div class="tag-list">${list.map(t => `<span class="tag success">${escapeHtml(t.name)}</span>`).join('')}</div>
-        </div>`);
+      blocks.push(`<div style="margin-bottom:18px">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px">${kind}</div>
+        <div class="tag-list">${list.map(t => `<span class="tag success">${escapeHtml(t.name)}</span>`).join('')}</div>
+      </div>`);
     });
     wrap.innerHTML = blocks.join('');
   }
@@ -2560,60 +2333,43 @@ function renderTechnologies() {
   }
 }
 
-let currentSearch = '';
-function renderFiles() {
-  const list = $('#fileList');
-  $('#fileCount').textContent = state.entries.length;
-  $('#filesCount').textContent = state.entries.length;
-
-  let filtered = state.entries;
-  if (currentSearch.trim()) {
-    const q = currentSearch.trim().toLowerCase();
-    filtered = filtered.filter(e => e.name.toLowerCase().includes(q));
-  }
-  const sorted = [...filtered].sort((a,b) => b.size - a.size).slice(0, 400);
-
-  $('#filesShowing').textContent = currentSearch
-    ? `${sorted.length} of ${filtered.length} match`
-    : 'Sorted by size';
-
-  if (!sorted.length) {
-    list.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><div class="empty-title">No files match</div><div>Try a different search term</div></div>`;
-    return;
-  }
-
-  list.innerHTML = sorted.map(e => {
-    const ext = (e.name.split('.').pop() || '').toLowerCase();
-    let cls = '', txt = ext.slice(0,3).toUpperCase() || '?';
-    if (ext === 'dex') { cls = 'dex'; txt = 'DEX'; }
-    else if (ext === 'xml') { cls = 'xml'; txt = 'XML'; }
-    else if (ext === 'so') { cls = 'so'; txt = 'SO'; }
-    else if (ext === 'arsc') { cls = 'arsc'; txt = 'ARS'; }
-    else if (['png','jpg','jpeg','webp','gif','svg'].includes(ext)) { cls = 'img'; txt = 'IMG'; }
-    else if (ext === 'rsa' || ext === 'dsa' || ext === 'ec' || ext === 'sf' || ext === 'mf') { cls = 'mf'; txt = 'SIG'; }
-    const short = e.name.length > 60 ? e.name.slice(0, 26) + '…' + e.name.slice(-30) : e.name;
-    return `<div class="file-item">
-      <div class="file-icon ${cls}">${escapeHtml(txt)}</div>
-      <div class="file-name" title="${escapeHtml(e.name)}">${escapeHtml(short)}</div>
-      <div class="file-size">${formatBytes(e.size)}</div>
-      <button class="file-action" data-filename="${escapeHtml(e.name)}">Extract</button>
-    </div>`;
-  }).join('');
-
-  if (filtered.length > 400) {
-    list.insertAdjacentHTML('beforeend', `<div class="empty" style="padding:14px;font-size:12px">Showing 400 largest of ${filtered.length}</div>`);
-  }
-
-  list.querySelectorAll('.file-action').forEach(btn => {
-    btn.addEventListener('click', () => extractFile(btn.dataset.filename));
-  });
-}
-
+/* ============================================================
+   Search & expand/collapse handlers
+   ============================================================ */
 $('#fileSearch').addEventListener('input', (e) => {
   currentSearch = e.target.value;
-  renderFiles();
+  const q = currentSearch.trim().toLowerCase();
+  if (q && fileTree) {
+    // Auto-expand every folder that has matches
+    for (const c of fileTree.children.values()) {
+      if (c.type === 'folder') autoExpandMatches(c, q);
+    }
+  }
+  renderFileTree();
+  updateFilesHeader();
 });
 
+$('#expandAllBtn').addEventListener('click', () => {
+  if (!fileTree) return;
+  (function walk(node) {
+    if (node.type === 'folder' && node.path) expandedFolders.add(node.path);
+    if (node.type === 'folder') {
+      for (const c of node.children.values()) walk(c);
+    }
+  })(fileTree);
+  renderFileTree();
+  toast('All folders expanded');
+});
+
+$('#collapseAllBtn').addEventListener('click', () => {
+  expandedFolders.clear();
+  renderFileTree();
+  toast('All folders collapsed');
+});
+
+/* ============================================================
+   Extract
+   ============================================================ */
 async function extractFile(name) {
   if (!state.zip) return;
   const entry = state.zip.file(name);
@@ -2631,7 +2387,7 @@ async function extractFile(name) {
 }
 
 /* ============================================================
-   Analysis pipeline
+   Analyze
    ============================================================ */
 async function analyzeFile(file) {
   state.file = file;
@@ -2718,7 +2474,14 @@ async function analyzeFile(file) {
   state.architectures = Array.from(archSet);
   state.technologies = detectTechnologies();
 
-  setLoader(86, 'Detecting signature');
+  setLoader(84, 'Building file tree');
+  fileTree = buildFileTree(entries);
+  // Pre-expand top-level folders for a helpful default view
+  for (const c of fileTree.children.values()) {
+    if (c.type === 'folder' && c.fileCount <= 30) expandedFolders.add(c.path);
+  }
+
+  setLoader(88, 'Detecting signature');
   detectSignature();
 
   setLoader(93, 'Running security scan');
@@ -2750,7 +2513,8 @@ async function analyzeFile(file) {
   renderDEXView();
   renderSecurityView();
   renderTechnologies();
-  renderFiles();
+  renderFileTree();
+  updateFilesHeader();
 
   switchView('overview');
   hideLoader();
@@ -2846,7 +2610,10 @@ function resetApp() {
     technologies:[], nativeLibs:[], architectures:[], findings:[],
     strings:new Set(), sha256:'', signature:{}, categorySizes:{},
   });
+  fileTree = null;
   currentSearch = '';
+  expandedFolders.clear();
+  expandedFolders.add('');
   $('#fileSearch').value = '';
   analyzerBody.hidden = true;
   uploadScreen.hidden = false;
@@ -2868,16 +2635,10 @@ fileInput.addEventListener('change', (e) => {
   if (f) analyzeFile(f);
 });
 ['dragenter','dragover'].forEach(ev => {
-  dropZone.addEventListener(ev, (e) => {
-    e.preventDefault(); e.stopPropagation();
-    dropZone.classList.add('dragover');
-  });
+  dropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover'); });
 });
 ['dragleave','drop'].forEach(ev => {
-  dropZone.addEventListener(ev, (e) => {
-    e.preventDefault(); e.stopPropagation();
-    dropZone.classList.remove('dragover');
-  });
+  dropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('dragover'); });
 });
 dropZone.addEventListener('drop', (e) => {
   const f = e.dataTransfer.files && e.dataTransfer.files[0];
@@ -2893,7 +2654,7 @@ document.addEventListener('drop', (e) => {
 });
 
 /* ============================================================
-   Copy buttons
+   Copy
    ============================================================ */
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.copy-btn');
@@ -2901,9 +2662,7 @@ document.addEventListener('click', (e) => {
   const id = btn.dataset.copyTarget;
   const el = document.getElementById(id);
   if (!el) return;
-  let text;
-  if (btn.dataset.copyFull === 'sha') text = state.sha256;
-  else text = el.textContent;
+  const text = btn.dataset.copyFull === 'sha' ? state.sha256 : el.textContent;
   copyText(text).then(() => toast('Copied')).catch(() => toast('Copy failed', true));
 });
 $('#copyManifestBtn').addEventListener('click', () => {

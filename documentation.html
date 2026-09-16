@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5f6f4">
+<meta name="description" content="APK Analyzer Pro documentation — guides, references and troubleshooting for local Android APK inspection.">
+<title>Documentation — APK Analyzer Pro</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><rect x='5' y='2' width='14' height='20' rx='3' stroke='%23101312' stroke-width='1.8'/><circle cx='12' cy='12' r='3.2' stroke='%23101312' stroke-width='1.5'/><circle cx='12' cy='12' r='.9' fill='%23101312'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   0. RESET + MOBILE TAP FIX
+   ============================================================ */
+*,*::before,*::after{
+  box-sizing:border-box;margin:0;padding:0;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:96px;
+  -webkit-text-size-adjust:100%;
+}
+body{
+  background:#f5f6f4;
+  color:#101312;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:clip;
+  min-height:100vh;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;border:none;background:none;color:inherit;cursor:pointer;font-family:inherit}
+input{font:inherit;font-family:inherit}
+ul,ol{list-style:none}
+svg{display:block;flex-shrink:0}
+img{max-width:100%;display:block}
+::selection{background:#b8ff45;color:#101312}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d2d7d3;border-radius:8px;border:2px solid #f5f6f4}
+::-webkit-scrollbar-thumb:hover{background:#b8bfb9}
+
+/* Focus visible */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+summary:focus-visible{
+  outline:2px solid #7ee000;
+  outline-offset:2px;
+  border-radius:6px;
+}
+
+/* ============================================================
+   1. TOKENS
+   ============================================================ */
+:root{
+  --bg:#f5f6f4;
+  --bg-2:#f0f2ef;
+  --paper:#fff;
+  --ink:#0e1210;
+  --ink-2:#1a201d;
+  --muted:#69706d;
+  --muted-2:#8a918d;
+  --line:#e0e4e0;
+  --line-2:#d2d7d3;
+  --soft:#ecefeb;
+  --accent:#b8ff45;
+  --accent-2:#7ee000;
+  --accent-dim:rgba(184,255,69,.22);
+  --accent-line:rgba(126,224,0,.4);
+  --danger:#ff665c;
+  --danger-dim:rgba(255,102,92,.09);
+  --danger-line:rgba(255,102,92,.32);
+  --warn:#f0a020;
+  --warn-dim:rgba(240,160,32,.1);
+  --warn-line:rgba(240,160,32,.32);
+  --info:#3d87e0;
+  --info-dim:rgba(61,135,224,.09);
+  --info-line:rgba(61,135,224,.28);
+  --purple:#8b5cf6;
+  --purple-dim:rgba(139,92,246,.1);
+  --purple-line:rgba(139,92,246,.28);
+  --success:#3d9f1e;
+  --success-dim:rgba(61,159,30,.1);
+  --success-line:rgba(61,159,30,.3);
+
+  --topbar-h:64px;
+  --side-w:280px;
+  --content-max:780px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-back:cubic-bezier(.34,1.56,.64,1);
+
+  --code-bg:#141815;
+  --code-bg-2:#1a201d;
+  --code-line:#2a302c;
+  --code-text:#c2cbc6;
+  --code-keyword:#c9a8ff;
+  --code-string:#b8ff45;
+  --code-function:#7ec9ff;
+  --code-number:#ff9a6b;
+  --code-comment:#5e6863;
+
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);
+  --safe-r:env(safe-area-inset-right,0px);
+}
+
+/* ============================================================
+   2. PROGRESS BAR
+   ============================================================ */
+.progress-bar{
+  position:fixed;
+  top:0;left:0;
+  height:2px;
+  width:0%;
+  background:linear-gradient(90deg,var(--accent-2),var(--accent));
+  z-index:200;
+  transition:width .1s linear;
+  box-shadow:0 0 8px var(--accent-2);
+}
+
+/* ============================================================
+   3. TOPBAR
+   ============================================================ */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:100;
+  height:var(--topbar-h);
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:0 20px;
+  padding-left:calc(20px + var(--safe-l));
+  padding-right:calc(20px + var(--safe-r));
+  background:rgba(245,246,244,.82);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s var(--ease),background .3s var(--ease);
+}
+.topbar.scrolled{
+  border-bottom-color:var(--line);
+  background:rgba(245,246,244,.92);
+}
+
+.menu-btn{
+  display:none;
+  width:40px;height:40px;
+  flex-shrink:0;
+  border-radius:10px;
+  background:var(--paper);
+  border:1px solid var(--line-2);
+  align-items:center;justify-content:center;
+  transition:background .2s,border-color .2s,transform .15s;
+}
+.menu-btn:hover{border-color:var(--ink-2)}
+.menu-btn:active{transform:scale(.94)}
+.menu-btn .bars{width:16px;height:14px;position:relative}
+.menu-btn .bar{
+  position:absolute;left:0;width:100%;height:2px;
+  background:var(--ink);border-radius:2px;
+  transition:transform .35s var(--ease),opacity .25s,top .35s var(--ease);
+}
+.menu-btn .bar:nth-child(1){top:0}
+.menu-btn .bar:nth-child(2){top:6px}
+.menu-btn .bar:nth-child(3){top:12px}
+body.drawer-open .menu-btn .bar:nth-child(1){top:6px;transform:rotate(45deg)}
+body.drawer-open .menu-btn .bar:nth-child(2){opacity:0}
+body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
+
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-weight:800;font-size:15px;letter-spacing:-.03em;
+  flex-shrink:0;padding:4px;margin:-4px;border-radius:8px;
+  transition:background .2s;
+}
+.brand:hover{background:var(--soft)}
+.brand-mark{
+  width:32px;height:32px;
+  border:2px solid var(--ink);
+  background:var(--accent);
+  color:var(--ink);
+  display:grid;place-items:center;
+  box-shadow:3px 3px 0 var(--ink);
+  flex-shrink:0;
+  transition:transform .35s var(--ease-back);
+}
+.brand:hover .brand-mark{transform:rotate(-6deg)}
+.brand-mark svg{width:17px;height:17px}
+.brand-text{white-space:nowrap}
+
+.brand-divider{
+  width:1px;height:22px;
+  background:var(--line-2);
+  margin:0 2px;
+  flex-shrink:0;
+}
+.page-label{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.topbar-spacer{flex:1;min-width:8px}
+
+.search-wrap{
+  position:relative;
+  flex:1 1 auto;
+  max-width:340px;
+  min-width:0;
+}
+.search-wrap svg{
+  position:absolute;
+  left:12px;top:50%;
+  transform:translateY(-50%);
+  width:15px;height:15px;
+  color:var(--muted);
+  pointer-events:none;
+}
+.search-input{
+  width:100%;
+  height:38px;
+  padding:0 40px 0 38px;
+  background:var(--paper);
+  border:1px solid var(--line-2);
+  border-radius:10px;
+  font-size:13.5px;
+  color:var(--ink);
+  transition:border-color .2s,background .2s,box-shadow .2s;
+}
+.search-input::placeholder{color:var(--muted-2)}
+.search-input:focus{
+  outline:none;
+  border-color:var(--accent-2);
+  background:var(--paper);
+  box-shadow:0 0 0 3px var(--accent-dim);
+}
+.search-kbd{
+  position:absolute;
+  right:10px;top:50%;
+  transform:translateY(-50%);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  padding:2px 6px;
+  border-radius:5px;
+  pointer-events:none;
+  letter-spacing:.04em;
+}
+
+.topbar-actions{
+  display:flex;align-items:center;gap:8px;
+  flex-shrink:0;
+}
+.topbar-link{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 12px;
+  border-radius:9px;
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--ink-2);
+  transition:background .2s,color .2s;
+  white-space:nowrap;
+}
+.topbar-link:hover{background:var(--soft);color:var(--ink)}
+.topbar-link svg{width:14px;height:14px}
+.topbar-cta{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 14px;
+  background:var(--ink);
+  color:#fff;
+  border-radius:9px;
+  font-size:13px;
+  font-weight:700;
+  transition:transform .25s var(--ease-back),box-shadow .25s;
+  white-space:nowrap;
+}
+.topbar-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(14,18,16,.22);
+}
+
+/* ============================================================
+   4. LAYOUT
+   ============================================================ */
+.layout{
+  display:grid;
+  grid-template-columns:var(--side-w) minmax(0,1fr);
+  max-width:1440px;
+  margin:0 auto;
+  gap:0;
+  min-height:calc(100vh - var(--topbar-h));
+}
+
+/* ============================================================
+   5. SIDEBAR / TOC
+   ============================================================ */
+.toc-sidebar{
+  border-right:1px solid var(--line);
+  padding:28px 20px 60px;
+  height:calc(100vh - var(--topbar-h));
+  position:sticky;
+  top:var(--topbar-h);
+  overflow-y:auto;
+  background:var(--bg);
+}
+.toc-sidebar::-webkit-scrollbar{width:6px}
+.toc-sidebar::-webkit-scrollbar-thumb{background:#d2d7d3;border:0}
+
+.toc-heading{
+  font-family:'DM Mono',monospace;
+  font-size:10.5px;
+  font-weight:500;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  padding:0 12px;
+  margin-bottom:14px;
+}
+.toc-group{
+  margin-bottom:22px;
+}
+.toc-group-title{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--muted-2);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  padding:0 12px;
+  margin-bottom:6px;
+  margin-top:4px;
+}
+.toc-link{
+  display:block;
+  padding:8px 12px;
+  border-radius:8px;
+  color:var(--muted);
+  font-size:13.5px;
+  font-weight:500;
+  transition:background .2s,color .2s,transform .15s;
+  border-left:2px solid transparent;
+  position:relative;
+}
+.toc-link:hover{
+  background:var(--paper);
+  color:var(--ink);
+}
+.toc-link.active{
+  color:var(--ink);
+  background:var(--paper);
+  font-weight:600;
+  border-left-color:var(--accent-2);
+}
+.toc-link.sub{
+  padding-left:26px;
+  font-size:13px;
+  color:var(--muted-2);
+}
+.toc-link.sub:hover{color:var(--ink)}
+.toc-link.sub.active{color:var(--ink)}
+
+/* Mobile backdrop */
+.sidebar-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(14,18,16,.4);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  z-index:90;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .3s var(--ease);
+  border:none;
+}
+body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
+
+/* ============================================================
+   6. CONTENT
+   ============================================================ */
+.content{
+  padding:44px clamp(24px,4vw,64px) 100px;
+  min-width:0;
+  max-width:calc(var(--content-max) + 128px);
+  margin:0 auto;
+  width:100%;
+}
+
+.article{max-width:var(--content-max)}
+
+/* ============================================================
+   7. TYPOGRAPHY
+   ============================================================ */
+.article h1{
+  font-size:clamp(2rem,4.5vw,2.75rem);
+  font-weight:800;
+  letter-spacing:-.045em;
+  line-height:1.05;
+  color:var(--ink);
+  margin-bottom:16px;
+}
+.article h2{
+  font-size:clamp(1.5rem,3vw,1.9rem);
+  font-weight:800;
+  letter-spacing:-.035em;
+  line-height:1.15;
+  color:var(--ink);
+  margin-top:56px;
+  margin-bottom:16px;
+  scroll-margin-top:96px;
+  position:relative;
+  padding-right:36px;
+}
+.article h2:first-child{margin-top:0}
+.article h3{
+  font-size:clamp(1.1rem,1.8vw,1.25rem);
+  font-weight:700;
+  letter-spacing:-.02em;
+  line-height:1.3;
+  color:var(--ink);
+  margin-top:36px;
+  margin-bottom:12px;
+  scroll-margin-top:96px;
+  position:relative;
+  padding-right:36px;
+}
+.article h4{
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:var(--ink);
+  margin-top:24px;
+  margin-bottom:8px;
+}
+
+.article p{
+  color:var(--muted);
+  font-size:15.5px;
+  line-height:1.75;
+  margin-bottom:16px;
+  text-wrap:pretty;
+}
+.article p strong{color:var(--ink);font-weight:600}
+.article p a{
+  color:var(--info);
+  font-weight:500;
+  text-decoration:underline;
+  text-decoration-color:var(--info-line);
+  text-underline-offset:3px;
+  transition:text-decoration-color .2s;
+}
+.article p a:hover{text-decoration-color:var(--info)}
+
+.article ul,
+.article ol{
+  margin-bottom:16px;
+  padding-left:4px;
+}
+.article ul li,
+.article ol li{
+  color:var(--muted);
+  font-size:15.5px;
+  line-height:1.75;
+  padding-left:28px;
+  position:relative;
+  margin-bottom:8px;
+}
+.article ul li::before{
+  content:'';
+  position:absolute;
+  left:6px;top:12px;
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--accent-2);
+}
+.article ol{counter-reset:num}
+.article ol li{counter-increment:num}
+.article ol li::before{
+  content:counter(num);
+  position:absolute;
+  left:0;top:3px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  font-weight:500;
+  color:var(--ink);
+  background:var(--accent);
+  width:20px;height:20px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  line-height:1;
+}
+.article li strong{color:var(--ink);font-weight:600}
+
+.lede{
+  font-size:17px !important;
+  line-height:1.65 !important;
+  color:var(--muted) !important;
+  margin-bottom:28px !important;
+  max-width:640px;
+}
+
+/* Anchor link on headings */
+.anchor-link{
+  position:absolute;
+  right:0;top:50%;
+  transform:translateY(-50%);
+  width:28px;height:28px;
+  display:grid;place-items:center;
+  border-radius:7px;
+  color:var(--muted-2);
+  opacity:0;
+  transition:opacity .2s,background .2s,color .2s;
+}
+.article h2:hover .anchor-link,
+.article h3:hover .anchor-link,
+.anchor-link:focus-visible{
+  opacity:1;
+}
+.anchor-link:hover{background:var(--soft);color:var(--ink)}
+.anchor-link svg{width:14px;height:14px}
+
+/* ============================================================
+   8. SECTION HEADER (with number chip)
+   ============================================================ */
+.section-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:10px;
+}
+.section-eyebrow::before{
+  content:'';
+  width:18px;height:1px;
+  background:var(--muted);
+}
+
+/* ============================================================
+   9. CALLOUTS
+   ============================================================ */
+.callout{
+  display:flex;
+  gap:14px;
+  padding:16px 18px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  margin:20px 0;
+  border-left-width:3px;
+}
+.callout-icon{
+  width:24px;height:24px;
+  flex-shrink:0;
+  display:grid;place-items:center;
+  border-radius:6px;
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  font-weight:600;
+  line-height:1;
+}
+.callout-body{flex:1;min-width:0}
+.callout-title{
+  font-size:14px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:4px;
+  letter-spacing:-.01em;
+}
+.callout-body p{
+  font-size:14px !important;
+  line-height:1.65 !important;
+  margin:0 !important;
+  color:var(--muted) !important;
+}
+.callout-body p + p{margin-top:8px !important}
+.callout-body code{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  background:var(--soft);
+  color:var(--ink-2);
+  padding:1px 6px;
+  border-radius:4px;
+  border:1px solid var(--line);
+}
+
+.callout.info{border-left-color:var(--info)}
+.callout.info .callout-icon{color:var(--info);background:var(--info-dim)}
+.callout.tip{border-left-color:var(--accent-2)}
+.callout.tip .callout-icon{color:var(--success);background:var(--success-dim)}
+.callout.warn{border-left-color:var(--warn)}
+.callout.warn .callout-icon{color:var(--warn);background:var(--warn-dim)}
+.callout.danger{border-left-color:var(--danger)}
+.callout.danger .callout-icon{color:var(--danger);background:var(--danger-dim)}
+
+/* ============================================================
+   10. CODE
+   ============================================================ */
+.code-block{
+  position:relative;
+  margin:20px 0;
+  background:var(--code-bg);
+  border:1px solid var(--code-line);
+  border-radius:12px;
+  overflow:hidden;
+  font-family:'DM Mono',monospace;
+}
+.code-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 14px;
+  background:rgba(255,255,255,.025);
+  border-bottom:1px solid var(--code-line);
+}
+.code-lang{
+  font-family:'DM Mono',monospace;
+  font-size:10.5px;
+  color:var(--code-comment);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.code-lang::before{
+  content:'';
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--accent-2);
+  box-shadow:0 0 8px var(--accent-2);
+}
+.code-copy{
+  font-family:'DM Mono',monospace;
+  font-size:10.5px;
+  color:var(--code-comment);
+  padding:4px 10px;
+  border-radius:6px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--code-line);
+  transition:all .2s;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  letter-spacing:.04em;
+}
+.code-copy:hover{color:var(--accent);border-color:var(--accent-line)}
+.code-copy svg{width:11px;height:11px}
+.code-copy.copied{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
+
+.code-body{
+  padding:16px 18px;
+  overflow-x:auto;
+  font-size:12.5px;
+  line-height:1.85;
+  color:var(--code-text);
+  white-space:pre;
+}
+.code-body::-webkit-scrollbar{height:8px}
+.code-body::-webkit-scrollbar-thumb{background:#2a302c;border:0;border-radius:4px}
+
+.tok-kw{color:var(--code-keyword)}
+.tok-str{color:var(--code-string)}
+.tok-fn{color:var(--code-function)}
+.tok-num{color:var(--code-number)}
+.tok-comment{color:var(--code-comment);font-style:italic}
+.tok-punc{color:var(--code-comment)}
+.tok-var{color:var(--code-text)}
+.tok-attr{color:var(--code-function)}
+.tok-tag{color:var(--code-keyword)}
+
+/* Inline code */
+code:not(.code-block code){
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  background:var(--bg-2);
+  color:var(--ink-2);
+  padding:2px 6px;
+  border-radius:5px;
+  border:1px solid var(--line);
+  word-break:break-word;
+}
+
+/* Kbd */
+kbd{
+  display:inline-block;
+  font-family:'DM Mono',monospace;
+  font-size:11.5px;
+  font-weight:500;
+  color:var(--ink);
+  background:var(--paper);
+  border:1px solid var(--line-2);
+  border-bottom-width:2px;
+  border-radius:6px;
+  padding:2px 7px;
+  min-width:22px;
+  text-align:center;
+  line-height:1.5;
+  vertical-align:middle;
+  margin:0 2px;
+}
+
+/* ============================================================
+   11. TABLES
+   ============================================================ */
+.table-wrap{
+  margin:20px 0;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:var(--paper);
+  overflow-x:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+  min-width:480px;
+}
+thead{
+  background:var(--bg-2);
+  border-bottom:1px solid var(--line);
+}
+th{
+  text-align:left;
+  padding:12px 16px;
+  font-family:'DM Mono',monospace;
+  font-size:10.5px;
+  font-weight:500;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  white-space:nowrap;
+}
+td{
+  padding:13px 16px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+  border-top:1px solid var(--line);
+  vertical-align:top;
+}
+tbody tr:first-child td{border-top:0}
+tbody tr:hover{background:rgba(184,255,69,.035)}
+td strong{color:var(--ink);font-weight:600}
+td code{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  background:var(--bg-2);
+  color:var(--ink-2);
+  padding:2px 6px;
+  border-radius:4px;
+  border:1px solid var(--line);
+}
+
+/* ============================================================
+   12. CARDS / GRIDS
+   ============================================================ */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;
+  margin:20px 0;
+}
+.doc-card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:20px;
+  transition:border-color .25s,transform .25s var(--ease-back),box-shadow .25s;
+  min-width:0;
+}
+.doc-card:hover{
+  border-color:var(--line-2);
+  transform:translateY(-2px);
+  box-shadow:0 12px 30px rgba(14,18,16,.06);
+}
+.doc-card-icon{
+  width:38px;height:38px;
+  display:grid;place-items:center;
+  border-radius:10px;
+  background:var(--accent-dim);
+  color:var(--success);
+  border:1px solid var(--accent-line);
+  margin-bottom:14px;
+}
+.doc-card-icon svg{width:18px;height:18px}
+.doc-card h4{margin:0 0 6px;font-size:14.5px}
+.doc-card p{margin:0;font-size:13.5px !important;line-height:1.6 !important}
+
+/* Step list */
+.steps{
+  margin:24px 0;
+  counter-reset:step;
+}
+.step-item{
+  display:flex;
+  gap:16px;
+  padding:20px 0;
+  border-top:1px solid var(--line);
+  counter-increment:step;
+  position:relative;
+}
+.step-item:first-child{border-top:0;padding-top:0}
+.step-num{
+  width:32px;height:32px;
+  flex-shrink:0;
+  border-radius:50%;
+  background:var(--accent);
+  color:var(--ink);
+  display:grid;place-items:center;
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  font-weight:500;
+  box-shadow:0 3px 0 #5aa600;
+}
+.step-content{flex:1;min-width:0}
+.step-content h4{
+  font-size:15.5px;
+  margin:0 0 6px;
+  font-weight:700;
+}
+.step-content p{
+  margin:0 !important;
+  font-size:14.5px !important;
+}
+
+/* ============================================================
+   13. SHORTCUTS GRID
+   ============================================================ */
+.shortcut-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:10px;
+  margin:16px 0 24px;
+}
+.shortcut{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 16px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:14px;
+  color:var(--muted);
+  min-width:0;
+}
+.shortcut-label{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  min-width:0;
+}
+.shortcut-keys{
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+}
+
+/* ============================================================
+   14. FEATURE LIST
+   ============================================================ */
+.feature-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:12px;
+  margin:20px 0;
+}
+.feature-item{
+  display:flex;
+  gap:12px;
+  padding:14px 16px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.6;
+  transition:border-color .2s;
+}
+.feature-item:hover{border-color:var(--line-2)}
+.feature-item .fi-icon{
+  width:22px;height:22px;
+  flex-shrink:0;
+  border-radius:6px;
+  display:grid;place-items:center;
+  background:var(--accent-dim);
+  color:var(--success);
+  border:1px solid var(--accent-line);
+  margin-top:1px;
+}
+.feature-item .fi-icon svg{width:12px;height:12px}
+.feature-item strong{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+
+/* ============================================================
+   15. PREV/NEXT NAV
+   ============================================================ */
+.page-nav{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:80px;
+  padding-top:32px;
+  border-top:1px solid var(--line);
+}
+.page-nav-link{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:18px 20px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:12px;
+  transition:border-color .25s,transform .25s var(--ease-back);
+  min-width:0;
+}
+.page-nav-link:hover{
+  border-color:var(--ink);
+  transform:translateY(-2px);
+}
+.page-nav-link.next{text-align:right;align-items:flex-end}
+.page-nav-link .dir{
+  font-family:'DM Mono',monospace;
+  font-size:10.5px;
+  color:var(--muted-2);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+.page-nav-link .title{
+  font-size:15px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.015em;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  max-width:100%;
+}
+
+/* ============================================================
+   16. FOOTER
+   ============================================================ */
+footer{
+  border-top:1px solid var(--line);
+  padding:28px clamp(24px,4vw,64px);
+  background:var(--bg-2);
+  font-family:'DM Mono',monospace;
+  font-size:11.5px;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:14px;
+  letter-spacing:.04em;
+}
+footer a{transition:color .2s}
+footer a:hover{color:var(--ink)}
+.footer-links{display:flex;gap:18px;flex-wrap:wrap}
+
+/* ============================================================
+   17. RESPONSIVE
+   ============================================================ */
+@media (max-width:1024px){
+  :root{--side-w:240px}
+  .content{padding:36px clamp(20px,3vw,40px) 80px}
+  .article h2{margin-top:48px}
+}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .menu-btn{display:flex}
+  .page-label{display:none}
+  .brand-divider{display:none}
+
+  .toc-sidebar{
+    position:fixed;
+    top:var(--topbar-h);
+    left:0;
+    bottom:0;
+    width:min(300px,86vw);
+    height:auto;
+    transform:translateX(-100%);
+    transition:transform .35s var(--ease);
+    box-shadow:8px 0 40px rgba(14,18,16,.14);
+    z-index:95;
+    padding-top:24px;
+    padding-left:calc(20px + var(--safe-l));
+    padding-bottom:calc(40px + var(--safe-b));
+  }
+  body.drawer-open .toc-sidebar{transform:translateX(0)}
+  .sidebar-backdrop{display:block}
+
+  .content{
+    padding:28px 20px 70px;
+    padding-bottom:calc(70px + var(--safe-b));
+  }
+  .search-wrap{max-width:none}
+  .search-kbd{display:none}
+
+  .article h1{font-size:1.85rem}
+  .article h2{font-size:1.45rem;margin-top:44px}
+  .article h3{font-size:1.1rem}
+  .lede{font-size:16px !important}
+
+  .page-nav{grid-template-columns:1fr}
+  .page-nav-link.next{text-align:left;align-items:flex-start}
+}
+
+@media (max-width:640px){
+  :root{--topbar-h:60px}
+  .topbar{padding-left:calc(12px + var(--safe-l));padding-right:calc(12px + var(--safe-r));gap:10px}
+  .brand-text{display:none}
+  .topbar-link{padding:8px 10px;font-size:13px}
+  .topbar-link span{display:none}
+  .topbar-cta{padding:8px 12px;font-size:12.5px}
+
+  .content{padding:24px 16px 60px;padding-bottom:calc(60px + var(--safe-b))}
+
+  .article h1{font-size:1.65rem;letter-spacing:-.035em}
+  .article h2{font-size:1.3rem;margin-top:40px}
+  .article h2,.article h3{padding-right:0}
+  .anchor-link{display:none}
+  .article h3{font-size:1.05rem;margin-top:28px}
+  .article p{font-size:15px}
+  .article ul li,.article ol li{font-size:15px}
+
+  .callout{padding:14px 16px;gap:12px}
+  .callout-body p{font-size:13.5px !important}
+
+  .code-body{font-size:11.5px;padding:14px}
+  .code-head{padding:8px 12px}
+
+  table{font-size:13px;min-width:400px}
+  th{padding:10px 12px;font-size:10px}
+  td{padding:11px 12px;font-size:13px}
+
+  .stat-grid,.card-grid,.feature-list,.shortcut-grid{
+    grid-template-columns:1fr;
+  }
+
+  footer{padding:22px 18px;font-size:11px;flex-direction:column;align-items:flex-start}
+}
+
+@media (max-width:400px){
+  .article h1{font-size:1.5rem}
+  .article h2{font-size:1.2rem}
+  .topbar-cta span{display:none}
+  .topbar-cta{padding:8px 10px}
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
+/* Print */
+@media print{
+  .topbar,.toc-sidebar,.progress-bar,.page-nav,footer,.anchor-link,.code-copy{display:none !important}
+  .layout{grid-template-columns:1fr;max-width:none}
+  .content{padding:0;max-width:none}
+  body{background:#fff;color:#000}
+  .code-block{border:1px solid #ccc;background:#f5f5f5;color:#000}
+  .code-body{color:#000}
+  a{color:#000;text-decoration:underline}
+  h2,h3{page-break-after:avoid}
+  pre,table,.callout{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ============ TOPBAR ============ -->
+<header class="topbar" id="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="Toggle table of contents" aria-expanded="false">
+    <span class="bars">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </span>
+  </button>
+
+  <a class="brand" href="index.html" title="Back to home">
+    <span class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r=".9" fill="currentColor"/></svg>
+    </span>
+    <span class="brand-text">APK Analyzer</span>
+  </a>
+  <span class="brand-divider"></span>
+  <span class="page-label">Documentation</span>
+
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-input" id="searchInput" placeholder="Search documentation…" autocomplete="off" aria-label="Search documentation">
+    <span class="search-kbd">⌘K</span>
+  </div>
+
+  <div class="topbar-spacer"></div>
+
+  <div class="topbar-actions">
+    <a class="topbar-link" href="apk-analyzer.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+      <span>Analyzer</span>
+    </a>
+    <a class="topbar-cta" href="apk-analyzer.html">
+      Launch <span>↗</span>
+    </a>
+  </div>
+</header>
+
+<!-- ============ LAYOUT ============ -->
+<div class="layout">
+
+  <!-- Sidebar backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- TOC Sidebar -->
+  <aside class="toc-sidebar" id="tocSidebar" aria-label="Table of contents">
+    <div class="toc-heading">Documentation</div>
+
+    <nav class="toc">
+      <div class="toc-group">
+        <a class="toc-link active" href="#introduction">Introduction</a>
+        <a class="toc-link" href="#quick-start">Quick start</a>
+      </div>
+
+      <div class="toc-group">
+        <div class="toc-group-title">Interface</div>
+        <a class="toc-link" href="#overview">Overview</a>
+        <a class="toc-link" href="#manifest">Manifest viewer</a>
+        <a class="toc-link" href="#dex">DEX Explorer</a>
+        <a class="toc-link" href="#security">Security scanner</a>
+        <a class="toc-link" href="#technologies">Technologies</a>
+        <a class="toc-link" href="#files">File Explorer</a>
+      </div>
+
+      <div class="toc-group">
+        <div class="toc-group-title">Working with files</div>
+        <a class="toc-link" href="#extraction">Extraction</a>
+        <a class="toc-link" href="#export">Export reports</a>
+        <a class="toc-link" href="#shortcuts">Keyboard shortcuts</a>
+      </div>
+
+      <div class="toc-group">
+        <div class="toc-group-title">Reference</div>
+        <a class="toc-link" href="#security-checks">Security checks</a>
+        <a class="toc-link" href="#privacy">Privacy &amp; security</a>
+        <a class="toc-link" href="#troubleshooting">Troubleshooting</a>
+        <a class="toc-link" href="#faq">FAQ</a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="content">
+    <article class="article" id="article">
+
+      <!-- ==================== INTRODUCTION ==================== -->
+      <section id="introduction" data-toc="Introduction">
+        <div class="section-eyebrow">Getting started</div>
+        <h1>Documentation</h1>
+        <p class="lede">Everything you need to inspect Android APKs with APK Analyzer Pro. Learn how the analyzer works, what each view shows, and how to extract, export and interpret the results.</p>
+
+        <p><strong>APK Analyzer Pro</strong> is a 100% client-side Android package inspector. Every operation — binary XML decoding, DEX parsing, technology detection, security scanning — runs in your browser. Your APK never leaves your device.</p>
+
+        <div class="callout tip">
+          <div class="callout-icon">✓</div>
+          <div class="callout-body">
+            <div class="callout-title">No installation, no upload, no account</div>
+            <p>Open the analyzer, drop an APK, and start inspecting immediately. Compatible with Chrome, Firefox, Safari, Edge and Opera on both desktop and mobile.</p>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <div class="doc-card">
+            <div class="doc-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg>
+            </div>
+            <h4>Real parsing</h4>
+            <p>Binary AXML decoder, DEX header parser and string table reader — no mocks, no placeholders.</p>
+          </div>
+          <div class="doc-card">
+            <div class="doc-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            </div>
+            <h4>Security checks</h4>
+            <p>Nine automated checks for common Android misconfigurations, categorised by severity.</p>
+          </div>
+          <div class="doc-card">
+            <div class="doc-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            </div>
+            <h4>Folder tree</h4>
+            <p>Browse the internal structure of the APK. Extract any file, folder or the entire package.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== QUICK START ==================== -->
+      <section id="quick-start" data-toc="Quick start">
+        <h2>
+          Quick start
+          <a class="anchor-link" href="#quick-start" aria-label="Link to Quick start">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>Analyze your first APK in under thirty seconds.</p>
+
+        <div class="steps">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Open the analyzer</h4>
+              <p>Click <strong>Launch Analyzer</strong> from the topbar, or navigate directly to <code>apk-analyzer.html</code>.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Drop your APK</h4>
+              <p>Click the drop zone to open a file picker, or drag an APK file straight onto the page. The analyzer accepts <code>.apk</code>, <code>.xapk</code> and <code>.apks</code> files.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>Wait for analysis</h4>
+              <p>A progress overlay shows each stage: reading, hashing, opening the ZIP archive, decoding the manifest, parsing DEX files, detecting technologies, running the security scanner.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>Explore the results</h4>
+              <p>Use the sidebar to navigate between <strong>Overview</strong>, <strong>Manifest</strong>, <strong>DEX Explorer</strong>, <strong>Security</strong>, <strong>Technologies</strong> and <strong>Files</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <div class="callout-icon">!</div>
+          <div class="callout-body">
+            <div class="callout-title">Large APKs may take a moment</div>
+            <p>Files over 200 MB spend most of their time in the ZIP decompression stage. APKs under 500 MB work comfortably on modern hardware.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== OVERVIEW ==================== -->
+      <section id="overview" data-toc="Overview">
+        <h2>
+          Overview tab
+          <a class="anchor-link" href="#overview" aria-label="Link to Overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>The Overview tab gives you a snapshot of the package — its identity, size distribution, detected stack and top permissions. It's the first place to look when you open a new APK.</p>
+
+        <h3>Stat cards</h3>
+        <p>Four summary cards at the top of the Overview tab:</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Card</th><th>What it shows</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>APK size</strong></td><td>The total size of the file, plus the compression ratio achieved by the ZIP container.</td></tr>
+              <tr><td><strong>DEX files</strong></td><td>Number of <code>classes*.dex</code> files and the total class count across all of them.</td></tr>
+              <tr><td><strong>Total files</strong></td><td>Total number of entries inside the ZIP archive, plus the count of native libraries.</td></tr>
+              <tr><td><strong>Findings</strong></td><td>Total number of security findings, with a count of critical + high severity items.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Package identity</h3>
+        <p>The identity section reads directly from the decoded <code>AndroidManifest.xml</code>. Fields shown:</p>
+
+        <ul>
+          <li><strong>Package</strong> — the unique application ID (e.g. <code>com.example.app</code>)</li>
+          <li><strong>Version name</strong> — user-facing version string</li>
+          <li><strong>Version code</strong> — integer version counter used by the Play Store</li>
+          <li><strong>Min SDK</strong> — the lowest Android API level the app supports</li>
+          <li><strong>Target SDK</strong> — the API level the app was built and tested against</li>
+          <li><strong>Main activity</strong> — the launcher activity that opens when the app starts</li>
+          <li><strong>Application</strong> — the custom <code>Application</code> subclass, if any</li>
+          <li><strong>Debuggable</strong> — whether the app allows debugger attachment</li>
+          <li><strong>Allow backup</strong> — whether app data can be extracted via <code>adb backup</code></li>
+          <li><strong>SHA-256</strong> — hash of the entire APK file</li>
+        </ul>
+
+        <h3>Size breakdown</h3>
+        <p>A horizontal bar chart showing how the APK's bytes are distributed across six categories:</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Category</th><th>Contents</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>DEX</strong></td><td>All <code>classes*.dex</code> files — compiled Dalvik bytecode.</td></tr>
+              <tr><td><strong>Native libraries</strong></td><td>Everything under <code>lib/</code>, split by ABI (<code>arm64-v8a</code>, <code>armeabi-v7a</code>, <code>x86</code>, <code>x86_64</code>).</td></tr>
+              <tr><td><strong>Resources</strong></td><td><code>res/</code>, <code>resources.arsc</code> and <code>AndroidManifest.xml</code>.</td></tr>
+              <tr><td><strong>Assets</strong></td><td>Bundled assets under <code>assets/</code> — fonts, ML models, web content.</td></tr>
+              <tr><td><strong>Signatures</strong></td><td>Everything under <code>META-INF/</code>.</td></tr>
+              <tr><td><strong>Other</strong></td><td>Any remaining entries.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">i</div>
+          <div class="callout-body">
+            <div class="callout-title">Use the size chart to spot bloat</div>
+            <p>An APK with 40 MB of native libraries usually means multiple ABI builds. An APK with 30 MB of assets typically bundles ML models or offline content.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== MANIFEST ==================== -->
+      <section id="manifest" data-toc="Manifest viewer">
+        <h2>
+          Manifest viewer
+          <a class="anchor-link" href="#manifest" aria-label="Link to Manifest viewer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>Android packages ship their manifest in a compact binary XML format called <strong>AXML</strong>. The analyzer decodes it into readable, syntax-highlighted XML you can copy and inspect.</p>
+
+        <h3>What's decoded</h3>
+        <ul>
+          <li><strong>String pool</strong> — UTF-8 and UTF-16 string tables</li>
+          <li><strong>Element tree</strong> — nested tags with attributes</li>
+          <li><strong>Typed values</strong> — references, integers, booleans, colours</li>
+          <li><strong>Attributes</strong> — every <code>android:</code> attribute is resolved to its actual value</li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-head">
+            <span class="code-lang">Decoded manifest (excerpt)</span>
+            <button class="code-copy" data-copy-code="manifest-sample">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="code-body" id="manifest-sample"><span class="tok-punc">&lt;</span><span class="tok-tag">manifest</span> <span class="tok-attr">xmlns:android</span>=<span class="tok-str">"http://schemas.android.com/apk/res/android"</span>
+          <span class="tok-attr">package</span>=<span class="tok-str">"com.example.app"</span>
+          <span class="tok-attr">android:versionCode</span>=<span class="tok-str">"42"</span>
+          <span class="tok-attr">android:versionName</span>=<span class="tok-str">"2.4.1"</span><span class="tok-punc">&gt;</span>
+
+    <span class="tok-punc">&lt;</span><span class="tok-tag">uses-sdk</span>
+        <span class="tok-attr">android:minSdkVersion</span>=<span class="tok-str">"24"</span>
+        <span class="tok-attr">android:targetSdkVersion</span>=<span class="tok-str">"34"</span> <span class="tok-punc">/&gt;</span>
+
+    <span class="tok-punc">&lt;</span><span class="tok-tag">uses-permission</span>
+        <span class="tok-attr">android:name</span>=<span class="tok-str">"android.permission.INTERNET"</span> <span class="tok-punc">/&gt;</span>
+
+    <span class="tok-punc">&lt;</span><span class="tok-tag">application</span>
+        <span class="tok-attr">android:debuggable</span>=<span class="tok-str">"false"</span>
+        <span class="tok-attr">android:allowBackup</span>=<span class="tok-str">"false"</span><span class="tok-punc">&gt;</span>
+
+        <span class="tok-punc">&lt;</span><span class="tok-tag">activity</span>
+            <span class="tok-attr">android:name</span>=<span class="tok-str">".MainActivity"</span>
+            <span class="tok-attr">android:exported</span>=<span class="tok-str">"true"</span><span class="tok-punc">&gt;</span>
+            <span class="tok-punc">&lt;</span><span class="tok-tag">intent-filter</span><span class="tok-punc">&gt;</span>
+                <span class="tok-punc">&lt;</span><span class="tok-tag">action</span> <span class="tok-attr">android:name</span>=<span class="tok-str">"android.intent.action.MAIN"</span> <span class="tok-punc">/&gt;</span>
+                <span class="tok-punc">&lt;</span><span class="tok-tag">category</span> <span class="tok-attr">android:name</span>=<span class="tok-str">"android.intent.category.LAUNCHER"</span> <span class="tok-punc">/&gt;</span>
+            <span class="tok-punc">&lt;/</span><span class="tok-tag">intent-filter</span><span class="tok-punc">&gt;</span>
+        <span class="tok-punc">&lt;/</span><span class="tok-tag">activity</span><span class="tok-punc">&gt;</span>
+    <span class="tok-punc">&lt;/</span><span class="tok-tag">application</span><span class="tok-punc">&gt;</span>
+<span class="tok-punc">&lt;/</span><span class="tok-tag">manifest</span><span class="tok-punc">&gt;</span></div>
+        </div>
+
+        <h3>Permissions list</h3>
+        <p>Below the decoded manifest, every <code>uses-permission</code> is listed as a tag. Dangerous permissions — those requiring runtime user consent — are highlighted in red using the official Android platform list.</p>
+
+        <h3>Components</h3>
+        <p>Activities, services, broadcast receivers and content providers are listed with their export state:</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Badge</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong style="color:#ff665c">exported</strong></td><td>The component is exported and has no permission guard — any installed app can invoke it.</td></tr>
+              <tr><td><strong style="color:#f0a020">exported·perm</strong></td><td>Exported but protected by a permission declaration.</td></tr>
+              <tr><td><strong>private</strong></td><td>Not exported — only reachable from inside the app itself.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==================== DEX ==================== -->
+      <section id="dex" data-toc="DEX Explorer">
+        <h2>
+          DEX Explorer
+          <a class="anchor-link" href="#dex" aria-label="Link to DEX Explorer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>DEX files contain an Android app's compiled Dalvik bytecode. The DEX Explorer reads each file's header and reports its structure.</p>
+
+        <h3>Metrics per DEX file</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Metric</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Classes</strong></td><td>Number of class definitions — the DEX header's <code>class_defs_size</code> field.</td></tr>
+              <tr><td><strong>Methods</strong></td><td>Total method references across the whole file.</td></tr>
+              <tr><td><strong>Fields</strong></td><td>Total field references.</td></tr>
+              <tr><td><strong>Strings</strong></td><td>Number of unique strings in the string pool.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">i</div>
+          <div class="callout-body">
+            <div class="callout-title">The 64K method limit</div>
+            <p>Android's DEX format originally capped method references at 65,536 per file. Apps that exceed this split their code across <code>classes.dex</code>, <code>classes2.dex</code>, <code>classes3.dex</code> and so on. The analyzer reports the total across all files.</p>
+          </div>
+        </div>
+
+        <h3>Aggregate counts</h3>
+        <p>The bottom of the DEX view sums classes, methods, fields and strings across every DEX file — a useful signal for app complexity and code size.</p>
+      </section>
+
+      <!-- ==================== SECURITY ==================== -->
+      <section id="security" data-toc="Security scanner">
+        <h2>
+          Security scanner
+          <a class="anchor-link" href="#security" aria-label="Link to Security scanner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>The Security tab runs nine automated checks against the decoded manifest and the package contents. Findings are categorised by severity: <strong style="color:#ff665c">critical</strong>, <strong style="color:#ff9a6b">high</strong>, <strong style="color:#f0a020">medium</strong> and <strong>info</strong>.</p>
+
+        <p>See the <a href="#security-checks">Security checks reference</a> below for a full description of every check and why it matters.</p>
+      </section>
+
+      <!-- ==================== TECHNOLOGIES ==================== -->
+      <section id="technologies" data-toc="Technologies">
+        <h2>
+          Technologies
+          <a class="anchor-link" href="#technologies" aria-label="Link to Technologies">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>The Technologies tab identifies frameworks, libraries and languages by scanning file paths and DEX strings against a library of signatures.</p>
+
+        <h3>Detection sources</h3>
+        <ul>
+          <li><strong>File paths</strong> — e.g. <code>lib/*/libflutter.so</code> signals Flutter, <code>assets/flutter_assets/</code> confirms it</li>
+          <li><strong>DEX strings</strong> — e.g. <code>retrofit2/</code> indicates Retrofit, <code>com.google.firebase</code> indicates Firebase</li>
+        </ul>
+
+        <h3>Detected stacks</h3>
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>Languages</strong>Kotlin · Java</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>Cross-platform</strong>Flutter · React Native · Cordova · Capacitor</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>Game engines</strong>Unity</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>Libraries</strong>Retrofit · OkHttp · Glide · Picasso · Gson · Moshi · Dagger · Room · Compose · RxJava</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>Services</strong>Firebase · Play Billing · Stripe · AdMob</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>Analytics</strong>Amplitude · Sentry · segment · Flurry · Mixpanel</div>
+          </div>
+        </div>
+
+        <h3>Native libraries &amp; architecture</h3>
+        <p>The same tab lists every <code>.so</code> file and the ABIs present in the APK. A pure Java/Kotlin app with no native code shows an empty native libraries list.</p>
+      </section>
+
+      <!-- ==================== FILES ==================== -->
+      <section id="files" data-toc="File Explorer">
+        <h2>
+          File Explorer
+          <a class="anchor-link" href="#files" aria-label="Link to File Explorer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>The Files tab renders the internal structure of the APK as an expandable folder tree. Every folder can be expanded to reveal its contents, including nested subfolders.</p>
+
+        <h3>Tree interactions</h3>
+        <ul>
+          <li><strong>Click a folder</strong> to expand or collapse it — the chevron rotates 90°</li>
+          <li><strong>Search</strong> auto-expands every folder that contains a match and dims the rest</li>
+          <li><strong>Expand all</strong> opens the entire tree</li>
+          <li><strong>Collapse all</strong> returns to root level</li>
+        </ul>
+
+        <h3>Reading the tree</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Column</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Icon</strong></td><td>File type — DEX, XML, SO, ARSC, image, signature</td></tr>
+              <tr><td><strong>Name</strong></td><td>File or folder name with trailing slash for folders</td></tr>
+              <tr><td><strong>Count</strong></td><td>Number of files inside the folder, including all nested subfolders</td></tr>
+              <tr><td><strong>Size</strong></td><td>Total uncompressed size of the folder or file</td></tr>
+              <tr><td><strong>Extract</strong></td><td>Downloads the file or packs the folder as a ZIP</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">✓</div>
+          <div class="callout-body">
+            <div class="callout-title">Folder sizes are recursive</div>
+            <p>Clicking a folder shows the sum of every file beneath it. A folder like <code>res/</code> with hundreds of drawables shows its total weight immediately — no need to expand it.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== EXTRACTION ==================== -->
+      <section id="extraction" data-toc="Extraction">
+        <h2>
+          Extraction
+          <a class="anchor-link" href="#extraction" aria-label="Link to Extraction">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>The analyzer extracts files directly from the APK's ZIP container using JSZip. Every extraction is performed in memory and downloaded to your machine.</p>
+
+        <h3>Extract a single file</h3>
+        <p>Click <strong>Extract</strong> on any file row. The file downloads immediately with its original name and contents.</p>
+
+        <h3>Extract a folder</h3>
+        <p>Click <strong>Extract</strong> on any folder row. A new ZIP is generated containing every file under that folder — subfolders preserved — and downloaded as <code>foldername.zip</code>.</p>
+
+        <div class="code-block">
+          <div class="code-head">
+            <span class="code-lang">Example: extracting res/</span>
+          </div>
+          <div class="code-body">res.zip
+├── drawable-hdpi/
+│   └── icon.png
+├── drawable-mdpi/
+│   └── icon.png
+├── layout/
+│   ├── activity_main.xml
+│   └── fragment_details.xml
+├── values/
+│   ├── strings.xml
+│   └── colors.xml
+└── xml/
+    └── network_security_config.xml</div>
+        </div>
+
+        <h3>Extract the entire APK</h3>
+        <p>Click <strong>Extract all</strong> in the toolbar to pack the entire decompressed APK into a single ZIP. The output is named <code>&lt;apkname&gt;-contents.zip</code>.</p>
+
+        <div class="callout warn">
+          <div class="callout-icon">!</div>
+          <div class="callout-body">
+            <div class="callout-title">Large extractions take a moment</div>
+            <p>Packing hundreds of files into a ZIP in the browser takes time. A toast notification confirms progress and completion.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== EXPORT ==================== -->
+      <section id="export" data-toc="Export reports">
+        <h2>
+          Export reports
+          <a class="anchor-link" href="#export" aria-label="Link to Export reports">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>Export a complete JSON report of the analysis. Press <kbd>Ctrl</kbd>+<kbd>E</kbd> (or <kbd>Cmd</kbd>+<kbd>E</kbd> on macOS), or click <strong>Export</strong> in the topbar.</p>
+
+        <h3>Report shape</h3>
+        <div class="code-block">
+          <div class="code-head">
+            <span class="code-lang">analysis.json</span>
+            <button class="code-copy" data-copy-code="json-sample">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="code-body" id="json-sample"><span class="tok-punc">{</span>
+  <span class="tok-attr">"generatedAt"</span>: <span class="tok-str">"2026-09-16T12:34:56.789Z"</span>,
+  <span class="tok-attr">"tool"</span>: <span class="tok-str">"APK Analyzer Pro"</span>,
+  <span class="tok-attr">"file"</span>: <span class="tok-punc">{</span>
+    <span class="tok-attr">"name"</span>: <span class="tok-str">"sample-release.apk"</span>,
+    <span class="tok-attr">"size"</span>: <span class="tok-num">50537472</span>,
+    <span class="tok-attr">"sha256"</span>: <span class="tok-str">"3a9c4b7e…"</span>
+  <span class="tok-punc">},</span>
+  <span class="tok-attr">"package"</span>: <span class="tok-punc">{</span>
+    <span class="tok-attr">"package"</span>: <span class="tok-str">"com.example.app"</span>,
+    <span class="tok-attr">"versionName"</span>: <span class="tok-str">"2.4.1"</span>,
+    <span class="tok-attr">"versionCode"</span>: <span class="tok-str">"42"</span>,
+    <span class="tok-attr">"minSdk"</span>: <span class="tok-str">"24"</span>,
+    <span class="tok-attr">"targetSdk"</span>: <span class="tok-str">"34"</span>,
+    <span class="tok-attr">"debuggable"</span>: <span class="tok-str">"false"</span>
+  <span class="tok-punc">},</span>
+  <span class="tok-attr">"permissions"</span>: <span class="tok-punc">[</span><span class="tok-str">"android.permission.INTERNET"</span>, …<span class="tok-punc">],</span>
+  <span class="tok-attr">"technologies"</span>: <span class="tok-punc">[</span><span class="tok-punc">{</span> <span class="tok-attr">"name"</span>: <span class="tok-str">"Kotlin"</span>, <span class="tok-attr">"kind"</span>: <span class="tok-str">"language"</span> <span class="tok-punc">}</span>, …<span class="tok-punc">],</span>
+  <span class="tok-attr">"findings"</span>: <span class="tok-punc">[</span>
+    <span class="tok-punc">{</span>
+      <span class="tok-attr">"severity"</span>: <span class="tok-str">"high"</span>,
+      <span class="tok-attr">"title"</span>: <span class="tok-str">"Cleartext traffic permitted"</span>,
+      <span class="tok-attr">"description"</span>: <span class="tok-str">"android:usesCleartextTraffic=…"</span>
+    <span class="tok-punc">}</span>
+  <span class="tok-punc">],</span>
+  <span class="tok-attr">"entries"</span>: <span class="tok-punc">[</span>
+    <span class="tok-punc">{</span> <span class="tok-attr">"name"</span>: <span class="tok-str">"classes.dex"</span>, <span class="tok-attr">"size"</span>: <span class="tok-num">5432110</span> <span class="tok-punc">}</span>, …
+  <span class="tok-punc">]</span>
+<span class="tok-punc">}</span></div>
+        </div>
+
+        <h3>Top-level keys</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Key</th><th>Contents</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>generatedAt</code></td><td>ISO 8601 timestamp of the analysis.</td></tr>
+              <tr><td><code>file</code></td><td>Original filename, byte size and SHA-256 hash.</td></tr>
+              <tr><td><code>package</code></td><td>Identity fields from the decoded manifest.</td></tr>
+              <tr><td><code>signature</code></td><td>Signature files detected, JAR signing status.</td></tr>
+              <tr><td><code>permissions</code></td><td>Array of declared permission strings.</td></tr>
+              <tr><td><code>components</code></td><td>Activities, services, receivers and providers.</td></tr>
+              <tr><td><code>dex</code></td><td>Per-file metrics plus aggregate totals.</td></tr>
+              <tr><td><code>technologies</code></td><td>Name and category for each detected library.</td></tr>
+              <tr><td><code>nativeLibraries</code></td><td>Full paths of bundled <code>.so</code> files.</td></tr>
+              <tr><td><code>architectures</code></td><td>ABI directories found under <code>lib/</code>.</td></tr>
+              <tr><td><code>sizeBreakdown</code></td><td>Byte totals per category.</td></tr>
+              <tr><td><code>findings</code></td><td>Security issues with severity and description.</td></tr>
+              <tr><td><code>entries</code></td><td>Complete file listing with name and size.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==================== SHORTCUTS ==================== -->
+      <section id="shortcuts" data-toc="Keyboard shortcuts">
+        <h2>
+          Keyboard shortcuts
+          <a class="anchor-link" href="#shortcuts" aria-label="Link to Keyboard shortcuts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>Speed up your workflow with these shortcuts inside the analyzer.</p>
+
+        <h3>Global</h3>
+        <div class="shortcut-grid">
+          <div class="shortcut"><span class="shortcut-label">Export JSON report</span><span class="shortcut-keys"><kbd>Ctrl</kbd><kbd>E</kbd></span></div>
+          <div class="shortcut"><span class="shortcut-label">Close drawer / dialog</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
+        </div>
+
+        <h3>Switch views</h3>
+        <div class="shortcut-grid">
+          <div class="shortcut"><span class="shortcut-label">Overview</span><span class="shortcut-keys"><kbd>1</kbd></span></div>
+          <div class="shortcut"><span class="shortcut-label">Manifest</span><span class="shortcut-keys"><kbd>2</kbd></span></div>
+          <div class="shortcut"><span class="shortcut-label">DEX Explorer</span><span class="shortcut-keys"><kbd>3</kbd></span></div>
+          <div class="shortcut"><span class="shortcut-label">Security</span><span class="shortcut-keys"><kbd>4</kbd></span></div>
+          <div class="shortcut"><span class="shortcut-label">Technologies</span><span class="shortcut-keys"><kbd>5</kbd></span></div>
+          <div class="shortcut"><span class="shortcut-label">Files</span><span class="shortcut-keys"><kbd>6</kbd></span></div>
+        </div>
+
+        <h3>Inside Files tab</h3>
+        <div class="shortcut-grid">
+          <div class="shortcut"><span class="shortcut-label">Focus search field</span><span class="shortcut-keys"><kbd>/</kbd></span></div>
+          <div class="shortcut"><span class="shortcut-label">Toggle folder</span><span class="shortcut-keys"><kbd>Enter</kbd></span></div>
+        </div>
+      </section>
+
+      <!-- ==================== SECURITY CHECKS ==================== -->
+      <section id="security-checks" data-toc="Security checks">
+        <h2>
+          Security checks reference
+          <a class="anchor-link" href="#security-checks" aria-label="Link to Security checks">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>Every check the security scanner performs, with its severity and rationale.</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Check</th><th>Severity</th><th>Why it matters</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Debuggable</strong><br><code>android:debuggable="true"</code></td>
+                <td><strong style="color:#ff665c">Critical</strong></td>
+                <td>Anyone with the APK can attach a debugger, read memory and alter execution.</td>
+              </tr>
+              <tr>
+                <td><strong>Unsigned APK</strong><br>No signature files in <code>META-INF/</code></td>
+                <td><strong style="color:#ff665c">Critical</strong></td>
+                <td>The APK may have been repackaged or tampered with after the developer signed it.</td>
+              </tr>
+              <tr>
+                <td><strong>Backup allowed</strong><br><code>android:allowBackup="true"</code></td>
+                <td><strong style="color:#ff9a6b">High</strong></td>
+                <td>App data — databases, preferences, internal files — can be extracted with <code>adb backup</code> without root.</td>
+              </tr>
+              <tr>
+                <td><strong>Cleartext traffic</strong><br><code>android:usesCleartextTraffic="true"</code></td>
+                <td><strong style="color:#ff9a6b">High</strong></td>
+                <td>HTTP requests are sent unencrypted and can be intercepted on untrusted networks.</td>
+              </tr>
+              <tr>
+                <td><strong>Exported components</strong><br>exported without permission</td>
+                <td><strong style="color:#ff9a6b">High</strong></td>
+                <td>Any installed app can invoke these activities, services or receivers.</td>
+              </tr>
+              <tr>
+                <td><strong>Dangerous permissions</strong></td>
+                <td><strong style="color:#f0a020">Medium</strong></td>
+                <td>Permissions like CAMERA, RECORD_AUDIO or LOCATION require runtime consent and expose sensitive data.</td>
+              </tr>
+              <tr>
+                <td><strong>No network security config</strong></td>
+                <td><strong style="color:#f0a020">Medium</strong></td>
+                <td>Target SDK below 28 without a <code>network_security_config.xml</code> may permit cleartext by default.</td>
+              </tr>
+              <tr>
+                <td><strong>Hooking framework reference</strong></td>
+                <td>Info</td>
+                <td>DEX strings reference Xposed, Substrate or similar — could indicate anti-tamper logic.</td>
+              </tr>
+              <tr>
+                <td><strong>Analytics/tracker SDKs</strong></td>
+                <td>Info</td>
+                <td>The APK bundles libraries known to collect device identifiers and usage data.</td>
+              </tr>
+              <tr>
+                <td><strong>Large APK size</strong></td>
+                <td>Info</td>
+                <td>Over 200 MB often means bundled ML models, multiple ABIs or embedded secondary apps.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout danger">
+          <div class="callout-icon">!</div>
+          <div class="callout-body">
+            <div class="callout-title">The scanner is not a guarantee</div>
+            <p>A clean result means the automated checks found nothing — it does not prove the APK is safe. Always combine this analysis with source review, dynamic testing and your own judgement.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PRIVACY ==================== -->
+      <section id="privacy" data-toc="Privacy &amp; security">
+        <h2>
+          Privacy &amp; security
+          <a class="anchor-link" href="#privacy" aria-label="Link to Privacy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+        <p>Everything the analyzer does happens inside your browser tab. Your APK, its contents and the analysis results never leave your device.</p>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>No server uploads</strong>Your APK is read into memory with the File API. Nothing is transmitted over the network.</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>No analytics on your data</strong>The analyzer does not send any information about your APK — not even a filename hash.</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>Local-only processing</strong>AXML decoding, DEX parsing and ZIP extraction all run client-side using JavaScript.</div>
+          </div>
+          <div class="feature-item">
+            <div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div><strong>No account, no cookies</strong>There is nothing to sign up for and nothing to track you across visits.</div>
+          </div>
+        </div>
+
+        <h3>How to verify</h3>
+        <ol>
+          <li>Open your browser's developer tools (<kbd>F12</kbd> or <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>I</kbd>)</li>
+          <li>Switch to the <strong>Network</strong> tab</li>
+          <li>Load and analyze an APK</li>
+          <li>Observe that no requests carry the APK data — only static assets (HTML, CSS, JS, fonts) and the JSZip library from a CDN</li>
+        </ol>
+
+        <div class="callout tip">
+          <div class="callout-icon">✓</div>
+          <div class="callout-body">
+            <div class="callout-title">Works fully offline after first load</div>
+            <p>Once the page and CDN assets are cached, you can disconnect from the internet and still analyze APKs. The analysis engine has no external dependencies at runtime.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TROUBLESHOOTING ==================== -->
+      <section id="troubleshooting" data-toc="Troubleshooting">
+        <h2>
+          Troubleshooting
+          <a class="anchor-link" href="#troubleshooting" aria-label="Link to Troubleshooting">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+
+        <h3>"Not a valid APK / ZIP file"</h3>
+        <p>The file you dropped is not a ZIP archive. Common causes:</p>
+        <ul>
+          <li>The file is a split APK bundle (<code>.apks</code>) — extract the base APK first</li>
+          <li>The file is an Android App Bundle (<code>.aab</code>), which is not a ZIP of the same structure</li>
+          <li>The file is corrupted or incomplete</li>
+        </ul>
+
+        <h3>"AndroidManifest.xml not found"</h3>
+        <p>The ZIP opened but does not contain an Android manifest. Either the file is not an Android APK, or the manifest is at a different path (common in some split-APK scenarios).</p>
+
+        <h3>"Manifest decode failed"</h3>
+        <p>The manifest was found but the binary AXML parser rejected it. This is rare and usually indicates a non-standard APK or a truncated manifest file.</p>
+
+        <h3>Analysis is very slow</h3>
+        <ul>
+          <li>Large APKs (&gt; 200 MB) spend most time in ZIP decompression — expected</li>
+          <li>Check that no other tabs are consuming memory — the analyzer holds the entire decompressed APK plus string tables in RAM</li>
+          <li>Try a desktop browser for very large packages; mobile browsers have stricter memory limits</li>
+        </ul>
+
+        <h3>Extract button does nothing</h3>
+        <p>Some browsers block downloads triggered without a clear user gesture. Make sure you are clicking the button directly, not triggering it programmatically.</p>
+
+        <h3>Missing technologies</h3>
+        <p>The detector matches paths and DEX strings. If a library is heavily obfuscated or embedded in a way that hides its package names, detection may miss it.</p>
+      </section>
+
+      <!-- ==================== FAQ ==================== -->
+      <section id="faq" data-toc="FAQ">
+        <h2>
+          Frequently asked questions
+          <a class="anchor-link" href="#faq" aria-label="Link to FAQ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </a>
+        </h2>
+
+        <h3>Does my APK leave my device?</h3>
+        <p>No. Every operation runs locally in your browser. See the <a href="#privacy">Privacy section</a> for verification steps.</p>
+
+        <h3>Is there a size limit?</h3>
+        <p>There is no hard limit, but APKs under 500 MB are recommended. Larger files depend on your device's memory and CPU.</p>
+
+        <h3>Does it decompile an APK to Java source?</h3>
+        <p>No. The analyzer extracts and inspects package contents — manifest, DEX headers, resources, permissions. Full source decompilation requires dedicated tools like <strong>JADX</strong> or <strong>APKTool</strong>.</p>
+
+        <h3>Can it detect malware?</h3>
+        <p>Not directly. The scanner reports common misconfigurations and dangerous permissions, but it is not an antivirus and does not have a malware signature database.</p>
+
+        <h3>Is it free?</h3>
+        <p>Yes. APK Analyzer Pro is presented as free and open source, with no subscriptions or premium tiers.</p>
+
+        <h3>Which browsers are supported?</h3>
+        <p>Modern Chrome, Firefox, Safari, Edge and Opera on both desktop and mobile. Internet Explorer is not supported.</p>
+
+        <h3>Can I use this commercially?</h3>
+        <p>The tool is presented as open source. Check the project's licence for exact terms.</p>
+
+        <h3>How do I report a bug or request a feature?</h3>
+        <p>Open an issue on the GitHub repository. Include the browser version, the APK's general characteristics (size, target SDK) and the behaviour you observed — but never attach proprietary APKs to a public issue.</p>
+      </section>
+
+      <!-- Prev/Next -->
+      <nav class="page-nav">
+        <a class="page-nav-link prev" href="index.html">
+          <span class="dir">← Previous</span>
+          <span class="title">Home</span>
+        </a>
+        <a class="page-nav-link next" href="apk-analyzer.html">
+          <span class="dir">Next →</span>
+          <span class="title">Launch Analyzer</span>
+        </a>
+      </nav>
+
+    </article>
+  </main>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div>© 2026 APK Analyzer Pro · Local-first / Open source</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="apk-analyzer.html">Analyzer</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://github.com/iamlaxman/apk-analyzer" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+const topbar = $('#topbar');
+const progressBar = $('#progressBar');
+const menuBtn = $('#menuBtn');
+const tocSidebar = $('#tocSidebar');
+const sidebarBackdrop = $('#sidebarBackdrop');
+const searchInput = $('#searchInput');
+
+/* ============================================================
+   NAV SHADOW + PROGRESS BAR
+   ============================================================ */
+let ticking = false;
+function updateOnScroll() {
+  const y = window.scrollY;
+  if (y > 8) topbar.classList.add('scrolled');
+  else topbar.classList.remove('scrolled');
+
+  const doc = document.documentElement;
+  const total = doc.scrollHeight - doc.clientHeight;
+  const pct = total > 0 ? (y / total) * 100 : 0;
+  progressBar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  ticking = false;
+}
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(updateOnScroll);
+    ticking = true;
+  }
+}, { passive: true });
+updateOnScroll();
+
+/* ============================================================
+   MOBILE DRAWER
+   ============================================================ */
+function openDrawer() {
+  document.body.classList.add('drawer-open');
+  menuBtn.setAttribute('aria-expanded', 'true');
+}
+function closeDrawer() {
+  if (!document.body.classList.contains('drawer-open')) return;
+  document.body.classList.remove('drawer-open');
+  menuBtn.setAttribute('aria-expanded', 'false');
+}
+menuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (document.body.classList.contains('drawer-open')) closeDrawer();
+  else openDrawer();
+});
+sidebarBackdrop.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeDrawer();
+    if (document.activeElement === searchInput) searchInput.blur();
+  }
+});
+
+/* Close drawer when clicking a TOC link (mobile) */
+$$('.toc-link').forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 900) closeDrawer();
+  });
+});
+
+/* Auto-close on resize to desktop */
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (window.innerWidth > 900) closeDrawer();
+  }, 150);
+});
+
+/* ============================================================
+   ACTIVE TOC LINK TRACKING
+   ============================================================ */
+const sections = $$('.article section[id]');
+const tocLinks = $$('.toc-link');
+
+function updateActiveSection() {
+  const scrollY = window.scrollY;
+  const offset = 120; // account for sticky topbar
+  let currentId = sections.length ? sections[0].id : '';
+
+  for (const section of sections) {
+    const top = section.offsetTop - offset;
+    if (scrollY >= top) currentId = section.id;
+    else break;
+  }
+
+  tocLinks.forEach(link => {
+    const target = link.getAttribute('href').slice(1);
+    link.classList.toggle('active', target === currentId);
+  });
+}
+window.addEventListener('scroll', () => requestAnimationFrame(updateActiveSection), { passive: true });
+updateActiveSection();
+
+/* ============================================================
+   SMOOTH SCROLL FOR ANCHORS WITH OFFSET
+   ============================================================ */
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  const href = a.getAttribute('href');
+  if (href === '#' || href.length < 2) return;
+  const target = document.getElementById(href.slice(1));
+  if (!target) return;
+  e.preventDefault();
+  const top = target.offsetTop - 88;
+  window.scrollTo({ top, behavior: 'smooth' });
+  history.replaceState(null, '', href);
+});
+
+/* ============================================================
+   COPY BUTTONS IN CODE BLOCKS
+   ============================================================ */
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.code-copy');
+  if (!btn) return;
+  const id = btn.dataset.copyCode;
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const text = el.textContent;
+  copyText(text).then(() => {
+    btn.classList.add('copied');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Copied';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = originalHTML;
+    }, 1600);
+  }).catch(() => {});
+});
+
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      resolve();
+    } catch(e) {
+      reject(e);
+    }
+    document.body.removeChild(ta);
+  });
+}
+
+/* ============================================================
+   SEARCH — filters TOC and highlights matching sections
+   ============================================================ */
+let searchClearTimer;
+searchInput.addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  const groups = $$('.toc-group');
+
+  if (!q) {
+    // Reset
+    tocLinks.forEach(l => { l.style.display = ''; });
+    groups.forEach(g => { g.style.display = ''; });
+    $$('.toc-group-title').forEach(t => { t.style.display = ''; });
+    return;
+  }
+
+  tocLinks.forEach(link => {
+    const text = link.textContent.toLowerCase();
+    link.style.display = text.includes(q) ? '' : 'none';
+  });
+
+  // Hide empty groups
+  groups.forEach(g => {
+    const visible = Array.from(g.querySelectorAll('.toc-link'))
+      .some(l => l.style.display !== 'none');
+    g.style.display = visible ? '' : 'none';
+  });
+
+  // Auto-open drawer if on mobile so results are visible
+  if (window.innerWidth <= 900 && q.length > 0) openDrawer();
+});
+
+/* Keyboard shortcut: / or ⌘K focuses search */
+document.addEventListener('keydown', (e) => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  const isTyping = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+
+  if ((e.key === '/' && !isTyping) ||
+      ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }
+});
+
+/* ============================================================
+   SCROLL INTO VIEW ON LOAD (deep links)
+   ============================================================ */
+window.addEventListener('load', () => {
+  if (window.location.hash) {
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (el) {
+      setTimeout(() => {
+        const top = el.offsetTop - 88;
+        window.scrollTo({ top, behavior: 'auto' });
+      }, 80);
+    }
+  }
+  updateOnScroll();
+  updateActiveSection();
+});
+
+/* ============================================================
+   PREFERS REDUCED MOTION
+   ============================================================ */
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.documentElement.style.scrollBehavior = 'auto';
+}
+
+})();
+</script>
+</body>
+</html>

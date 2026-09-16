@@ -10,9 +10,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   0. RESET + MOBILE TAP FIX
-   ============================================================ */
 *,*::before,*::after{
   box-sizing:border-box;margin:0;padding:0;
   -webkit-tap-highlight-color:transparent;
@@ -21,26 +18,19 @@
 [hidden]{display:none !important}
 html,body{height:100%;overflow:hidden}
 html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
-
 button,a,input,label,.nav-item,.drop-zone,.file-action,.copy-btn,.menu-btn,.btn,.tag,[role="button"],[tabindex],.tree-row.folder{
-  -webkit-tap-highlight-color:transparent;
-  outline:none;
-  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;outline:none;touch-action:manipulation;
 }
 button:focus-visible,a:focus-visible,input:focus-visible,label:focus-visible,
 .nav-item:focus-visible,.drop-zone:focus-visible,.file-action:focus-visible,
 .copy-btn:focus-visible,.menu-btn:focus-visible,.btn:focus-visible,
 [role="button"]:focus-visible,[tabindex]:focus-visible,.tree-row.folder:focus-visible{
-  outline:2px solid #b8ff45;
-  outline-offset:2px;
-  border-radius:inherit;
+  outline:2px solid #b8ff45;outline-offset:2px;border-radius:inherit;
 }
 button:focus:not(:focus-visible),a:focus:not(:focus-visible),label:focus:not(:focus-visible),
 .nav-item:focus:not(:focus-visible),.drop-zone:focus:not(:focus-visible),
 .file-action:focus:not(:focus-visible),.copy-btn:focus:not(:focus-visible),
-.menu-btn:focus:not(:focus-visible){
-  outline:none;box-shadow:none;
-}
+.menu-btn:focus:not(:focus-visible){outline:none;box-shadow:none;}
 
 body{
   background:#080b0a;color:#f2f6f3;
@@ -59,9 +49,6 @@ svg{display:block;flex-shrink:0}
 ::-webkit-scrollbar-thumb{background:#232a25;border-radius:8px}
 ::-webkit-scrollbar-thumb:hover{background:#333d36}
 
-/* ============================================================
-   1. TOKENS
-   ============================================================ */
 :root{
   --bg:#080b0a; --bg-2:#0d1210; --panel:#111714; --panel-2:#151b18; --panel-3:#1a211d;
   --line:#202721; --line-2:#2c342e; --line-3:#3a433d;
@@ -85,9 +72,6 @@ svg{display:block;flex-shrink:0}
 
 .app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
-/* ============================================================
-   2. TOPBAR
-   ============================================================ */
 .topbar{
   height:var(--topbar-h);flex-shrink:0;display:flex;align-items:center;gap:10px;
   padding:0 14px;padding-left:calc(14px + var(--safe-l));
@@ -174,9 +158,6 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 .btn-ghost{background:transparent;color:var(--ink-2);border-color:var(--line-2)}
 .btn-ghost:hover{background:var(--panel-2);color:var(--ink);border-color:var(--line-3)}
 
-/* ============================================================
-   3. UPLOAD
-   ============================================================ */
 .upload-screen{
   flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
   padding:24px;padding-bottom:calc(24px + var(--safe-b));
@@ -278,9 +259,6 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 .upload-features span{display:inline-flex;align-items:center;gap:6px}
 .upload-features .check{color:var(--accent);font-weight:700}
 
-/* ============================================================
-   4. BODY / SIDEBAR
-   ============================================================ */
 .body{flex:1;min-height:0;display:flex;overflow:hidden;position:relative}
 .sidebar{
   width:var(--side-w);flex-shrink:0;background:var(--bg-2);
@@ -366,9 +344,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 .view-subtitle{font-size:13px;color:var(--ink-3);margin-top:8px;line-height:1.5}
 
-/* ============================================================
-   5. CARDS
-   ============================================================ */
 .card{
   background:linear-gradient(180deg,var(--panel),var(--bg-2));
   border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
@@ -394,9 +369,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .card-body{padding:18px}
 .card-body.no-pad{padding:0}
 
-/* ============================================================
-   6. STAT / INFO / TAGS
-   ============================================================ */
 .stat-grid{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
   gap:12px;margin-bottom:18px;
@@ -484,9 +456,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .tag.more{color:var(--muted);border-style:dashed;font-style:italic}
 .tag.more::before{display:none}
 
-/* ============================================================
-   7. CHART
-   ============================================================ */
 .chart{display:flex;flex-direction:column;gap:14px}
 .chart-row{margin-bottom:2px}
 .chart-row-head{
@@ -510,9 +479,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .chart-bar i.signature{background:linear-gradient(90deg,#ff6b5e,#ff9a6b)}
 .chart-bar i.other{background:linear-gradient(90deg,#3a433d,#5e6863)}
 
-/* ============================================================
-   8. MANIFEST
-   ============================================================ */
 .code-wrap{position:relative}
 .copy-code-btn{
   position:absolute;top:12px;right:12px;padding:6px 12px;border-radius:7px;
@@ -533,9 +499,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .manifest-code .attr-value{color:var(--accent)}
 .manifest-code .punc{color:var(--muted)}
 
-/* ============================================================
-   9. DEX
-   ============================================================ */
 .dex-grid{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:14px;margin-bottom:18px;
@@ -577,9 +540,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
-/* ============================================================
-   10. SECURITY
-   ============================================================ */
 .severity-grid{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   gap:10px;margin-bottom:18px;
@@ -641,7 +601,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 
 /* ============================================================
-   11. FILE TREE EXPLORER
+   FILE TREE
    ============================================================ */
 .toolbar{
   display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;
@@ -660,13 +620,10 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .search-input::placeholder{color:var(--muted)}
 .search-input:focus{outline:none;border-color:var(--accent-line);background:var(--panel-2)}
 
-.tree-actions{
-  display:flex;gap:8px;flex-shrink:0;
-}
+.tree-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
 .tree-btn{
   display:inline-flex;align-items:center;gap:6px;
-  padding:0 12px;height:40px;
-  border-radius:9px;background:var(--panel);
+  padding:0 12px;height:40px;border-radius:9px;background:var(--panel);
   border:1px solid var(--line-2);
   font-family:'DM Mono',monospace;font-size:11px;
   color:var(--muted);letter-spacing:.04em;
@@ -674,22 +631,22 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 .tree-btn:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
 .tree-btn svg{width:13px;height:13px}
+.tree-btn.primary{
+  color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim);
+}
 
 .tree-list{
   display:flex;flex-direction:column;
   max-height:70vh;overflow-y:auto;
-  font-family:'DM Mono',monospace;
-  font-size:12px;
+  font-family:'DM Mono',monospace;font-size:12px;
   -webkit-overflow-scrolling:touch;
 }
 .tree-row{
   display:flex;align-items:center;gap:8px;
-  padding:7px 14px;
-  min-height:36px;
+  padding:7px 14px;min-height:36px;
   border-bottom:1px solid var(--line);
   transition:background .12s;
-  min-width:0;
-  position:relative;
+  min-width:0;position:relative;
 }
 .tree-row:last-child{border-bottom:0}
 .tree-row:hover{background:rgba(255,255,255,.018)}
@@ -710,13 +667,8 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   font-size:8px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;
   border:1px solid var(--line-2);background:var(--panel-3);color:var(--muted);
 }
-.tree-icon.folder{
-  color:var(--accent);background:var(--accent-dim);
-  border-color:var(--accent-line);
-}
+.tree-icon.folder{color:var(--accent);background:var(--accent-dim);border-color:var(--accent-line)}
 .tree-icon.folder svg{width:13px;height:13px}
-
-/* file icon variants (same palette) */
 .tree-icon.dex{color:var(--accent);background:var(--accent-dim);border-color:var(--accent-line)}
 .tree-icon.xml{color:var(--info);background:var(--info-dim);border-color:var(--info-line)}
 .tree-icon.so{color:var(--purple);background:var(--purple-dim);border-color:var(--purple-line)}
@@ -736,29 +688,39 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   color:var(--muted);background:var(--panel-2);
   padding:2px 7px;border-radius:99px;
   flex-shrink:0;border:1px solid var(--line);
-  letter-spacing:.03em;
-  min-width:24px;text-align:center;
+  letter-spacing:.03em;min-width:24px;text-align:center;
 }
 .tree-row.folder:hover .tree-count{
   color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim);
 }
-
 .tree-size{
   font-family:'DM Mono',monospace;font-size:10.5px;
   color:var(--muted);flex-shrink:0;
-  min-width:64px;text-align:right;
-  letter-spacing:.01em;
+  min-width:64px;text-align:right;letter-spacing:.01em;
 }
-
 .tree-row .file-action{
   padding:4px 9px;border-radius:6px;
   background:var(--panel-2);border:1px solid var(--line-2);
   font-family:'DM Mono',monospace;font-size:9.5px;
   color:var(--muted);transition:all .2s;
   flex-shrink:0;letter-spacing:.04em;
+  display:inline-flex;align-items:center;gap:4px;
 }
+.tree-row .file-action svg{width:10px;height:10px}
 .tree-row .file-action:hover{
   color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim);
+}
+
+/* Folder extract button — subtle until hover */
+.tree-row.folder .file-action.folder-action{
+  opacity:.65;
+}
+.tree-row.folder:hover .file-action.folder-action{
+  opacity:1;
+}
+.tree-row.folder.extracting .file-action.folder-action{
+  color:var(--warn);border-color:var(--warn-line);background:var(--warn-dim);
+  opacity:1;
 }
 
 .search-hit{
@@ -766,14 +728,8 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   border-radius:3px;padding:0 2px;
 }
 
-/* Indent guide line */
-.tree-row::before{
-  content:'';position:absolute;top:0;bottom:0;left:0;
-  width:1px;background:transparent;pointer-events:none;
-}
-
 /* ============================================================
-   12. EMPTY / LOADER / TOAST
+   EMPTY / LOADER / TOAST
    ============================================================ */
 .empty{
   text-align:center;padding:44px 20px;color:var(--muted);font-size:13px;
@@ -816,9 +772,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .toast.error{border-left-color:var(--danger)}
 .toast.error svg{color:var(--danger)}
 
-/* ============================================================
-   13. RESPONSIVE
-   ============================================================ */
 @media (max-width:900px){
   .menu-btn{display:flex}
   .file-chip,.status-badge{display:none}
@@ -846,12 +799,11 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   .sev-card .sev-label{font-size:9px;letter-spacing:.1em}
   .sev-card .sev-value{font-size:20px}
   .btn .hide-mobile{display:none}
-
-  /* Tree — mobile tweaks */
   .tree-list{max-height:70vh}
   .tree-row{padding:8px 12px;min-height:40px;gap:7px}
   .tree-size{min-width:56px;font-size:10px}
   .tree-count{font-size:9px;padding:2px 6px;min-width:22px}
+  .tree-row.folder .file-action.folder-action{opacity:1}
 }
 
 @media (max-width:640px){
@@ -893,14 +845,15 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   .btn{padding:0 12px}
   .btn .hide-mobile{display:none}
 
-  /* Tree — small mobile */
   .tree-list{font-size:11.5px;max-height:none}
   .tree-row{padding:8px 10px;min-height:42px;gap:6px}
   .tree-icon{width:22px;height:22px;font-size:7.5px}
   .tree-icon.folder svg{width:12px;height:12px}
   .tree-size{min-width:0;font-size:9.5px}
   .tree-count{display:none}
-  .tree-row .file-action{padding:3px 8px;font-size:9px}
+  .tree-row .file-action{padding:3px 8px;font-size:9px;gap:3px}
+  .tree-row .file-action svg{width:9px;height:9px}
+  .tree-row.folder .file-action.folder-action{padding:3px 8px;font-size:9px}
 
   .toolbar{gap:8px}
   .tree-actions{width:100%}
@@ -915,11 +868,10 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
   .topbar-actions{gap:6px}
   .btn{padding:0 10px;font-size:12.5px;height:36px}
   .menu-btn{width:36px;height:36px}
-
-  /* Tree — extra small */
   .tree-size{display:none}
   .tree-row{padding:8px 10px}
   .tree-row .file-action{padding:3px 6px;font-size:8.5px}
+  .tree-row .file-action svg{width:8px;height:8px}
 }
 
 @media (min-width:1400px){
@@ -1060,7 +1012,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         </div>
       </div>
 
-      <!-- OVERVIEW -->
       <section class="view active" data-view="overview">
         <div class="view-header">
           <div class="view-title-wrap">
@@ -1158,7 +1109,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         </div>
       </section>
 
-      <!-- MANIFEST -->
       <section class="view" data-view="manifest">
         <div class="view-header">
           <div class="view-title-wrap">
@@ -1167,7 +1117,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
             <div class="view-subtitle">Decoded from the APK's binary XML format</div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-head">
             <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>Decoded Manifest</div>
@@ -1182,14 +1131,12 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
             </div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-head">
             <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg>Permissions<span class="count" id="permCount">0</span></div>
           </div>
           <div class="card-body"><div class="tag-list" id="permList"></div></div>
         </div>
-
         <div class="card">
           <div class="card-head">
             <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>Components<span class="count" id="compCount">0</span></div>
@@ -1198,7 +1145,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         </div>
       </section>
 
-      <!-- DEX -->
       <section class="view" data-view="dex">
         <div class="view-header">
           <div class="view-title-wrap">
@@ -1223,7 +1169,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         </div>
       </section>
 
-      <!-- SECURITY -->
       <section class="view" data-view="security">
         <div class="view-header">
           <div class="view-title-wrap">
@@ -1246,7 +1191,6 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         </div>
       </section>
 
-      <!-- TECHNOLOGIES -->
       <section class="view" data-view="technologies">
         <div class="view-header">
           <div class="view-title-wrap">
@@ -1275,13 +1219,12 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
         </div>
       </section>
 
-      <!-- FILES — with folder tree -->
       <section class="view" data-view="files">
         <div class="view-header">
           <div class="view-title-wrap">
             <div class="view-eyebrow">Analysis / Files</div>
             <div class="view-title">File Explorer</div>
-            <div class="view-subtitle">Browse the internal structure of the APK — click folders to expand</div>
+            <div class="view-subtitle">Click folders to expand. Extract any file, folder or subfolder as a ZIP.</div>
           </div>
         </div>
 
@@ -1291,6 +1234,10 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
             <input type="text" class="search-input" id="fileSearch" placeholder="Search file name or path…" autocomplete="off">
           </div>
           <div class="tree-actions">
+            <button class="tree-btn primary" id="extractAllBtn" title="Extract the whole APK contents as ZIP">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+              Extract all
+            </button>
             <button class="tree-btn" id="expandAllBtn" title="Expand all folders">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/><path d="M6 3l6 6 6-6"/></svg>
               Expand
@@ -1382,14 +1329,11 @@ const state = {
   strings:new Set(), signature:{}, categorySizes:{},
 };
 
-/* ---------- File tree state ---------- */
 let fileTree = null;
-const expandedFolders = new Set(['']); // root always expanded
+const expandedFolders = new Set();
 let currentSearch = '';
 
-/* ============================================================
-   UI helpers
-   ============================================================ */
+/* ---------- UI helpers ---------- */
 function showLoader(text, sub) {
   loaderText.textContent = text || 'Analyzing APK…';
   loaderSub.textContent = sub || '';
@@ -1406,12 +1350,12 @@ function setLoader(pct, sub) {
 function hideLoader() { loaderOverlay.classList.remove('show'); }
 
 let toastTimer;
-function toast(msg, isError) {
+function toast(msg, isError, ms) {
   toastMsg.textContent = msg;
   toastEl.classList.toggle('error', !!isError);
   toastEl.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3400);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms || 3400);
 }
 function setStatus(kind, text) {
   statusBadge.className = 'status-badge ' + kind;
@@ -1437,6 +1381,13 @@ function copyText(text) {
     try { document.execCommand('copy'); res(); } catch(e) { rej(e); }
     document.body.removeChild(ta);
   });
+}
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 8000);
 }
 
 /* ============================================================
@@ -1496,10 +1447,8 @@ function decodeAXML(buffer) {
     if (!chs) break;
     if (ct === 0x0102) {
       const nameIdx = u32(off + 20);
-      const nsIdx = u32(off + 16);
       const attrCount = u16(off + 28);
       const name = (nameIdx >= 0 && nameIdx < strings.length) ? strings[nameIdx] : '?';
-      const ns = (nsIdx >= 0 && nsIdx < strings.length) ? strings[nsIdx] : '';
       const attrs = [];
       let ap = off + 36;
       for (let i = 0; i < attrCount; i++) {
@@ -1526,7 +1475,7 @@ function decodeAXML(buffer) {
         attrs.push({ name: attrName, value: attrValue });
         ap += 20;
       }
-      const el = { name, attrs, children: [], ns };
+      const el = { name, attrs, children: [], ns: '' };
       stack[stack.length - 1].children.push(el);
       stack.push(el);
     } else if (ct === 0x0103) {
@@ -1552,7 +1501,7 @@ function renderManifestTree(node, depth) {
 }
 
 /* ============================================================
-   DEX parser
+   DEX
    ============================================================ */
 function parseDEX(buffer, name, size) {
   const view = new DataView(buffer);
@@ -1563,22 +1512,19 @@ function parseDEX(buffer, name, size) {
   if (magic !== 'dex\n') return null;
   return { name, size, classes:u32(0x60), methods:u32(0x58), fields:u32(0x50), strings:u32(0x38), types:u32(0x40), protos:u32(0x48) };
 }
-
 function extractDEXStrings(buffer, limit) {
   const view = new DataView(buffer);
   const bytes = new Uint8Array(buffer);
   const u32 = o => view.getUint32(o, true);
   const decoder = new TextDecoder('utf-8', { fatal: false });
   if (bytes.length < 0x70) return new Set();
-  const size = u32(0x38);
-  const off = u32(0x3C);
+  const size = u32(0x38), off = u32(0x3C);
   const max = Math.min(size, limit || 15000);
   const out = new Set();
   for (let i = 0; i < max; i++) {
     try {
       const strOff = u32(off + i * 4);
-      let p = strOff;
-      let len = 0, shift = 0;
+      let p = strOff, len = 0, shift = 0;
       while (true) {
         const b = bytes[p++];
         len |= (b & 0x7f) << shift;
@@ -1595,7 +1541,7 @@ function extractDEXStrings(buffer, limit) {
 }
 
 /* ============================================================
-   Manifest helpers
+   Manifest
    ============================================================ */
 function findNode(n, name) {
   if (n.name === name) return n;
@@ -1615,7 +1561,7 @@ function getAttr(n, name) {
 }
 
 /* ============================================================
-   Tech signatures
+   Tech
    ============================================================ */
 const TECH_SIGNATURES = [
   { name:'Kotlin', kind:'language', files:[/^kotlin\//,/META-INF\/kotlin_module$/,/kotlin-tooling-metadata/], strings:[/^kotlin\//,/^kotlinx\//,/^kotlin\./] },
@@ -1664,9 +1610,6 @@ function detectTechnologies() {
   return Array.from(found.values()).sort((a,b) => a.name.localeCompare(b.name));
 }
 
-/* ============================================================
-   Dangerous permissions
-   ============================================================ */
 const DANGEROUS_PERMISSIONS = new Set([
   'android.permission.READ_SMS','android.permission.SEND_SMS','android.permission.RECEIVE_SMS',
   'android.permission.READ_CALL_LOG','android.permission.WRITE_CALL_LOG','android.permission.CALL_PHONE',
@@ -1680,9 +1623,6 @@ const DANGEROUS_PERMISSIONS = new Set([
   'android.permission.PACKAGE_USAGE_STATS','android.permission.QUERY_ALL_PACKAGES','android.permission.POST_NOTIFICATIONS',
 ]);
 
-/* ============================================================
-   Security scan
-   ============================================================ */
 function runSecurityScan() {
   const findings = [];
   const pi = state.packageInfo;
@@ -1749,9 +1689,6 @@ function runSecurityScan() {
   state.findings = findings;
 }
 
-/* ============================================================
-   Manifest processing
-   ============================================================ */
 function parseManifest(buffer) {
   try { return { tree: decodeAXML(buffer), text: null }; }
   catch(e) {
@@ -1844,11 +1781,10 @@ function computeCategorySizes() {
 }
 
 /* ============================================================
-   BUILD FILE TREE
+   FILE TREE
    ============================================================ */
 function buildFileTree(entries) {
   const root = { name:'', path:'', type:'folder', children:new Map(), size:0, fileCount:0 };
-
   for (const entry of entries) {
     const parts = entry.name.split('/').filter(p => p.length > 0);
     if (!parts.length) continue;
@@ -1858,9 +1794,7 @@ function buildFileTree(entries) {
       const name = parts[i];
       const path = parts.slice(0, i + 1).join('/');
       if (isFile) {
-        node.children.set(name, {
-          name, path, type:'file', size:entry.size, entry,
-        });
+        node.children.set(name, { name, path, type:'file', size:entry.size, entry });
       } else {
         let child = node.children.get(name);
         if (!child) {
@@ -1871,8 +1805,6 @@ function buildFileTree(entries) {
       }
     }
   }
-
-  // Bottom-up: compute folder sizes & file counts
   function compute(node) {
     if (node.type === 'file') return { size: node.size, count: 1 };
     let size = 0, count = 0;
@@ -1900,7 +1832,6 @@ function getFileIcon(name) {
   return { cls:'', txt: (ext.slice(0,3).toUpperCase() || '?') };
 }
 
-/* Return true if node or any descendant matches query */
 function nodeMatches(node, q) {
   if (!q) return true;
   if (node.type === 'file') return node.name.toLowerCase().includes(q);
@@ -1910,7 +1841,6 @@ function nodeMatches(node, q) {
   return false;
 }
 
-/* Auto-expand every folder that has matching children */
 function autoExpandMatches(node, q) {
   if (node.type !== 'folder') return false;
   let has = false;
@@ -1925,18 +1855,36 @@ function autoExpandMatches(node, q) {
   return has;
 }
 
+function findNodeByPath(node, path) {
+  const parts = path.split('/').filter(p => p);
+  let cur = node;
+  for (const part of parts) {
+    if (!cur.children) return null;
+    const next = cur.children.get(part);
+    if (!next) return null;
+    cur = next;
+  }
+  return cur;
+}
+
+/* Collect every file under a node */
+function collectFiles(node, out) {
+  out = out || [];
+  if (node.type === 'file') out.push(node);
+  else for (const c of node.children.values()) collectFiles(c, out);
+  return out;
+}
+
 /* ============================================================
    RENDER FILE TREE
    ============================================================ */
 function renderFileTree() {
   const list = $('#fileTree');
   if (!fileTree) return;
-
   const q = currentSearch.trim().toLowerCase();
   const html = [];
 
   function renderNode(node, depth) {
-    // Skip nodes that don't match when searching
     if (q && !nodeMatches(node, q)) return;
 
     const isFolder = node.type === 'folder';
@@ -1948,7 +1896,6 @@ function renderFileTree() {
         ? '<path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 10h18"/>'
         : '<path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>';
 
-      // When searching, always show as expanded visually
       const expandedClass = (expandedFolders.has(node.path) || q) ? 'expanded' : '';
       const folderNameDisplay = q ? highlightMatch(node.name, q) : escapeHtml(node.name);
 
@@ -1963,6 +1910,10 @@ function renderFileTree() {
           <span class="tree-name">${folderNameDisplay}/</span>
           <span class="tree-count">${node.fileCount}</span>
           <span class="tree-size">${formatBytes(node.size)}</span>
+          <button class="file-action folder-action" data-folder="${escapeHtml(node.path)}" title="Extract folder (and subfolders) as ZIP">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            Extract
+          </button>
         </div>
       `);
 
@@ -1981,7 +1932,10 @@ function renderFileTree() {
           <span class="tree-icon ${ic.cls}">${escapeHtml(ic.txt)}</span>
           <span class="tree-name">${displayName}</span>
           <span class="tree-size">${formatBytes(node.size)}</span>
-          <button class="file-action" data-filename="${escapeHtml(node.path)}">Extract</button>
+          <button class="file-action" data-filename="${escapeHtml(node.path)}" title="Extract file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            Extract
+          </button>
         </div>
       `);
     }
@@ -2004,9 +1958,10 @@ function renderFileTree() {
 
   list.innerHTML = html.join('');
 
-  // Bind folder toggles
   list.querySelectorAll('.tree-row.folder').forEach(row => {
-    row.addEventListener('click', () => {
+    row.addEventListener('click', (e) => {
+      // ignore if user clicked the extract button
+      if (e.target.closest('.folder-action')) return;
       const path = row.dataset.path;
       if (expandedFolders.has(path)) expandedFolders.delete(path);
       else expandedFolders.add(path);
@@ -2020,11 +1975,19 @@ function renderFileTree() {
     });
   });
 
-  // Bind extract buttons
-  list.querySelectorAll('.file-action').forEach(btn => {
+  // FILE extract
+  list.querySelectorAll('.file-action[data-filename]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       extractFile(btn.dataset.filename);
+    });
+  });
+
+  // FOLDER extract
+  list.querySelectorAll('.folder-action').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      extractFolder(btn.dataset.folder, btn);
     });
   });
 }
@@ -2037,12 +2000,10 @@ function highlightMatch(text, q) {
     escapeHtml(text.slice(idx + q.length));
 }
 
-/* Update the count header */
 function updateFilesHeader() {
   const q = currentSearch.trim().toLowerCase();
   const total = state.entries.length;
   $('#filesCount').textContent = total;
-
   if (q) {
     let matched = 0;
     (function count(node) {
@@ -2061,7 +2022,7 @@ function updateFilesHeader() {
 }
 
 /* ============================================================
-   Render other views
+   RENDER OTHER VIEWS
    ============================================================ */
 function renderOverview() {
   const pi = state.packageInfo;
@@ -2334,13 +2295,112 @@ function renderTechnologies() {
 }
 
 /* ============================================================
-   Search & expand/collapse handlers
+   EXTRACT — FILE
+   ============================================================ */
+async function extractFile(name) {
+  if (!state.zip) return;
+  const entry = state.zip.file(name);
+  if (!entry) { toast('File not found', true); return; }
+  try {
+    const blob = await entry.async('blob');
+    const filename = name.split('/').pop() || 'file';
+    downloadBlob(blob, filename);
+    toast('Extracted ' + filename);
+  } catch(e) { toast('Extract failed: ' + e.message, true); }
+}
+
+/* ============================================================
+   EXTRACT — FOLDER (with subfolders, preserves structure)
+   ============================================================ */
+async function extractFolder(path, btnEl) {
+  if (!state.zip || !fileTree) return;
+
+  const node = path ? findNodeByPath(fileTree, path) : fileTree;
+  if (!node) { toast('Folder not found', true); return; }
+
+  const files = collectFiles(node);
+  if (!files.length) { toast('Folder is empty', true); return; }
+
+  const folderName = path ? path.split('/').pop() : 'apk-contents';
+  const prefix = path ? path + '/' : '';
+
+  // Visual feedback on the button
+  let originalHtml = '';
+  if (btnEl) {
+    originalHtml = btnEl.innerHTML;
+    btnEl.classList.add('extracting');
+    btnEl.innerHTML = 'Packing…';
+  }
+
+  toast(`Packing ${files.length} file${files.length === 1 ? '' : 's'} from ${folderName}…`, false, 2200);
+
+  try {
+    const outZip = new JSZip();
+
+    // Stream each file into the output ZIP, preserving relative paths
+    for (const f of files) {
+      const entry = state.zip.file(f.path);
+      if (!entry) continue;
+      const blob = await entry.async('blob');
+      // Path relative to the extracted folder
+      const relPath = prefix ? f.path.slice(prefix.length) : f.path;
+      outZip.file(relPath, blob);
+    }
+
+    const outBlob = await outZip.generateAsync({
+      type: 'blob',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 6 },
+    });
+
+    downloadBlob(outBlob, folderName + '.zip');
+    toast(`Extracted ${files.length} file${files.length === 1 ? '' : 's'} → ${folderName}.zip`, false, 4200);
+  } catch(e) {
+    toast('Folder extract failed: ' + e.message, true);
+  } finally {
+    if (btnEl) {
+      btnEl.classList.remove('extracting');
+      btnEl.innerHTML = originalHtml;
+    }
+  }
+}
+
+/* ============================================================
+   EXTRACT — ENTIRE APK CONTENTS
+   ============================================================ */
+async function extractAll() {
+  if (!state.zip || !state.entries.length) return;
+  const baseName = (state.file ? state.file.name.replace(/\.(apk|xapk|apks)$/i, '') : 'apk') + '-contents';
+
+  toast(`Packing all ${state.entries.length} files…`, false, 2400);
+
+  try {
+    const outZip = new JSZip();
+    for (const e of state.entries) {
+      const entry = state.zip.file(e.name);
+      if (!entry) continue;
+      const blob = await entry.async('blob');
+      outZip.file(e.name, blob);
+    }
+    const outBlob = await outZip.generateAsync({
+      type: 'blob',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 6 },
+    });
+    downloadBlob(outBlob, baseName + '.zip');
+    toast(`Extracted all ${state.entries.length} files → ${baseName}.zip`, false, 4200);
+  } catch(e) {
+    toast('Extract failed: ' + e.message, true);
+  }
+}
+
+/* ============================================================
+   SEARCH / EXPAND / COLLAPSE
    ============================================================ */
 $('#fileSearch').addEventListener('input', (e) => {
   currentSearch = e.target.value;
   const q = currentSearch.trim().toLowerCase();
   if (q && fileTree) {
-    // Auto-expand every folder that has matches
     for (const c of fileTree.children.values()) {
       if (c.type === 'folder') autoExpandMatches(c, q);
     }
@@ -2353,9 +2413,7 @@ $('#expandAllBtn').addEventListener('click', () => {
   if (!fileTree) return;
   (function walk(node) {
     if (node.type === 'folder' && node.path) expandedFolders.add(node.path);
-    if (node.type === 'folder') {
-      for (const c of node.children.values()) walk(c);
-    }
+    if (node.type === 'folder') for (const c of node.children.values()) walk(c);
   })(fileTree);
   renderFileTree();
   toast('All folders expanded');
@@ -2367,27 +2425,10 @@ $('#collapseAllBtn').addEventListener('click', () => {
   toast('All folders collapsed');
 });
 
-/* ============================================================
-   Extract
-   ============================================================ */
-async function extractFile(name) {
-  if (!state.zip) return;
-  const entry = state.zip.file(name);
-  if (!entry) { toast('File not found', true); return; }
-  try {
-    const blob = await entry.async('blob');
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = name.split('/').pop() || 'file';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-    toast('Extracted ' + a.download);
-  } catch(e) { toast('Extract failed: ' + e.message, true); }
-}
+$('#extractAllBtn').addEventListener('click', extractAll);
 
 /* ============================================================
-   Analyze
+   ANALYZE
    ============================================================ */
 async function analyzeFile(file) {
   state.file = file;
@@ -2476,7 +2517,6 @@ async function analyzeFile(file) {
 
   setLoader(84, 'Building file tree');
   fileTree = buildFileTree(entries);
-  // Pre-expand top-level folders for a helpful default view
   for (const c of fileTree.children.values()) {
     if (c.type === 'folder' && c.fileCount <= 30) expandedFolders.add(c.path);
   }
@@ -2522,7 +2562,7 @@ async function analyzeFile(file) {
 }
 
 /* ============================================================
-   View switching
+   View switching & drawer
    ============================================================ */
 function switchView(name) {
   $$('.nav-item[data-view]').forEach(el => el.classList.toggle('active', el.dataset.view === name));
@@ -2534,9 +2574,6 @@ $$('.nav-item[data-view]').forEach(btn => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
 });
 
-/* ============================================================
-   Drawer
-   ============================================================ */
 function openDrawer() {
   document.body.classList.add('drawer-open');
   menuBtn.setAttribute('aria-expanded', 'true');
@@ -2564,7 +2601,7 @@ window.addEventListener('resize', () => {
 });
 
 /* ============================================================
-   Export
+   Export report
    ============================================================ */
 function exportReport() {
   const report = {
@@ -2588,12 +2625,7 @@ function exportReport() {
     entries: state.entries.map(e => ({ name: e.name, size: e.size })),
   };
   const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = (state.file ? state.file.name.replace(/\.(apk|xapk|apks)$/i, '') : 'apk') + '-analysis.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  downloadBlob(blob, (state.file ? state.file.name.replace(/\.(apk|xapk|apks)$/i, '') : 'apk') + '-analysis.json');
   toast('Report exported as JSON');
 }
 exportBtn.addEventListener('click', exportReport);
@@ -2613,7 +2645,6 @@ function resetApp() {
   fileTree = null;
   currentSearch = '';
   expandedFolders.clear();
-  expandedFolders.add('');
   $('#fileSearch').value = '';
   analyzerBody.hidden = true;
   uploadScreen.hidden = false;
@@ -2654,7 +2685,7 @@ document.addEventListener('drop', (e) => {
 });
 
 /* ============================================================
-   Copy
+   Copy buttons
    ============================================================ */
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.copy-btn');

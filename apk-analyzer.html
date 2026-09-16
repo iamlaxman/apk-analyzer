@@ -11,18 +11,77 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   1. RESET + CRITICAL FIX
+   0. RESET + MOBILE TAP FIX
    ============================================================ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-/* THE critical fix — beats any display rule */
+*,*::before,*::after{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+
 [hidden]{display:none !important}
+
 html,body{height:100%;overflow:hidden}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+
+/* Remove default focus rings for touch/mouse but keep for keyboard */
+button,
+a,
+input,
+label,
+.nav-item,
+.drop-zone,
+.file-action,
+.copy-btn,
+.menu-btn,
+.btn,
+.tag,
+[role="button"],
+[tabindex]{
+  -webkit-tap-highlight-color:transparent;
+  outline:none;
+  touch-action:manipulation;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+label:focus-visible,
+.nav-item:focus-visible,
+.drop-zone:focus-visible,
+.file-action:focus-visible,
+.copy-btn:focus-visible,
+.menu-btn:focus-visible,
+.btn:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible{
+  outline:2px solid #b8ff45;
+  outline-offset:2px;
+  border-radius:inherit;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+label:focus:not(:focus-visible),
+.nav-item:focus:not(:focus-visible),
+.drop-zone:focus:not(:focus-visible),
+.file-action:focus:not(:focus-visible),
+.copy-btn:focus:not(:focus-visible),
+.menu-btn:focus:not(:focus-visible){
+  outline:none;
+  box-shadow:none;
+}
+
 body{
-  background:#080b0a;color:#f2f6f3;
+  background:#080b0a;
+  color:#f2f6f3;
   font-family:'Inter',system-ui,-apple-system,sans-serif;
-  font-size:14px;line-height:1.5;
+  font-size:14px;
+  line-height:1.5;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 button{font:inherit;border:none;background:none;color:inherit;cursor:pointer;font-family:inherit}
 a{color:inherit;text-decoration:none}
@@ -37,7 +96,7 @@ img{max-width:100%;display:block}
 ::-webkit-scrollbar-thumb:hover{background:#333d36}
 
 /* ============================================================
-   2. TOKENS
+   1. TOKENS
    ============================================================ */
 :root{
   --bg:#080b0a; --bg-2:#0d1210; --panel:#111714; --panel-2:#151b18; --panel-3:#1a211d;
@@ -63,7 +122,7 @@ img{max-width:100%;display:block}
 }
 
 /* ============================================================
-   3. APP SHELL
+   2. APP SHELL
    ============================================================ */
 .app{
   height:100vh;height:100dvh;
@@ -72,7 +131,7 @@ img{max-width:100%;display:block}
 }
 
 /* ============================================================
-   4. TOPBAR
+   3. TOPBAR
    ============================================================ */
 .topbar{
   height:var(--topbar-h);
@@ -224,7 +283,7 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 .btn-ghost:hover{background:var(--panel-2);color:var(--ink);border-color:var(--line-3)}
 
 /* ============================================================
-   5. UPLOAD SCREEN
+   4. UPLOAD SCREEN
    ============================================================ */
 .upload-screen{
   flex:1;min-height:0;
@@ -328,6 +387,13 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 .drop-zone input[type=file]{
   position:absolute;inset:0;opacity:0;cursor:pointer;
   width:100%;height:100%;z-index:2;
+  -webkit-tap-highlight-color:transparent;
+  outline:none;
+}
+.drop-zone input[type=file]:focus-visible + .drop-icon{
+  outline:2px solid var(--accent);
+  outline-offset:4px;
+  border-radius:50%;
 }
 .drop-icon{
   width:60px;height:60px;margin:0 auto 18px;
@@ -365,7 +431,7 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 .upload-features .check{color:var(--accent);font-weight:700}
 
 /* ============================================================
-   6. ANALYZER BODY (flex row: sidebar + content)
+   5. ANALYZER BODY
    ============================================================ */
 .body{
   flex:1;min-height:0;
@@ -375,7 +441,7 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 }
 
 /* ============================================================
-   7. SIDEBAR
+   6. SIDEBAR
    ============================================================ */
 .sidebar{
   width:var(--side-w);
@@ -452,7 +518,7 @@ body.drawer-open .menu-btn .bar:nth-child(3){top:6px;transform:rotate(-45deg)}
 body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 
 /* ============================================================
-   8. CONTENT
+   7. CONTENT
    ============================================================ */
 .content{
   flex:1;min-width:0;min-height:0;
@@ -526,7 +592,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 
 /* ============================================================
-   9. CARDS
+   8. CARDS
    ============================================================ */
 .card{
   background:linear-gradient(180deg,var(--panel),var(--bg-2));
@@ -561,7 +627,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .card-body.no-pad{padding:0}
 
 /* ============================================================
-   10. STAT GRID
+   9. STAT GRID
    ============================================================ */
 .stat-grid{
   display:grid;
@@ -614,7 +680,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .stat-card.success .value{color:var(--accent)}
 
 /* ============================================================
-   11. INFO GRID
+   10. INFO GRID
    ============================================================ */
 .info-grid{
   display:grid;
@@ -653,7 +719,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .info-row .copy-btn svg{width:14px;height:14px}
 
 /* ============================================================
-   12. TAGS
+   11. TAGS
    ============================================================ */
 .tag-list{display:flex;flex-wrap:wrap;gap:8px}
 .tag{
@@ -687,7 +753,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .tag.more::before{display:none}
 
 /* ============================================================
-   13. SIZE CHART
+   12. SIZE CHART
    ============================================================ */
 .chart{display:flex;flex-direction:column;gap:14px}
 .chart-row{margin-bottom:2px}
@@ -725,7 +791,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .chart-bar i.other{background:linear-gradient(90deg,#3a433d,#5e6863)}
 
 /* ============================================================
-   14. MANIFEST
+   13. MANIFEST
    ============================================================ */
 .code-wrap{position:relative}
 .copy-code-btn{
@@ -755,7 +821,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .manifest-code .punc{color:var(--muted)}
 
 /* ============================================================
-   15. DEX
+   14. DEX
    ============================================================ */
 .dex-grid{
   display:grid;
@@ -816,7 +882,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 
 /* ============================================================
-   16. SECURITY
+   15. SECURITY
    ============================================================ */
 .severity-grid{
   display:grid;
@@ -901,7 +967,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 }
 
 /* ============================================================
-   17. FILES
+   16. FILES
    ============================================================ */
 .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .search-box{position:relative;flex:1;min-width:200px}
@@ -962,7 +1028,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .file-action:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
 
 /* ============================================================
-   18. EMPTY
+   17. EMPTY
    ============================================================ */
 .empty{
   text-align:center;padding:44px 20px;
@@ -974,7 +1040,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .empty .empty-title{font-size:14px;font-weight:600;color:var(--ink-3)}
 
 /* ============================================================
-   19. LOADER
+   18. LOADER
    ============================================================ */
 .loader-overlay{
   position:fixed;inset:0;
@@ -999,7 +1065,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .loader-pct{margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em}
 
 /* ============================================================
-   20. TOAST
+   19. TOAST
    ============================================================ */
 .toast{
   position:fixed;
@@ -1026,7 +1092,7 @@ body.drawer-open .sidebar-backdrop{opacity:1;pointer-events:auto}
 .toast.error svg{color:var(--danger)}
 
 /* ============================================================
-   21. RESPONSIVE
+   20. RESPONSIVE
    ============================================================ */
 
 /* Tablet & mobile — drawer */
@@ -2663,7 +2729,6 @@ async function analyzeFile(file) {
 
   setLoader(100, 'Rendering results');
 
-  /* -------- Switch UI -------- */
   uploadScreen.hidden = true;
   analyzerBody.hidden = false;
 
